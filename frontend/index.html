@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sranan Prijsscanner| Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body data-page="dashboard">
+  <div id="siteHeader"></div>
+
+  <main>
+    <section class="brand-hero">
+      <img src="assets/Suribasket.png" alt="SuriBasket banner">
+    </section>
+
+    <section class="hero">
+      <div class="hero-content">
+        <p class="eyebrow">Slim inkopen voor je warung</p>
+        <h1>Een eigen prijswijzer voor voorraad, vergelijking en begroting.</h1>
+        <p class="hero-text">
+          Bekijk jouw lokale prijsdata, vergelijk bedragen en bouw snel een boodschappenlijst met totaalbedrag in SRD.
+        </p>
+        <div class="hero-actions">
+          <a class="button primary" href="scanner.html">Prijs checken</a>
+          <a class="button secondary" href="producten.html">Producten bekijken</a>
+        </div>
+      </div>
+
+      <aside class="status-panel">
+        <span class="status-dot"></span>
+        <strong>Backend verbinding</strong>
+        <p id="healthText">Wachten op verbinding met localhost:3000</p>
+      </aside>
+    </section>
+
+    <section class="summary-grid" aria-label="Project samenvatting">
+      <article>
+        <span id="productCount">0</span>
+        <p>producten</p>
+      </article>
+      <article>
+        <span id="priceCount">0</span>
+        <p>prijsmetingen</p>
+      </article>
+      <article>
+        <span id="storeCount">0</span>
+        <p>winkels</p>
+      </article>
+      <article>
+        <span id="variantCount">0</span>
+        <p>varianten</p>
+      </article>
+      <article>
+        <span id="officialCount">0</span>
+        <p>publieke data</p>
+      </article>
+      <article>
+        <span id="importerCount">0</span>
+        <p>importeurs</p>
+      </article>
+    </section>
+
+    <section class="content-grid">
+      <article class="panel">
+        <div class="section-heading">
+          <p class="eyebrow">Dienstverlening</p>
+          <h2>Werkruimte</h2>
+        </div>
+        <div class="feature-list">
+          <a href="producten.html">
+            <strong>Productenlijst</strong>
+            <span>Zoek op product, merk, winkel of locatie.</span>
+          </a>
+          <a href="scanner.html">
+            <strong>Prijscheck</strong>
+            <span>Vergelijk een ingevoerde prijs met het gemiddelde.</span>
+          </a>
+          <a href="begroting.html">
+            <strong>Begroting</strong>
+            <span>Maak een warung-boodschappenlijst met totaalbedrag.</span>
+          </a>
+          <a href="over.html">
+            <strong>Projectinformatie</strong>
+            <span>Bekijk hoe frontend en backend gekoppeld zijn.</span>
+          </a>
+        </div>
+      </article>
+
+      <article class="panel accent-panel">
+        <p class="eyebrow">Ontwikkeling</p>
+        <h2>Lokale server starten</h2>
+        <p>Gebruik deze opdracht tijdens ontwikkeling om de API en website lokaal te openen.</p>
+        <pre><code>cd C:\Users\user\sranan-prijsscanner\backend
+npm start</code></pre>
+      </article>
+    </section>
+  </main>
+
+  <div id="siteFooter"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+
+</html>

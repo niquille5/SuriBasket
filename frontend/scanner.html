@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suribasket | Prijscheck</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body data-page="scanner">
+  <div id="siteHeader"></div>
+
+  <main>
+    <section class="page-title">
+      <div>
+        <p class="eyebrow">Snelle controle</p>
+        <h1>Check of een prijs logisch voelt.</h1>
+        <p>Vul een productnaam en prijs per eenheid in. De app vergelijkt dit met de gemiddelde prijs in de database.
+        </p>
+      </div>
+    </section>
+
+    <section class="scanner-layout">
+      <div class="scanner-section">
+        <div class="section-heading">
+          <p class="eyebrow">Prijscheck</p>
+          <h2>Prijs controleren</h2>
+        </div>
+
+        <form class="scanner-form" id="priceForm">
+          <label for="productInput">Productnaam</label>
+          <input type="text" id="productInput" list="productSuggestions" placeholder="Bijv. Rijst" autocomplete="off">
+          <datalist id="productSuggestions"></datalist>
+
+          <label for="priceInput">Prijs per eenheid</label>
+          <div class="input-row">
+            <span>SRD</span>
+            <input type="number" id="priceInput" placeholder="Bijv. 40.00" step="0.01" min="0">
+          </div>
+
+          <button type="submit">Vergelijk prijs</button>
+        </form>
+
+        <div id="result" class="result" aria-live="polite"></div>
+      </div>
+
+      <aside class="panel helper-panel">
+        <p class="eyebrow">Richtlijn</p>
+        <h2>Gebruik dezelfde eenheid</h2>
+        <p>Vergelijk bijvoorbeeld prijs per kg met prijs per kg, of prijs per liter met prijs per liter. Zo blijft de
+          uitslag eerlijk.</p>
+        <a href="producten.html">Bekijk productenlijst</a>
+      </aside>
+    </section>
+  </main>
+
+  <div id="siteFooter"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+
+</html>

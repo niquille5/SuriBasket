@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suribasket | Over</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="about">
+  <div id="siteHeader"></div>
+
+  <main>
+    <section class="page-title">
+      <div>
+        <p class="eyebrow">Projectoverzicht</p>
+        <h1>Een eigen webapp voor prijsdata en begrotingen.</h1>
+        <p>Dit project gebruikt een HTML/CSS/JavaScript frontend en een Express/MySQL backend.</p>
+      </div>
+    </section>
+
+    <section class="content-grid">
+      <article class="panel">
+        <p class="eyebrow">Frontend</p>
+        <h2>Pagina's</h2>
+        <ul class="clean-list">
+          <li><strong>Dashboard:</strong> overzicht en snelle acties.</li>
+          <li><strong>Producten:</strong> tabel met geregistreerde prijzen.</li>
+          <li><strong>Prijscheck:</strong> vergelijking met gemiddelde prijs.</li>
+          <li><strong>Begroting:</strong> warung-lijst met automatische totalen.</li>
+          <li><strong>Over:</strong> uitleg van de projectstructuur.</li>
+        </ul>
+      </article>
+
+      <article class="panel">
+        <p class="eyebrow">Backend</p>
+        <h2>API endpoints</h2>
+        <ul class="clean-list">
+          <li><code>/api/health</code> controleert de databaseverbinding.</li>
+          <li><code>/api/summary</code> geeft dashboard-aantallen terug.</li>
+          <li><code>/api/products</code> geeft producten en varianten terug.</li>
+          <li><code>/api/prices</code> geeft prijsregistraties terug.</li>
+          <li><code>/api/official-products</code> geeft de geimporteerde publieke productenlijst terug.</li>
+          <li><code>/api/check-price/:product/:price</code> vergelijkt een prijs.</li>
+        </ul>
+      </article>
+    </section>
+  </main>
+
+  <div id="siteFooter"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
