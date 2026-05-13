@@ -57,7 +57,7 @@ Suri Basket
 
 ## Backend starten
 
-Maak eerst een `.env` bestand in de backend map. Je kunt `backend/.env.example` kopieren en je eigen databasegegevens invullen.
+Zaza en Keshi Maak eerst een `.env` bestand in de backend map. Je kunt `backend/.env.example` kopieren en je eigen databasegegevens invullen.
 
 Voor login en rollen gebruikt de backend ook `ADMIN_USERNAME`, `ADMIN_PASSWORD` en `JWT_SECRET` uit `.env`.
 
