@@ -1,0 +1,14 @@
+body[data-page="admin"] .feature-list {
+  display: grid;
+  gap: 10px;
+}
+
+body[data-page="admin"] #logoutButton {
+  align-self: flex-end;
+}
+
+@media (max-width: 900px) {
+  body[data-page="admin"] #logoutButton {
+    align-self: stretch;
+  }
+}

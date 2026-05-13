@@ -10,7 +10,9 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-const frontendDir = path.join(__dirname, "../frontend");
+const frontendDir = path.resolve(__dirname, "../frontend");
+
+assertProductionConfig();
 
 const pages = {
   "/": "login.html",
@@ -25,7 +27,7 @@ const pages = {
 
 Object.entries(pages).forEach(([route, file]) => {
   app.get(route, (req, res) => {
-    res.sendFile(path.join(frontendDir, file));
+    res.sendFile(file, { root: frontendDir });
   });
 });
 
@@ -46,10 +48,14 @@ const apiEndpoints = [
 
 app.get("/api", (req, res) => {
   res.json({
-    name: "Suribasket API",
+    name: "Suri Basket API",
     status: "running",
     endpoints: apiEndpoints
   });
+});
+
+app.get("/favicon.ico", (req, res) => {
+  res.status(204).end();
 });
 
 app.get("/api/health", async (req, res) => {
@@ -63,8 +69,7 @@ app.get("/api/health", async (req, res) => {
 
 app.post("/api/login", (req, res) => {
   const { username, password } = req.body;
-  const adminUsername = process.env.ADMIN_USERNAME || "admin";
-  const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
+  const { adminUsername, adminPassword } = getAdminCredentials();
 
   if (username !== adminUsername || password !== adminPassword) {
     res.status(401).json({ message: "Ongeldige gebruikersnaam of wachtwoord" });
@@ -208,6 +213,17 @@ app.get("/api/prices", async (req, res) => {
 
 app.get("/api/official-products", async (req, res) => {
   try {
+    const [{ official_table_exists: officialTableExists, importers_table_exists: importersTableExists }] = await query(`
+      SELECT
+        (SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'official_product_prices') AS official_table_exists,
+        (SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'importers') AS importers_table_exists
+    `);
+
+    if (!officialTableExists || !importersTableExists) {
+      res.json([]);
+      return;
+    }
+
     const results = await query(`
       SELECT
         opp.official_price_id,
@@ -229,10 +245,7 @@ app.get("/api/official-products", async (req, res) => {
 
     res.json(results);
   } catch (err) {
-    res.status(500).json({
-      error: "Official product data is not imported yet",
-      hint: "Run npm run import:ez"
-    });
+    sendDatabaseError(res);
   }
 });
 
@@ -250,7 +263,13 @@ app.get("/api/cheapest/:product", async (req, res) => {
           s.store_name,
           s.location,
           pr.price,
-          ROUND(pr.price, 2) AS price_per_unit
+          ROUND(
+            CASE
+              WHEN pv.weight IS NOT NULL AND pv.weight > 0 THEN pr.price / pv.weight
+              ELSE pr.price
+            END,
+            2
+          ) AS price_per_unit
         FROM prices pr
         JOIN product_variants pv ON pr.variant_id = pv.variant_id
         JOIN products p ON pv.product_id = p.product_id
@@ -285,7 +304,15 @@ app.get("/api/check-price/:product/:price", async (req, res) => {
   try {
     const [result] = await query(
       `
-        SELECT ROUND(AVG(pr.price), 2) AS avg_price_per_unit
+        SELECT ROUND(
+          AVG(
+            CASE
+              WHEN pv.weight IS NOT NULL AND pv.weight > 0 THEN pr.price / pv.weight
+              ELSE pr.price
+            END
+          ),
+          2
+        ) AS avg_price_per_unit
         FROM prices pr
         JOIN product_variants pv ON pr.variant_id = pv.variant_id
         JOIN products p ON pv.product_id = p.product_id
@@ -354,6 +381,37 @@ function requireRole(role) {
 
 function getJwtSecret() {
   return process.env.JWT_SECRET || "change-this-local-secret";
+}
+
+function getAdminCredentials() {
+  if (process.env.ADMIN_USERNAME && process.env.ADMIN_PASSWORD) {
+    return {
+      adminUsername: process.env.ADMIN_USERNAME,
+      adminPassword: process.env.ADMIN_PASSWORD
+    };
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("ADMIN_USERNAME and ADMIN_PASSWORD are required in production");
+  }
+
+  return {
+    adminUsername: "admin",
+    adminPassword: "admin123"
+  };
+}
+
+function assertProductionConfig() {
+  if (process.env.NODE_ENV !== "production") {
+    return;
+  }
+
+  const required = ["ADMIN_USERNAME", "ADMIN_PASSWORD", "JWT_SECRET"];
+  const missing = required.filter((name) => !process.env[name]);
+
+  if (missing.length) {
+    throw new Error(`Missing required production environment variables: ${missing.join(", ")}`);
+  }
 }
 
 app.listen(PORT, () => {

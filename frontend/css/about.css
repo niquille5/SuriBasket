@@ -1,0 +1,8 @@
+body[data-page="about"] .clean-list code {
+  color: var(--teal-dark);
+  font-weight: 800;
+}
+
+body[data-page="about"] .workflow-list {
+  margin-top: 18px;
+}

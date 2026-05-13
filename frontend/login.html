@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Suribasket | Login</title>
+  <title>Suri Basket | Login</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body data-page="login">
@@ -46,7 +46,35 @@
         <p class="eyebrow">Rollen</p>
         <h2>Admin toegang</h2>
         <p>Na het inloggen controleert de backend of de gebruiker de juiste rol heeft voor beveiligde routes.</p>
+        <div class="mini-metrics" aria-label="Login controles">
+          <span><strong>JWT</strong>Sessie token</span>
+          <span><strong>2u</strong>Geldigheid</span>
+          <span><strong>Admin</strong>Rolcontrole</span>
+        </div>
       </aside>
+    </section>
+
+    <section class="content-grid lower-grid">
+      <article class="panel">
+        <p class="eyebrow">Na login</p>
+        <h2>Beheer in een oogopslag</h2>
+        <div class="feature-list">
+          <a href="admin.html">
+            <strong>Database tellingen</strong>
+            <span>Controleer hoeveel producten, varianten, winkels en prijsmetingen actief zijn.</span>
+          </a>
+          <a href="producten.html">
+            <strong>Productdata bekijken</strong>
+            <span>Ga direct naar de prijslijst om lokale en publieke data te vergelijken.</span>
+          </a>
+        </div>
+      </article>
+
+      <article class="panel accent-panel">
+        <p class="eyebrow">Veiligheid</p>
+        <h2>Gebruik eigen gegevens</h2>
+        <p>Zet `ADMIN_USERNAME`, `ADMIN_PASSWORD` en `JWT_SECRET` in je backend `.env` voordat je Suri Basket buiten lokaal gebruik opent.</p>
+      </article>
     </section>
   </main>
 

@@ -1,0 +1,17 @@
+body[data-page="dashboard"] .brand-hero {
+  margin-bottom: 24px;
+}
+
+body[data-page="dashboard"] .hero {
+  grid-template-columns: minmax(0, 1fr) 330px;
+}
+
+body[data-page="dashboard"] .summary-grid {
+  margin: 24px 0;
+}
+
+@media (max-width: 900px) {
+  body[data-page="dashboard"] .hero {
+    grid-template-columns: 1fr;
+  }
+}

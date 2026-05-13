@@ -143,13 +143,6 @@ async function getOrCreateStore(importerName) {
 async function main() {
   await ensureSchema();
 
-  await query(`
-    DELETE pr
-    FROM prices pr
-    JOIN stores s ON pr.store_id = s.store_id
-    WHERE s.location = ?
-  `, [PUBLIC_LOCATION]);
-
   const rows = await query(
     `
       SELECT
@@ -169,37 +162,59 @@ async function main() {
     [FOOD_CATEGORIES]
   );
 
+  if (!rows.length) {
+    console.log("No public product rows found. Existing local public prices were left unchanged.");
+    db.end();
+    return;
+  }
+
   let insertedPrices = 0;
 
-  for (const row of rows) {
-    const productId = await getOrCreateProduct(row);
-    const variantId = await getOrCreateVariant(productId, row);
-    const storeId = await getOrCreateStore(row.importer_name);
+  await query("START TRANSACTION");
 
-    await query(
-      `
-        INSERT INTO prices (
-          variant_id,
-          store_id,
-          price,
-          date_checked,
-          source_type,
-          source_row_number,
-          source_url
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-      `,
-      [
-        variantId,
-        storeId,
-        row.retail_price,
-        PRICE_DATE,
-        "public_product_list",
-        row.source_row_number,
-        row.source_url
-      ]
-    );
-    insertedPrices += 1;
+  try {
+    await query(`
+      DELETE pr
+      FROM prices pr
+      JOIN stores s ON pr.store_id = s.store_id
+      WHERE s.location = ?
+    `, [PUBLIC_LOCATION]);
+
+    for (const row of rows) {
+      const productId = await getOrCreateProduct(row);
+      const variantId = await getOrCreateVariant(productId, row);
+      const storeId = await getOrCreateStore(row.importer_name);
+
+      await query(
+        `
+          INSERT INTO prices (
+            variant_id,
+            store_id,
+            price,
+            date_checked,
+            source_type,
+            source_row_number,
+            source_url
+          )
+          VALUES (?, ?, ?, ?, ?, ?, ?)
+        `,
+        [
+          variantId,
+          storeId,
+          row.retail_price,
+          PRICE_DATE,
+          "public_product_list",
+          row.source_row_number,
+          row.source_url
+        ]
+      );
+      insertedPrices += 1;
+    }
+
+    await query("COMMIT");
+  } catch (err) {
+    await query("ROLLBACK");
+    throw err;
   }
 
   console.log(`Repaired public list prices in local database.`);

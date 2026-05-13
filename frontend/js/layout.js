@@ -42,7 +42,7 @@ function buildHeader(activePage) {
         <a class="brand" href="login.html">
           <span class="brand-mark">SB</span>
           <span>
-            <strong>Suribasket</strong>
+            <strong>Suri Basket</strong>
             <small>Warung prijzen, checks en begrotingen</small>
           </span>
         </a>
@@ -73,7 +73,7 @@ function buildFooter(page) {
 
   return `
     <footer>
-      <strong>Suribasket</strong>
+      <strong>Suri Basket</strong>
       <p>${footerText[page] || footerText.dashboard}</p>
     </footer>
   `;

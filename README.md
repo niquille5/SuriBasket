@@ -1,11 +1,11 @@
-# Suribasket
+# Suri Basket
 
-Suribasket is een lokale webapp voor productprijzen, prijschecks en warung-begrotingen. De frontend gebruikt HTML, CSS en JavaScript. De backend gebruikt Express en MySQL.
+Suri Basket is een lokale webapp voor productprijzen, prijschecks en warung-begrotingen. De frontend gebruikt HTML, CSS en JavaScript. De backend gebruikt Express en MySQL.
 
 ## Projectstructuur
 
 ```text
-sranan-prijsscanner
+Suri Basket
 |-- backend
 |   |-- db.js
 |   |-- db-query.js
@@ -22,11 +22,38 @@ sranan-prijsscanner
     |-- admin.html
     |-- package.json
     |-- css
-    |   `-- style.css
+    |   |-- style.css
+    |   |-- main.css
+    |   |-- dashboard.css
+    |   |-- products.css
+    |   |-- scanner.css
+    |   |-- budget.css
+    |   |-- login.css
+    |   |-- admin.css
+    |   `-- about.css
     |-- js
     |   |-- app.js
-    |   `-- layout.js
+    |   |-- layout.js
+    |   |-- api.js
+    |   |-- auth.js
+    |   |-- dom.js
+    |   |-- format.js
+    |   |-- health.js
+    |   |-- dashboard.js
+    |   |-- products.js
+    |   |-- scanner.js
+    |   |-- budget.js
+    |   |-- budget-data.js
+    |   |-- budget-shared.js
+    |   |-- login.js
+    |   `-- admin.js
 ```
+
+## Frontend indeling
+
+`frontend/js/app.js` start alleen de layout, health check en de juiste pagina-module. Gedeelde functies staan in kleine bestanden zoals `api.js`, `dom.js`, `format.js` en `auth.js`. Pagina-eigen gedrag staat in bestanden met dezelfde naam als de pagina, bijvoorbeeld `scanner.js` voor `scanner.html`.
+
+`frontend/css/style.css` is de centrale importlijst. Algemene layout en componenten staan in `main.css`; pagina-eigen styling staat in bestanden zoals `scanner.css`, `products.css` en `budget.css`.
 
 ## Backend starten
 
@@ -35,7 +62,7 @@ Maak eerst een `.env` bestand in de backend map. Je kunt `backend/.env.example` 
 Voor login en rollen gebruikt de backend ook `ADMIN_USERNAME`, `ADMIN_PASSWORD` en `JWT_SECRET` uit `.env`.
 
 ```powershell
-cd C:\Users\user\sranan-prijsscanner\backend
+cd C:\Users\user\Suri Basket\backend
 npm start
 ```
 
@@ -75,7 +102,7 @@ De hoofdwebsite start op `http://localhost:3000` met de loginpagina. Het dashboa
 Publieke productenlijst importeren:
 
 ```powershell
-cd C:\Users\user\sranan-prijsscanner\backend
+cd C:\Users\user\Suri Basket\backend
 npm run import:ez
 ```
 

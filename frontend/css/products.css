@@ -1,0 +1,35 @@
+body[data-page="products"] main {
+  max-width: 1540px;
+}
+
+.products-workspace {
+  align-items: start;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1fr) 360px;
+}
+
+.products-toolbar {
+  align-items: end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: flex-end;
+}
+
+.products-section table {
+  table-layout: fixed;
+}
+
+@media (max-width: 1040px) {
+  body[data-page="products"] main {
+    max-width: 1180px;
+  }
+}
+
+@media (max-width: 900px) {
+  .products-workspace,
+  .product-stats {
+    grid-template-columns: 1fr;
+  }
+}
