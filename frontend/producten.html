@@ -1,101 +1,202 @@
-<!DOCTYPE html>
+<!doctype html>
+
 <html lang="nl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Suri Basket | Producten</title>
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body data-page="products">
-  <div id="siteHeader"></div>
+  <head>
+    <meta charset="UTF-8" />
 
-  <main>
-    <section class="page-title">
-      <div>
-        <p class="eyebrow">Voorraad en prijzen</p>
-        <h1>Producten, verpakkingen en richtprijzen.</h1>
-        <p>Zoek door je eigen database of bekijk de publieke lijst als referentie. Voeg producten direct toe aan je begroting.</p>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Suri Basket | Producten</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+
+  <body data-page="products">
+    <header class="site-header">
+      <div class="topbar">
+        <span>Warung-ready prijsinformatie</span>
+        <span id="apiStatus">API status wordt gecontroleerd...</span>
       </div>
-      <a class="button primary" href="begroting.html">Maak begroting</a>
-    </section>
+      <nav class="navbar" aria-label="Hoofdnavigatie">
+        <a class="brand" href="login.html">
+          <span class="brand-mark">SB</span>
+          <span>
+            <strong>Suri Basket</strong>
+            <small>Warung prijzen, checks en begrotingen</small>
+          </span>
+        </a>
+        <div class="nav-links">
+          <a href="index.html" data-nav-page="dashboard">Dashboard</a>
+          <a href="producten.html" data-nav-page="products">Producten</a>
+          <a href="scanner.html" data-nav-page="scanner">Prijscheck</a>
+          <a href="begroting.html" data-nav-page="budget">Begroting</a>
+          <a href="over.html" data-nav-page="about">Over</a>
+          <a href="login.html" data-auth-link="login" data-nav-page="login"
+            >Login</a
+          >
+          <a
+            href="admin.html"
+            class="is-hidden"
+            data-auth-link="admin"
+            data-nav-page="admin"
+            >Admin</a
+          >
+          <button
+            type="button"
+            class="nav-logout is-hidden"
+            id="navLogoutButton"
+            data-auth-link="logout"
+          >
+            Uitloggen
+          </button>
+        </div>
+      </nav>
+    </header>
 
-    <section class="products-workspace">
-      <div class="products-section">
-        <div class="section-heading split">
-          <div>
-            <p class="eyebrow">Prijslab</p>
-            <h2 id="productsTableTitle">Prijsregistraties</h2>
-          </div>
-          <div class="products-toolbar">
-            <div class="mode-switch" aria-label="Databron">
-              <button type="button" class="active" id="localPricesButton">Eigen database</button>
-              <button type="button" id="officialPricesButton">Publieke productenlijst</button>
+    <main>
+      <section class="page-title">
+        <div>
+          <p class="eyebrow">Voorraad en prijzen</p>
+
+          <h1>Producten, verpakkingen en richtprijzen.</h1>
+
+          <p>
+            Zoek door je eigen database of bekijk de publieke lijst als
+            referentie. Voeg producten direct toe aan je begroting.
+          </p>
+        </div>
+
+        <a class="button primary" href="begroting.html">Maak begroting</a>
+      </section>
+
+      <section class="products-workspace">
+        <div class="products-section is-local">
+          <div class="section-heading split">
+            <div>
+              <p class="eyebrow">Prijslab</p>
+
+              <h2 id="productsTableTitle">Prijsregistraties</h2>
             </div>
-            <div class="filters">
-              <label for="searchInput">Zoekterm</label>
-              <input type="search" id="searchInput" placeholder="Product, importeur, merk of winkel">
+
+            <div class="products-toolbar">
+              <div class="mode-switch" aria-label="Databron">
+                <button type="button" class="active" id="localPricesButton">
+                  Eigen database
+                </button>
+
+                <button type="button" id="officialPricesButton">
+                  Publieke productenlijst
+                </button>
+              </div>
+
+              <div class="filters">
+                <label for="searchInput">Zoekterm</label>
+
+                <input
+                  type="search"
+                  id="searchInput"
+                  placeholder="Product, importeur, merk of winkel"
+                />
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="product-stats" aria-label="Producten overzicht">
-          <span><strong id="localPriceTotal">0</strong> eigen database regels</span>
-          <span><strong id="officialPriceTotal">0</strong> publieke lijst regels</span>
-          <span><strong id="visiblePriceTotal">0</strong> zichtbaar</span>
-          <span><strong id="noteItemTotal">0</strong> in begroting</span>
-        </div>
+          <div class="product-stats" aria-label="Producten overzicht">
+            <span
+              ><strong id="localPriceTotal">0</strong> eigen database
+              regels</span
+            >
 
-        <div class="table-wrap">
-          <table>
-            <thead id="pricesTableHead">
-              <tr>
-                <th>#</th>
-                <th>Product</th>
-                <th>Categorie</th>
-                <th>Merk</th>
-                <th>Verpakking</th>
-                <th>Winkel</th>
-                <th>Prijs</th>
-                <th>Actie</th>
-              </tr>
-            </thead>
-            <tbody id="pricesTable">
-              <tr>
-                <td colspan="8">Producten worden geladen...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+            <span
+              ><strong id="officialPriceTotal">0</strong> publieke lijst
+              regels</span
+            >
 
-      <aside class="panel note-panel" id="budgetNotePanel">
-        <div class="section-heading note-heading">
-          <div>
-            <p class="eyebrow">Snellijst</p>
-            <h2>Begroting</h2>
+            <span><strong id="visiblePriceTotal">0</strong> zichtbaar</span>
+
+            <span><strong id="noteItemTotal">0</strong> in begroting</span>
           </div>
-          <button type="button" class="note-toggle" id="budgetNoteToggle" aria-expanded="true">Minimaliseer</button>
-        </div>
-        <div class="note-body" id="budgetNoteBody">
-          <div id="budgetTable" class="note-list">
-            <p class="muted">Klik op + bij een product om het hier te plaatsen.</p>
-          </div>
-          <div class="note-total">
-            <span id="budgetCount">0 producten geselecteerd</span>
-            <strong id="budgetTotal">SRD 0,00</strong>
-          </div>
-          <div class="budget-actions">
-            <button type="button" id="copyBudgetButton">Kopieer lijst</button>
-            <button type="button" id="clearBudgetButton" class="table-button">Leegmaken</button>
-          </div>
-          <div id="budgetMessage" class="result" aria-live="polite"></div>
-        </div>
-      </aside>
-    </section>
-  </main>
 
-  <div id="siteFooter"></div>
+          <div class="table-wrap">
+            <table>
+              <thead id="pricesTableHead">
+                <tr>
+                  <th>#</th>
 
-  <script type="module" src="js/app.js"></script>
-</body>
+                  <th>Product</th>
+
+                  <th>Categorie</th>
+
+                  <th>Merk</th>
+
+                  <th>Verpakking</th>
+
+                  <th>Winkel</th>
+
+                  <th>Prijs</th>
+
+                  <th>Actie</th>
+                </tr>
+              </thead>
+
+              <tbody id="pricesTable">
+                <tr>
+                  <td colspan="8">Producten worden geladen...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <aside class="panel note-panel" id="budgetNotePanel">
+          <div class="section-heading note-heading">
+            <div>
+              <p class="eyebrow">Snellijst</p>
+
+              <h2>Begroting</h2>
+            </div>
+
+            <button
+              type="button"
+              class="note-toggle"
+              id="budgetNoteToggle"
+              aria-expanded="true"
+            >
+              Minimaliseer
+            </button>
+          </div>
+
+          <div class="note-body" id="budgetNoteBody">
+            <div id="budgetTable" class="note-list">
+              <p class="muted">
+                Klik op Voeg toe bij een product om het hier te plaatsen.
+              </p>
+            </div>
+
+            <div class="note-total">
+              <span id="budgetCount">0 producten geselecteerd</span>
+
+              <strong id="budgetTotal">SRD 0,00</strong>
+            </div>
+
+            <div class="budget-actions">
+              <button type="button" id="copyBudgetButton">Kopieer lijst</button>
+
+              <button type="button" id="clearBudgetButton" class="table-button">
+                Leegmaken
+              </button>
+            </div>
+
+            <div id="budgetMessage" class="result" aria-live="polite"></div>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <footer>
+      <strong>Suri Basket</strong>
+      <p>Prijsinformatie, publicatielijsten en consumentenvergelijking.</p>
+    </footer>
+
+    <script type="module" src="js/app.js"></script>
+  </body>
 </html>

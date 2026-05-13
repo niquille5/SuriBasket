@@ -4,6 +4,10 @@
   grid-template-columns: 1.2fr 0.8fr;
 }
 
+.scanner-layout > * {
+  min-width: 0;
+}
+
 .scanner-form {
   display: grid;
   gap: 12px;
@@ -15,6 +19,31 @@
   border-radius: 10px;
   display: flex;
   overflow: hidden;
+}
+
+.input-row span {
+  background: var(--mist);
+  color: var(--teal-dark);
+  font-weight: 900;
+  min-height: 46px;
+  padding: 12px;
+}
+
+.input-row input {
+  border: 0;
+  border-radius: 0;
+}
+
+.result-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.result-grid span {
+  color: var(--muted);
+  display: block;
+  font-size: 13px;
 }
 
 @media (max-width: 900px) {

@@ -27,12 +27,16 @@ export function createBudgetList(elements) {
       }
 
       budget.render();
-      showMessage(elements.message, "good", product.product_name + " toegevoegd.");
+      showMessage(
+        elements.message,
+        "good",
+        product.product_name + " toegevoegd.",
+      );
     },
 
     render() {
       renderBudgetTable();
-    }
+    },
   };
 
   bindBudgetButtons();
@@ -45,7 +49,11 @@ export function createBudgetList(elements) {
         const quantity = Number(elements.quantityInput.value);
 
         if (!key || !quantity || quantity <= 0) {
-          showMessage(elements.message, "error", "Kies een product en vul een geldig aantal in.");
+          showMessage(
+            elements.message,
+            "error",
+            "Kies een product en vul een geldig aantal in.",
+          );
           return;
         }
 
@@ -83,13 +91,27 @@ export function createBudgetList(elements) {
     if (!elements.productSelect) return;
 
     if (!budget.products.length) {
-      elements.productSelect.innerHTML = '<option value="">Geen producten gevonden</option>';
+      elements.productSelect.innerHTML =
+        '<option value="">Geen producten gevonden</option>';
       return;
     }
 
-    elements.productSelect.innerHTML = '<option value="">Kies een product</option>' + budget.products
-      .map((item) => '<option value="' + escapeHtml(item.key) + '">' + escapeHtml(item.product_name) + ' - ' + formatCurrency(item.price) + '</option>')
-      .join("");
+    elements.productSelect.innerHTML =
+      '<option value="">Kies een product</option>' +
+      budget.products
+        .map(
+          (item) =>
+            '<option value="' +
+            escapeHtml(item.key) +
+            '">' +
+            escapeHtml(item.product_name) +
+            " | " +
+            escapeHtml(item.unit) +
+            " - " +
+            formatCurrency(item.price) +
+            "</option>",
+        )
+        .join("");
   }
 
   function loadPreset(presetName) {
@@ -101,21 +123,36 @@ export function createBudgetList(elements) {
     });
 
     budget.render();
-    showMessage(elements.message, "good", "Pakket toegevoegd aan je begroting.");
+    showMessage(
+      elements.message,
+      "good",
+      "Pakket toegevoegd aan je begroting.",
+    );
   }
 
   function findBudgetProduct(match) {
     const needle = match.toLowerCase();
-    return budget.products.find((item) => item.product_name.toLowerCase().includes(needle));
+    const matches = budget.products.filter((item) =>
+      item.product_name.toLowerCase().includes(needle),
+    );
+
+    return matches.sort((a, b) => {
+      if (a.isPublicPrice !== b.isPublicPrice) {
+        return a.isPublicPrice ? -1 : 1;
+      }
+
+      return b.price - a.price;
+    })[0];
   }
 
   function renderBudgetTable() {
     if (!elements.table) return;
 
     if (!budget.items.length) {
-      elements.table.innerHTML = elements.table.tagName === "TBODY"
-        ? '<tr><td colspan="6">Kies een pakket of voeg producten toe.</td></tr>'
-        : '<p class="muted">Klik op + bij een product om het hier te plaatsen.</p>';
+        elements.table.innerHTML =
+        elements.table.tagName === "TBODY"
+          ? '<tr><td colspan="6">Kies een pakket of voeg producten toe.</td></tr>'
+          : '<p class="muted">Klik op Voeg toe bij een product om het hier te plaatsen.</p>';
       updateTotals();
       return;
     }
@@ -128,44 +165,90 @@ export function createBudgetList(elements) {
   }
 
   function renderFullTable() {
-    elements.table.innerHTML = budget.items.map((item) => {
-      const subtotal = item.price * item.quantity;
-      return '<tr>' +
-        '<td><strong>' + escapeHtml(item.product_name) + '</strong><span class="muted">' + escapeHtml(item.store_name) + ' | ' + escapeHtml(item.unit) + '</span></td>' +
-        '<td>' + escapeHtml(item.category) + '</td>' +
-        '<td class="price">' + formatCurrency(item.price) + '</td>' +
-        '<td><input class="quantity-input" type="number" min="1" step="1" value="' + item.quantity + '" data-budget-key="' + escapeHtml(item.key) + '"></td>' +
-        '<td class="price">' + formatCurrency(subtotal) + '</td>' +
-        '<td><button type="button" class="table-button" data-remove-budget="' + escapeHtml(item.key) + '">Verwijder</button></td>' +
-      '</tr>';
-    }).join("");
+    elements.table.innerHTML = budget.items
+      .map((item) => {
+        const subtotal = item.price * item.quantity;
+        return (
+          "<tr>" +
+          "<td><strong>" +
+          escapeHtml(item.product_name) +
+          '</strong><span class="muted">' +
+          escapeHtml(item.store_name) +
+          " | " +
+          escapeHtml(item.unit) +
+          "</span></td>" +
+          "<td>" +
+          escapeHtml(item.category) +
+          "</td>" +
+          '<td class="price">' +
+          formatCurrency(item.price) +
+          "</td>" +
+          '<td><input class="quantity-input" type="number" min="1" step="1" value="' +
+          item.quantity +
+          '" data-budget-key="' +
+          escapeHtml(item.key) +
+          '"></td>' +
+          '<td class="price">' +
+          formatCurrency(subtotal) +
+          "</td>" +
+          '<td><button type="button" class="table-button" data-remove-budget="' +
+          escapeHtml(item.key) +
+          '">Verwijder</button></td>' +
+          "</tr>"
+        );
+      })
+      .join("");
   }
 
   function renderNoteList() {
-    elements.table.innerHTML = budget.items.map((item) => {
-      const subtotal = item.price * item.quantity;
-      return '<article class="note-item">' +
-        '<div><strong>' + escapeHtml(item.product_name) + '</strong><span>' + escapeHtml(item.category) + ' | ' + escapeHtml(item.unit) + '</span></div>' +
-        '<div class="note-controls">' +
-          '<input class="quantity-input" type="number" min="1" step="1" value="' + item.quantity + '" data-budget-key="' + escapeHtml(item.key) + '">' +
-          '<strong>' + formatCurrency(subtotal) + '</strong>' +
-          '<button type="button" class="table-button" data-remove-budget="' + escapeHtml(item.key) + '">x</button>' +
-        '</div>' +
-      '</article>';
-    }).join("");
+    elements.table.innerHTML = budget.items
+      .map((item) => {
+        const subtotal = item.price * item.quantity;
+        return (
+          '<article class="note-item">' +
+          "<div><strong>" +
+          escapeHtml(item.product_name) +
+          "</strong><span>" +
+          escapeHtml(item.category) +
+          " | " +
+          escapeHtml(item.unit) +
+          "</span></div>" +
+          '<div class="note-controls">' +
+          '<input class="quantity-input" type="number" min="1" step="1" value="' +
+          item.quantity +
+          '" data-budget-key="' +
+          escapeHtml(item.key) +
+          '">' +
+          "<strong>" +
+          formatCurrency(subtotal) +
+          "</strong>" +
+          '<button type="button" class="table-button" data-remove-budget="' +
+          escapeHtml(item.key) +
+          '">x</button>' +
+          "</div>" +
+          "</article>"
+        );
+      })
+      .join("");
   }
 
   function bindTableControls() {
     elements.table.querySelectorAll("[data-budget-key]").forEach((input) => {
-      input.addEventListener("input", () => updateQuantity(input.dataset.budgetKey, Number(input.value)));
+      input.addEventListener("input", () =>
+        updateQuantity(input.dataset.budgetKey, Number(input.value)),
+      );
     });
 
-    elements.table.querySelectorAll("[data-remove-budget]").forEach((button) => {
-      button.addEventListener("click", () => {
-        budget.items = budget.items.filter((item) => item.key !== button.dataset.removeBudget);
-        budget.render();
+    elements.table
+      .querySelectorAll("[data-remove-budget]")
+      .forEach((button) => {
+        button.addEventListener("click", () => {
+          budget.items = budget.items.filter(
+            (item) => item.key !== button.dataset.removeBudget,
+          );
+          budget.render();
+        });
       });
-    });
   }
 
   function updateQuantity(key, quantity) {
@@ -177,18 +260,41 @@ export function createBudgetList(elements) {
 
   async function copyBudgetSummary() {
     if (!budget.items.length) {
-      showMessage(elements.message, "error", "Er is nog geen begroting om te kopieren.");
+      showMessage(
+        elements.message,
+        "error",
+        "Er is nog geen begroting om te kopieren.",
+      );
       return;
     }
 
-    const lines = budget.items.map((item) => item.quantity + " x " + item.product_name + " = " + formatCurrency(item.price * item.quantity));
-    const text = "Begroting Suri Basket\n" + lines.join("\n") + "\nTotaal: " + formatCurrency(getTotal());
+    const lines = budget.items.map(
+      (item) =>
+        item.quantity +
+        " x " +
+        item.product_name +
+        " (" +
+        item.unit +
+        ")" +
+        " = " +
+        formatCurrency(item.price * item.quantity),
+    );
+    const text =
+      "Begroting Suri Basket\n" +
+      lines.join("\n") +
+      "\nTotaal: " +
+      formatCurrency(getTotal());
 
     try {
       await navigator.clipboard.writeText(text);
       showMessage(elements.message, "good", "Begroting gekopieerd.");
     } catch (error) {
-      showMessage(elements.message, "average", escapeHtml(text).replaceAll("\n", "<br>"), true);
+      showMessage(
+        elements.message,
+        "average",
+        escapeHtml(text).replaceAll("\n", "<br>"),
+        true,
+      );
     }
   }
 
@@ -199,7 +305,10 @@ export function createBudgetList(elements) {
   }
 
   function getTotal() {
-    return budget.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    return budget.items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
   }
 }
 
@@ -209,7 +318,8 @@ export function buildBudgetProducts(prices) {
   prices.forEach((item) => {
     if (!budgetAllowedCategories.includes(item.category || "")) return;
 
-    const key = item.product_name;
+    const unit = getPackageText(item);
+    const key = [item.product_name, unit].join(" | ");
     const price = Number(item.price);
     if (!key || Number.isNaN(price)) return;
 
@@ -218,20 +328,48 @@ export function buildBudgetProducts(prices) {
         key,
         product_name: item.product_name,
         category: item.category || "Algemeen",
-        unit: getPackageText(item),
+        unit,
+        priceTotal: price,
+        priceCount: 1,
         price,
-        store_name: item.store_name || "Onbekend"
+        storeNames: new Set([item.store_name || "Onbekend"]),
+        store_name: item.store_name || "Onbekend",
+        isPublicPrice: item.source_type === "public_product_list",
       });
       return;
     }
 
     const current = map.get(key);
-    if (price < current.price) {
-      current.price = price;
-      current.store_name = item.store_name || current.store_name;
-      current.unit = getPackageText(item) || current.unit;
-    }
+    current.priceTotal += price;
+    current.priceCount += 1;
+    current.price = current.priceTotal / current.priceCount;
+    current.storeNames.add(item.store_name || "Onbekend");
+    current.store_name = getStoreLabel(current);
+    current.isPublicPrice =
+      current.isPublicPrice || item.source_type === "public_product_list";
   });
 
-  return [...map.values()].sort((a, b) => a.product_name.localeCompare(b.product_name));
+  return [...map.values()]
+    .map((item) => ({
+      key: item.key,
+      product_name: item.product_name,
+      category: item.category,
+      unit: item.unit,
+      price: roundMoney(item.price),
+      store_name: getStoreLabel(item),
+      isPublicPrice: item.isPublicPrice,
+    }))
+    .sort((a, b) => a.product_name.localeCompare(b.product_name));
+}
+
+function getStoreLabel(item) {
+  if (!item.storeNames || item.storeNames.size <= 1) {
+    return item.store_name || "Onbekend";
+  }
+
+  return "Gemiddelde van " + item.storeNames.size + " winkels";
+}
+
+function roundMoney(value) {
+  return Math.round(Number(value) * 100) / 100;
 }

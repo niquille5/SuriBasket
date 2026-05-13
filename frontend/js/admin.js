@@ -20,11 +20,25 @@ async function loadAdminOverview() {
   try {
     const data = await fetchJsonWithAuth("/api/admin/overview");
     status.className = "result show good";
-    status.innerHTML = '<strong>' + escapeHtml(data.message) + '</strong><p>Rol: ' + escapeHtml(data.role) + '</p>';
-    overview.innerHTML = '<a href="producten.html"><strong>' + data.summary.products + '</strong><span>producten</span></a>' +
-      '<a href="producten.html"><strong>' + data.summary.variants + '</strong><span>varianten</span></a>' +
-      '<a href="producten.html"><strong>' + data.summary.stores + '</strong><span>winkels</span></a>' +
-      '<a href="producten.html"><strong>' + data.summary.prices + '</strong><span>prijsmetingen</span></a>';
+    status.innerHTML =
+      "<strong>" +
+      escapeHtml(data.message) +
+      "</strong><p>Rol: " +
+      escapeHtml(data.role) +
+      "</p>";
+    overview.innerHTML =
+      '<a href="producten.html"><strong>' +
+      data.summary.products +
+      "</strong><span>producten</span></a>" +
+      '<a href="producten.html"><strong>' +
+      data.summary.variants +
+      "</strong><span>varianten</span></a>" +
+      '<a href="producten.html"><strong>' +
+      data.summary.stores +
+      "</strong><span>winkels</span></a>" +
+      '<a href="producten.html"><strong>' +
+      data.summary.prices +
+      "</strong><span>prijsmetingen</span></a>";
   } catch (error) {
     showLoginRequired(status, overview);
   }
@@ -33,5 +47,6 @@ async function loadAdminOverview() {
 function showLoginRequired(status, overview) {
   status.className = "result show error";
   status.innerHTML = "<strong>Geen toegang. Log eerst in als admin.</strong>";
-  overview.innerHTML = '<a href="login.html"><strong>Login vereist</strong><span>Ga naar de loginpagina.</span></a>';
+  overview.innerHTML =
+    '<a href="login.html"><strong>Login vereist</strong><span>Ga naar de loginpagina.</span></a>';
 }

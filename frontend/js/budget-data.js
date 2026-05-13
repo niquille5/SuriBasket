@@ -5,7 +5,7 @@ export const budgetPresets = {
     { match: "Suiker", quantity: 2 },
     { match: "Zout", quantity: 1 },
     { match: "Uien", quantity: 2 },
-    { match: "Aardappelen", quantity: 2 }
+    { match: "Aardappelen", quantity: 2 },
   ],
   kitchen: [
     { match: "Knoflook", quantity: 1 },
@@ -15,7 +15,7 @@ export const budgetPresets = {
     { match: "Gele erwten", quantity: 1 },
     { match: "Bruine bonen", quantity: 1 },
     { match: "Sardien", quantity: 3 },
-    { match: "Thee", quantity: 1 }
+    { match: "Thee", quantity: 1 },
   ],
   month: [
     { match: "Rijst", quantity: 4 },
@@ -31,11 +31,11 @@ export const budgetPresets = {
     { match: "Sardien", quantity: 6 },
     { match: "Thee", quantity: 2 },
     { match: "Kip", quantity: 2 },
-    { match: "Melk", quantity: 2 }
-  ]
+    { match: "Melk", quantity: 2 },
+  ],
 };
 
-export const budgetAllowedCategories = [
+export const warungProductCategories = [
   "Basisproducten",
   "Conserven",
   "Dranken",
@@ -45,5 +45,7 @@ export const budgetAllowedCategories = [
   "Specerij",
   "Vlees",
   "Voeding",
-  "Zuivel"
+  "Zuivel",
 ];
+
+export const budgetAllowedCategories = warungProductCategories;

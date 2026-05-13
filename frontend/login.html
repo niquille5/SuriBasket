@@ -1,85 +1,158 @@
-<!DOCTYPE html>
+<!doctype html>
+
 <html lang="nl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Suri Basket | Login</title>
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body data-page="login">
-  <div id="siteHeader"></div>
+  <head>
+    <meta charset="UTF-8" />
 
-  <main>
-    <section class="brand-hero">
-      <img src="assets/Suribasket.png" alt="SuriBasket banner">
-    </section>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <section class="page-title login-title">
-      <div>
-        <p class="eyebrow">Beveiligde toegang</p>
-        <h1>Login voor beheer.</h1>
-        <p>Log in om toegang te krijgen tot de adminomgeving.</p>
+    <title>Suri Basket | Login</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+
+  <body data-page="login">
+    <header class="site-header">
+      <div class="topbar">
+        <span>Warung-ready prijsinformatie</span>
+        <span id="apiStatus">API status wordt gecontroleerd...</span>
       </div>
-    </section>
+      <nav class="navbar" aria-label="Hoofdnavigatie">
+        <a class="brand" href="login.html">
+          <span class="brand-mark">SB</span>
+          <span>
+            <strong>Suri Basket</strong>
+            <small>Warung prijzen, checks en begrotingen</small>
+          </span>
+        </a>
+        <div class="nav-links">
+          <a href="index.html" data-nav-page="dashboard">Dashboard</a>
+          <a href="producten.html" data-nav-page="products">Producten</a>
+          <a href="scanner.html" data-nav-page="scanner">Prijscheck</a>
+          <a href="begroting.html" data-nav-page="budget">Begroting</a>
+          <a href="over.html" data-nav-page="about">Over</a>
+          <a href="login.html" data-auth-link="login" data-nav-page="login"
+            >Login</a
+          >
+          <a
+            href="admin.html"
+            class="is-hidden"
+            data-auth-link="admin"
+            data-nav-page="admin"
+            >Admin</a
+          >
+          <button
+            type="button"
+            class="nav-logout is-hidden"
+            id="navLogoutButton"
+            data-auth-link="logout"
+          >
+            Uitloggen
+          </button>
+        </div>
+      </nav>
+    </header>
 
-    <section class="auth-layout">
-      <div class="panel auth-panel">
-        <div class="section-heading">
-          <p class="eyebrow">Authenticatie</p>
-          <h2>Inloggen</h2>
+    <main>
+      <section class="brand-hero">
+        <img src="assets/Suribasket.png" alt="SuriBasket banner" />
+      </section>
+
+      <section class="page-title login-title">
+        <div>
+          <p class="eyebrow">Beveiligde toegang</p>
+
+          <h1>Login voor beheer.</h1>
+
+          <p>Log in om toegang te krijgen tot de adminomgeving.</p>
+        </div>
+      </section>
+
+      <section class="auth-layout">
+        <div class="panel auth-panel">
+          <div class="section-heading">
+            <p class="eyebrow">Authenticatie</p>
+
+            <h2>Inloggen</h2>
+          </div>
+
+          <form class="scanner-form" id="loginForm">
+            <label for="loginUsername">Gebruikersnaam</label>
+
+            <input
+              type="text"
+              id="loginUsername"
+              autocomplete="username"
+              placeholder="Gebruikersnaam"
+            />
+
+            <label for="loginPassword">Wachtwoord</label>
+
+            <input
+              type="password"
+              id="loginPassword"
+              autocomplete="current-password"
+              placeholder="Wachtwoord"
+            />
+
+            <button type="submit">Login</button>
+          </form>
+
+          <div id="loginMessage" class="result" aria-live="polite"></div>
         </div>
 
-        <form class="scanner-form" id="loginForm">
-          <label for="loginUsername">Gebruikersnaam</label>
-          <input type="text" id="loginUsername" autocomplete="username" placeholder="Gebruikersnaam">
+        <aside class="panel helper-panel">
+          <p class="eyebrow">Rollen</p>
+          <h2>Admin toegang</h2>
+          <p>
+            Na het inloggen controleert de backend of de gebruiker de juiste rol
+            heeft voor beveiligde routes.
+          </p>
+          <div class="mini-metrics" aria-label="Login controles">
+            <span><strong>JWT</strong>Sessie token</span>
+            <span><strong>2u</strong>Geldigheid</span>
+            <span><strong>Admin</strong>Rolcontrole</span>
+          </div>
+        </aside>
+      </section>
 
-          <label for="loginPassword">Wachtwoord</label>
-          <input type="password" id="loginPassword" autocomplete="current-password" placeholder="Wachtwoord">
+      <section class="content-grid lower-grid">
+        <article class="panel">
+          <p class="eyebrow">Na login</p>
+          <h2>Beheer in een oogopslag</h2>
+          <div class="feature-list">
+            <a href="admin.html">
+              <strong>Database tellingen</strong>
+              <span
+                >Controleer hoeveel producten, varianten, winkels en
+                prijsmetingen actief zijn.</span
+              >
+            </a>
+            <a href="producten.html">
+              <strong>Productdata bekijken</strong>
+              <span
+                >Ga direct naar de prijslijst om lokale en publieke data te
+                vergelijken.</span
+              >
+            </a>
+          </div>
+        </article>
 
-          <button type="submit">Login</button>
-        </form>
+        <article class="panel accent-panel">
+          <p class="eyebrow">Veiligheid</p>
+          <h2>Gebruik eigen gegevens</h2>
+          <p>
+            Zet `ADMIN_USERNAME`, `ADMIN_PASSWORD` en `JWT_SECRET` in je backend
+            `.env` voordat je Suri Basket buiten lokaal gebruik opent.
+          </p>
+        </article>
+      </section>
+    </main>
 
-        <div id="loginMessage" class="result" aria-live="polite"></div>
-      </div>
+    <footer>
+      <strong>Suri Basket</strong>
+      <p>Prijsinformatie, publicatielijsten en consumentenvergelijking.</p>
+    </footer>
 
-      <aside class="panel helper-panel">
-        <p class="eyebrow">Rollen</p>
-        <h2>Admin toegang</h2>
-        <p>Na het inloggen controleert de backend of de gebruiker de juiste rol heeft voor beveiligde routes.</p>
-        <div class="mini-metrics" aria-label="Login controles">
-          <span><strong>JWT</strong>Sessie token</span>
-          <span><strong>2u</strong>Geldigheid</span>
-          <span><strong>Admin</strong>Rolcontrole</span>
-        </div>
-      </aside>
-    </section>
-
-    <section class="content-grid lower-grid">
-      <article class="panel">
-        <p class="eyebrow">Na login</p>
-        <h2>Beheer in een oogopslag</h2>
-        <div class="feature-list">
-          <a href="admin.html">
-            <strong>Database tellingen</strong>
-            <span>Controleer hoeveel producten, varianten, winkels en prijsmetingen actief zijn.</span>
-          </a>
-          <a href="producten.html">
-            <strong>Productdata bekijken</strong>
-            <span>Ga direct naar de prijslijst om lokale en publieke data te vergelijken.</span>
-          </a>
-        </div>
-      </article>
-
-      <article class="panel accent-panel">
-        <p class="eyebrow">Veiligheid</p>
-        <h2>Gebruik eigen gegevens</h2>
-        <p>Zet `ADMIN_USERNAME`, `ADMIN_PASSWORD` en `JWT_SECRET` in je backend `.env` voordat je Suri Basket buiten lokaal gebruik opent.</p>
-      </article>
-    </section>
-  </main>
-
-  <div id="siteFooter"></div>
-
-  <script type="module" src="js/app.js"></script>
-</body>
+    <script type="module" src="js/app.js"></script>
+  </body>
 </html>

@@ -60,10 +60,10 @@ app.get("/favicon.ico", (req, res) => {
 
 app.get("/api/health", async (req, res) => {
   try {
-    await query("SELECT 1 AS ok");
+    await withTimeout(query("SELECT 1 AS ok"), 3000);
     res.json({ status: "ok", database: "online" });
   } catch (err) {
-    res.status(500).json({ status: "error", database: "offline" });
+    res.json({ status: "error", database: "offline" });
   }
 });
 
@@ -293,7 +293,8 @@ app.get("/api/cheapest/:product", async (req, res) => {
 });
 
 app.get("/api/check-price/:product/:price", async (req, res) => {
-  const productName = req.params.product;
+  const productLabel = req.params.product;
+  const { productName, packageText } = parseProductLabel(productLabel);
   const userPrice = parseFloat(req.params.price);
 
   if (!productName || Number.isNaN(userPrice) || userPrice <= 0) {
@@ -304,21 +305,17 @@ app.get("/api/check-price/:product/:price", async (req, res) => {
   try {
     const [result] = await query(
       `
-        SELECT ROUND(
-          AVG(
-            CASE
-              WHEN pv.weight IS NOT NULL AND pv.weight > 0 THEN pr.price / pv.weight
-              ELSE pr.price
-            END
-          ),
-          2
-        ) AS avg_price_per_unit
+        SELECT ROUND(AVG(pr.price), 2) AS avg_price_per_unit
         FROM prices pr
         JOIN product_variants pv ON pr.variant_id = pv.variant_id
         JOIN products p ON pv.product_id = p.product_id
         WHERE p.product_name = ?
+          AND (
+            ? IS NULL
+            OR COALESCE(pv.package_label, CONCAT(CAST(pv.weight AS DECIMAL(10,2)), ' ', pv.unit), 'stuk') = ?
+          )
       `,
-      [productName]
+      [productName, packageText, packageText]
     );
 
     const avgPrice = result.avg_price_per_unit;
@@ -329,7 +326,7 @@ app.get("/api/check-price/:product/:price", async (req, res) => {
     }
 
     res.json({
-      product: productName,
+      product: packageText ? productName + " | " + packageText : productName,
       your_price: userPrice,
       average_price_per_unit: avgPrice,
       verdict: getPriceVerdict(userPrice, avgPrice)
@@ -339,6 +336,15 @@ app.get("/api/check-price/:product/:price", async (req, res) => {
   }
 });
 
+function parseProductLabel(label) {
+  const parts = String(label || "").split(" | ");
+
+  return {
+    productName: (parts[0] || "").trim(),
+    packageText: parts.length > 1 ? parts.slice(1).join(" | ").trim() : null
+  };
+}
+
 function getPriceVerdict(userPrice, avgPrice) {
   if (userPrice < avgPrice) return "Goedkoop";
   if (userPrice > avgPrice) return "Duur";
@@ -347,6 +353,15 @@ function getPriceVerdict(userPrice, avgPrice) {
 
 function sendDatabaseError(res) {
   res.status(500).json({ error: "Database error" });
+}
+
+function withTimeout(promise, timeoutMs) {
+  return Promise.race([
+    promise,
+    new Promise((resolve, reject) => {
+      setTimeout(() => reject(new Error("Operation timed out")), timeoutMs);
+    })
+  ]);
 }
 
 function requireAuth(req, res, next) {

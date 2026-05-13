@@ -1,129 +1,224 @@
-<!DOCTYPE html>
+<!doctype html>
+
 <html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Suri Basket | Dashboard</title>
-  <link rel="stylesheet" href="css/style.css">
-</head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<body data-page="dashboard">
-  <div id="siteHeader"></div>
+    <title>Suri Basket | Dashboard</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
 
-  <main>
-    <section class="brand-hero">
-      <img src="assets/Suribasket.png" alt="SuriBasket banner">
-    </section>
-
-    <section class="hero">
-      <div class="hero-content">
-        <p class="eyebrow">Slim inkopen voor je warung</p>
-        <h1>Een eigen prijswijzer voor voorraad, vergelijking en begroting.</h1>
-        <p class="hero-text">
-          Bekijk jouw lokale prijsdata, vergelijk bedragen en bouw snel een boodschappenlijst met totaalbedrag in SRD.
-        </p>
-        <div class="hero-actions">
-          <a class="button primary" href="scanner.html">Prijs checken</a>
-          <a class="button secondary" href="producten.html">Producten bekijken</a>
-        </div>
+  <body data-page="dashboard">
+    <header class="site-header">
+      <div class="topbar">
+        <span>Warung-ready prijsinformatie</span>
+        <span id="apiStatus">API status wordt gecontroleerd...</span>
       </div>
-
-      <aside class="status-panel">
-        <span class="status-dot"></span>
-        <strong>Backend verbinding</strong>
-        <p id="healthText">Wachten op verbinding met localhost:3000</p>
-      </aside>
-    </section>
-
-    <section class="summary-grid" aria-label="Project samenvatting">
-      <article>
-        <span id="productCount">0</span>
-        <p>producten</p>
-      </article>
-      <article>
-        <span id="priceCount">0</span>
-        <p>prijsmetingen</p>
-      </article>
-      <article>
-        <span id="storeCount">0</span>
-        <p>winkels</p>
-      </article>
-      <article>
-        <span id="variantCount">0</span>
-        <p>varianten</p>
-      </article>
-      <article>
-        <span id="officialCount">0</span>
-        <p>publieke data</p>
-      </article>
-      <article>
-        <span id="importerCount">0</span>
-        <p>importeurs</p>
-      </article>
-    </section>
-
-    <section class="content-grid">
-      <article class="panel">
-        <div class="section-heading">
-          <p class="eyebrow">Dienstverlening</p>
-          <h2>Werkruimte</h2>
+      <nav class="navbar" aria-label="Hoofdnavigatie">
+        <a class="brand" href="login.html">
+          <span class="brand-mark">SB</span>
+          <span>
+            <strong>Suri Basket</strong>
+            <small>Warung prijzen, checks en begrotingen</small>
+          </span>
+        </a>
+        <div class="nav-links">
+          <a href="index.html" data-nav-page="dashboard">Dashboard</a>
+          <a href="producten.html" data-nav-page="products">Producten</a>
+          <a href="scanner.html" data-nav-page="scanner">Prijscheck</a>
+          <a href="begroting.html" data-nav-page="budget">Begroting</a>
+          <a href="over.html" data-nav-page="about">Over</a>
+          <a href="login.html" data-auth-link="login" data-nav-page="login"
+            >Login</a
+          >
+          <a
+            href="admin.html"
+            class="is-hidden"
+            data-auth-link="admin"
+            data-nav-page="admin"
+            >Admin</a
+          >
+          <button
+            type="button"
+            class="nav-logout is-hidden"
+            id="navLogoutButton"
+            data-auth-link="logout"
+          >
+            Uitloggen
+          </button>
         </div>
-        <div class="feature-list">
-          <a href="producten.html">
-            <strong>Productenlijst</strong>
-            <span>Zoek op product, merk, winkel of locatie.</span>
-          </a>
-          <a href="scanner.html">
-            <strong>Prijscheck</strong>
-            <span>Vergelijk een ingevoerde prijs met het gemiddelde.</span>
-          </a>
-          <a href="begroting.html">
-            <strong>Begroting</strong>
-            <span>Maak een warung-boodschappenlijst met totaalbedrag.</span>
-          </a>
-          <a href="over.html">
-            <strong>Projectinformatie</strong>
-            <span>Bekijk hoe frontend en backend gekoppeld zijn.</span>
-          </a>
-        </div>
-      </article>
+      </nav>
+    </header>
 
-      <article class="panel accent-panel">
-        <p class="eyebrow">Ontwikkeling</p>
-        <h2>Lokale server starten</h2>
-        <p>Gebruik deze opdracht tijdens ontwikkeling om de API en website lokaal te openen.</p>
-        <pre><code>cd C:\Users\user\Suri Basket\backend
+    <main>
+      <section class="brand-hero">
+        <img src="assets/Suribasket.png" alt="SuriBasket banner" />
+      </section>
+
+      <section class="hero">
+        <div class="hero-content">
+          <p class="eyebrow">Slim inkopen voor je warung</p>
+
+          <h1>
+            Een eigen prijswijzer voor voorraad, vergelijking en begroting.
+          </h1>
+
+          <p class="hero-text">
+            Bekijk jouw lokale prijsdata, vergelijk bedragen en bouw snel een
+            boodschappenlijst met totaalbedrag in SRD.
+          </p>
+
+          <div class="hero-actions">
+            <a class="button primary" href="scanner.html">Prijs checken</a>
+
+            <a class="button secondary" href="producten.html"
+              >Producten bekijken</a
+            >
+          </div>
+        </div>
+
+        <aside class="status-panel">
+          <span class="status-dot"></span>
+
+          <strong>Backend verbinding</strong>
+
+          <p id="healthText">Wachten op verbinding met localhost:3000</p>
+        </aside>
+      </section>
+
+      <section class="summary-grid" aria-label="Project samenvatting">
+        <article>
+          <span id="productCount">0</span>
+
+          <p>producten</p>
+        </article>
+
+        <article>
+          <span id="priceCount">0</span>
+
+          <p>prijsmetingen</p>
+        </article>
+
+        <article>
+          <span id="storeCount">0</span>
+
+          <p>winkels</p>
+        </article>
+
+        <article>
+          <span id="variantCount">0</span>
+
+          <p>varianten</p>
+        </article>
+
+        <article>
+          <span id="officialCount">0</span>
+
+          <p>publieke data</p>
+        </article>
+
+        <article>
+          <span id="importerCount">0</span>
+
+          <p>importeurs</p>
+        </article>
+      </section>
+
+      <section class="content-grid">
+        <article class="panel">
+          <div class="section-heading">
+            <p class="eyebrow">Dienstverlening</p>
+
+            <h2>Werkruimte</h2>
+          </div>
+
+          <div class="feature-list">
+            <a href="producten.html">
+              <strong>Productenlijst</strong>
+
+              <span>Zoek op product, merk, winkel of locatie.</span>
+            </a>
+
+            <a href="scanner.html">
+              <strong>Prijscheck</strong>
+
+              <span>Vergelijk een ingevoerde prijs met het gemiddelde.</span>
+            </a>
+
+            <a href="begroting.html">
+              <strong>Begroting</strong>
+
+              <span>Maak een warung-boodschappenlijst met totaalbedrag.</span>
+            </a>
+
+            <a href="over.html">
+              <strong>Projectinformatie</strong>
+
+              <span>Bekijk hoe frontend en backend gekoppeld zijn.</span>
+            </a>
+          </div>
+        </article>
+
+        <article class="panel accent-panel">
+          <p class="eyebrow">Ontwikkeling</p>
+
+          <h2>Lokale server starten</h2>
+
+          <p>
+            Gebruik deze opdracht tijdens ontwikkeling om de API en website
+            lokaal te openen.
+          </p>
+
+          <pre><code>cd C:\Users\user\Suri Basket\backend
 npm start</code></pre>
-      </article>
-    </section>
+        </article>
+      </section>
 
-    <section class="content-grid lower-grid">
-      <article class="panel">
-        <p class="eyebrow">Dagelijkse flow</p>
-        <h2>Van prijs naar planning</h2>
-        <div class="workflow-list">
-          <span><strong>1</strong>Bekijk prijsregels en publieke referenties.</span>
-          <span><strong>2</strong>Controleer opvallende prijzen in de scanner.</span>
-          <span><strong>3</strong>Zet producten direct in een begroting.</span>
-        </div>
-      </article>
+      <section class="content-grid lower-grid">
+        <article class="panel">
+          <p class="eyebrow">Dagelijkse flow</p>
+          <h2>Van prijs naar planning</h2>
+          <div class="workflow-list">
+            <span
+              ><strong>1</strong>Bekijk prijsregels en publieke
+              referenties.</span
+            >
+            <span
+              ><strong>2</strong>Controleer opvallende prijzen in de
+              scanner.</span
+            >
+            <span
+              ><strong>3</strong>Zet producten direct in een begroting.</span
+            >
+          </div>
+        </article>
 
-      <article class="panel">
-        <p class="eyebrow">Snelle status</p>
-        <h2>Waar data vandaan komt</h2>
-        <div class="status-cards">
-          <span class="status-card good"><strong>Eigen database</strong>Lokale prijsregistraties.</span>
-          <span class="status-card average"><strong>Publieke lijst</strong>Geimporteerde referentieprijzen.</span>
-          <span class="status-card expensive"><strong>Backend</strong>MySQL moet verbonden zijn.</span>
-        </div>
-      </article>
-    </section>
-  </main>
+        <article class="panel">
+          <p class="eyebrow">Snelle status</p>
+          <h2>Waar data vandaan komt</h2>
+          <div class="status-cards">
+            <span class="status-card good"
+              ><strong>Eigen database</strong>Lokale prijsregistraties.</span
+            >
+            <span class="status-card average"
+              ><strong>Publieke lijst</strong>Geimporteerde
+              referentieprijzen.</span
+            >
+            <span class="status-card expensive"
+              ><strong>Backend</strong>MySQL moet verbonden zijn.</span
+            >
+          </div>
+        </article>
+      </section>
+    </main>
 
-  <div id="siteFooter"></div>
+    <footer>
+      <strong>Suri Basket</strong>
+      <p>Prijsinformatie, publicatielijsten en consumentenvergelijking.</p>
+    </footer>
 
-  <script type="module" src="js/app.js"></script>
-</body>
-
+    <script type="module" src="js/app.js"></script>
+  </body>
 </html>

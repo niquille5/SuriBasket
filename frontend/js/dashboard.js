@@ -6,7 +6,14 @@ export async function initDashboardPage() {
     const summary = await fetchJson("/api/summary");
     setDashboardCounts(summary);
   } catch (error) {
-    setDashboardCounts({ products: 0, prices: 0, stores: 0, variants: 0, official_products: 0, importers: 0 });
+    setDashboardCounts({
+      products: 0,
+      prices: 0,
+      stores: 0,
+      variants: 0,
+      official_products: 0,
+      importers: 0,
+    });
   }
 }
 

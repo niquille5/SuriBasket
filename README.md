@@ -57,7 +57,7 @@ Suri Basket
 
 ## Backend starten
 
-Zaza en Keshi Maak eerst een `.env` bestand in de backend map. Je kunt `backend/.env.example` kopieren en je eigen databasegegevens invullen.
+Maak eerst een `.env` bestand in de backend map. Je kunt `backend/.env.example` kopieren en je eigen databasegegevens invullen.
 
 Voor login en rollen gebruikt de backend ook `ADMIN_USERNAME`, `ADMIN_PASSWORD` en `JWT_SECRET` uit `.env`.
 
@@ -74,13 +74,15 @@ http://localhost:3000
 
 ## Frontend openen
 
-Gebruik bij voorkeur:
+Open de app altijd via de backend server:
 
 ```text
 http://localhost:3000
 ```
 
-De hoofdwebsite start op `http://localhost:3000` met de loginpagina. Het dashboard staat op `http://localhost:3000/index.html`. Pagina's zoals `/producten.html`, `/scanner.html`, `/begroting.html` en `/over.html` staan direct in de frontend map.
+Open de HTML-bestanden niet rechtstreeks met `file:///C:/.../frontend/producten.html`. Via `file://` kan de frontend de API-routes zoals `/api/prices` niet goed bereiken. Via `http://localhost:3000` serveert Express de frontend en API samen.
+
+De hoofdwebsite start op `http://localhost:3000` met de loginpagina. Het dashboard staat op `http://localhost:3000/index.html`. Pagina's zoals `/producten.html`, `/scanner.html`, `/begroting.html` en `/over.html` open je via dezelfde host, bijvoorbeeld `http://localhost:3000/producten.html`.
 
 ## Belangrijke API endpoints
 

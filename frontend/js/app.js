@@ -1,4 +1,4 @@
-import { renderLayout } from "./layout.js";
+import { initializeLayout } from "./layout.js";
 import { bindLogoutButton } from "./auth.js";
 import { checkHealth } from "./health.js";
 import { initAdminPage } from "./admin.js";
@@ -14,13 +14,13 @@ const pageInitializers = {
   dashboard: initDashboardPage,
   login: initLoginPage,
   products: initProductsPage,
-  scanner: initScannerPage
+  scanner: initScannerPage,
 };
 
-renderLayout();
 document.addEventListener("DOMContentLoaded", initPage);
 
 async function initPage() {
+  initializeLayout();
   bindLogoutButton(document.getElementById("navLogoutButton"));
   checkHealth();
 

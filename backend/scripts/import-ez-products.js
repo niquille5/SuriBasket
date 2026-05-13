@@ -3,6 +3,18 @@ const db = require("../db");
 
 const SOURCE_URL = "https://ez.gov.sr/index.php?r=product%2Findex";
 const SOURCE_NAME = "Publieke SRD Check productenlijst";
+const WARUNG_CATEGORIES = [
+  "Basisproducten",
+  "Conserven",
+  "Dranken",
+  "Groente",
+  "Olie",
+  "Peulvruchten",
+  "Specerij",
+  "Vlees",
+  "Voeding",
+  "Zuivel"
+];
 
 function fetchPage(url) {
   return new Promise((resolve, reject) => {
@@ -195,11 +207,13 @@ async function main() {
   const html = await fetchPage(SOURCE_URL);
   const rows = parseRows(html);
 
-  for (const row of rows) {
+  const warungRows = rows.filter((row) => WARUNG_CATEGORIES.includes(row.category));
+
+  for (const row of warungRows) {
     await upsertOfficialPrice(row);
   }
 
-  console.log(`Imported ${rows.length} official product rows from ${SOURCE_NAME}.`);
+  console.log(`Imported ${warungRows.length} warung product rows from ${SOURCE_NAME}.`);
   db.end();
 }
 

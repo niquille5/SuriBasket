@@ -1,5 +1,17 @@
 body[data-page="login"] .brand-hero {
+  background: var(--teal-dark);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
   margin-bottom: 24px;
+  overflow: hidden;
+}
+
+body[data-page="login"] .brand-hero img {
+  display: block;
+  height: clamp(190px, 32vw, 420px);
+  object-fit: cover;
+  object-position: center;
+  width: 100%;
 }
 
 .login-title {
@@ -12,6 +24,10 @@ body[data-page="login"] .brand-hero {
   grid-template-columns: 1.2fr 0.8fr;
 }
 
+.auth-layout > * {
+  min-width: 0;
+}
+
 .auth-panel {
   max-width: 560px;
 }
@@ -19,5 +35,15 @@ body[data-page="login"] .brand-hero {
 @media (max-width: 900px) {
   .auth-layout {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  body[data-page="login"] .brand-hero {
+    border-radius: 14px;
+  }
+
+  body[data-page="login"] .brand-hero img {
+    height: clamp(150px, 50vw, 230px);
   }
 }

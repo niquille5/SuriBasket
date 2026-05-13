@@ -10,8 +10,13 @@ export async function initBudgetPage() {
     budget.setProducts(prices);
   } catch (error) {
     const select = document.getElementById("budgetProductSelect");
-    if (select) select.innerHTML = '<option value="">Backend niet bereikbaar</option>';
-    showMessage(document.getElementById("budgetMessage"), "error", "Kan geen prijzen laden. Start de backend met npm start.");
+    if (select)
+      select.innerHTML = '<option value="">Backend niet bereikbaar</option>';
+    showMessage(
+      document.getElementById("budgetMessage"),
+      "error",
+      "Kan geen prijzen laden. Start de backend met npm start.",
+    );
   }
 }
 
@@ -26,6 +31,6 @@ function getBudgetElements() {
     total: document.getElementById("budgetTotal"),
     count: document.getElementById("budgetCount"),
     noteCount: document.getElementById("noteItemTotal"),
-    message: document.getElementById("budgetMessage")
+    message: document.getElementById("budgetMessage"),
   };
 }

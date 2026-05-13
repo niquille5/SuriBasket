@@ -7,7 +7,7 @@ export function formatCurrency(value) {
 
   const formattedAmount = new Intl.NumberFormat("nl-SR", {
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2
+    maximumFractionDigits: 2,
   }).format(amount);
 
   return "SRD " + formattedAmount;
