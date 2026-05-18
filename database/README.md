@@ -39,6 +39,12 @@ Bevat importeurs uit de publieke SRD Check productenlijst.
 `official_product_prices`  
 Bevat de originele publieke prijsregels die zijn geimporteerd. Deze tabel bewaart ook broninformatie zoals bronlink, rij-nummer, groothandelprijs en kleinhandelprijs.
 
+`users`  
+Bevat eindgebruikers en admins. Het echte wachtwoord wordt niet opgeslagen; alleen de veilige hash staat in `password_hash`. Met `role` wordt bepaald of iemand een gewone gebruiker of admin is.
+
+`purchases`  
+Bevat afgeronde of bewaarde aankopen/inkoopregistraties van gebruikers. Deze tabel is logisch wanneer een gebruiker producten koopt of een inkoopgeschiedenis wil bewaren.
+
 ## Relaties Voor ERD
 
 Een product heeft een of meer productvarianten:
@@ -65,19 +71,63 @@ Een importeur kan meerdere publieke prijsregels hebben:
 importers.importer_id -> official_product_prices.importer_id
 ```
 
-## Gebruikers
-
-In deze versie worden gewone eindgebruikers niet opgeslagen in de database. Zij gebruiken de app zonder account.
-
-De admin-login wordt lokaal ingesteld via `backend/.env` met `ADMIN_USERNAME` en `ADMIN_PASSWORD`.
-
-Als gebruikers later wel opgeslagen moeten worden, kan er een aparte tabel komen:
+Een gebruiker kan meerdere aankopen of inkoopregistraties hebben:
 
 ```text
-users
-- user_id
-- username
-- password_hash
-- role
-- created_at
+users.user_id -> purchases.user_id
+```
+
+Een aankoop hoort bij een product:
+
+```text
+products.product_id -> purchases.product_id
+```
+
+Een aankoop kan verwijzen naar een publieke prijsregel:
+
+```text
+official_product_prices.official_price_id -> purchases.official_price_id
+```
+
+## Gebruikers
+
+Eindgebruikers worden opgeslagen in de tabel `users`.
+
+De tabel gebruikt `password_hash` in plaats van `password`, omdat wachtwoorden niet als gewone tekst opgeslagen mogen worden.
+
+De kolom `role` bepaalt of iemand een gewone gebruiker of admin is:
+
+```text
+user  = gewone eindgebruiker
+admin = beheerder
+```
+
+De `purchases` tabel wordt gebruikt als jullie aankopen of inkoopgeschiedenis willen opslaan. Als een gebruiker alleen tijdelijk een begroting maakt zonder die op te slaan, is `purchases` niet verplicht. Als de gebruiker een inkoop afrondt of bewaart, hoort die registratie wel in `purchases`.
+
+## SQL Voor Users En Purchases
+
+```sql
+CREATE TABLE users (
+  user_id INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(100) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  role ENUM('user', 'admin') NOT NULL DEFAULT 'user',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE purchases (
+  purchase_id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  product_id INT NOT NULL,
+  official_price_id INT,
+  quantity INT NOT NULL DEFAULT 1,
+  price DECIMAL(10,2) NOT NULL,
+  total_amount DECIMAL(10,2) GENERATED ALWAYS AS (quantity * price) STORED,
+  purchase_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  payment_method ENUM('cash', 'card', 'transfer') DEFAULT 'cash',
+  status ENUM('pending', 'completed', 'cancelled') DEFAULT 'pending',
+  FOREIGN KEY (user_id) REFERENCES users(user_id),
+  FOREIGN KEY (product_id) REFERENCES products(product_id),
+  FOREIGN KEY (official_price_id) REFERENCES official_product_prices(official_price_id)
+);
 ```

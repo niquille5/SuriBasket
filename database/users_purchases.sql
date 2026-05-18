@@ -1,0 +1,27 @@
+-- Uitbreiding voor eindgebruikers en inkoopgeschiedenis.
+-- Gebruik dit bestand als de database al bestaat en je alleen deze twee
+-- tabellen wilt toevoegen.
+
+CREATE TABLE IF NOT EXISTS users (
+  user_id INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(100) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  role ENUM('user', 'admin') NOT NULL DEFAULT 'user',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS purchases (
+  purchase_id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  product_id INT NOT NULL,
+  official_price_id INT,
+  quantity INT NOT NULL DEFAULT 1,
+  price DECIMAL(10,2) NOT NULL,
+  total_amount DECIMAL(10,2) GENERATED ALWAYS AS (quantity * price) STORED,
+  purchase_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  payment_method ENUM('cash', 'card', 'transfer') DEFAULT 'cash',
+  status ENUM('pending', 'completed', 'cancelled') DEFAULT 'pending',
+  FOREIGN KEY (user_id) REFERENCES users(user_id),
+  FOREIGN KEY (product_id) REFERENCES products(product_id),
+  FOREIGN KEY (official_price_id) REFERENCES official_product_prices(official_price_id)
+);
