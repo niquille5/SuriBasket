@@ -45,6 +45,12 @@ Bevat eindgebruikers en admins. Het echte wachtwoord wordt niet opgeslagen; alle
 `purchases`  
 Bevat afgeronde of bewaarde aankopen/inkoopregistraties van gebruikers. Deze tabel is logisch wanneer een gebruiker producten koopt of een inkoopgeschiedenis wil bewaren.
 
+`shopping_lists`
+Bevat begrotings- of boodschappenlijsten die een ingelogde gebruiker bewaart.
+
+`shopping_list_items`
+Bevat de producten binnen zo een bewaarde lijst, met aantal en geschatte prijs.
+
 ## Relaties Voor ERD
 
 Een product heeft een of meer productvarianten:
@@ -77,6 +83,18 @@ Een gebruiker kan meerdere aankopen of inkoopregistraties hebben:
 users.user_id -> purchases.user_id
 ```
 
+Een gebruiker kan meerdere boodschappenlijsten bewaren:
+
+```text
+users.user_id -> shopping_lists.user_id
+```
+
+Een boodschappenlijst heeft meerdere productregels:
+
+```text
+shopping_lists.list_id -> shopping_list_items.list_id
+```
+
 Een aankoop hoort bij een product:
 
 ```text
@@ -102,7 +120,7 @@ user  = gewone eindgebruiker
 admin = beheerder
 ```
 
-De `purchases` tabel wordt gebruikt als jullie aankopen of inkoopgeschiedenis willen opslaan. Als een gebruiker alleen tijdelijk een begroting maakt zonder die op te slaan, is `purchases` niet verplicht. Als de gebruiker een inkoop afrondt of bewaart, hoort die registratie wel in `purchases`.
+De `shopping_lists` en `shopping_list_items` tabellen bewaren een begroting per gebruiker. De `purchases` tabel wordt gebruikt wanneer een gebruiker die lijst als afgeronde inkoop of inkoopgeschiedenis opslaat.
 
 ## SQL Voor Users En Purchases
 
@@ -129,5 +147,22 @@ CREATE TABLE purchases (
   FOREIGN KEY (user_id) REFERENCES users(user_id),
   FOREIGN KEY (product_id) REFERENCES products(product_id),
   FOREIGN KEY (official_price_id) REFERENCES official_product_prices(official_price_id)
+);
+
+CREATE TABLE shopping_lists (
+  list_id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  list_name VARCHAR(100),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+CREATE TABLE shopping_list_items (
+  item_id INT AUTO_INCREMENT PRIMARY KEY,
+  list_id INT NOT NULL,
+  product_name VARCHAR(150) NOT NULL,
+  quantity INT NOT NULL,
+  estimated_price DECIMAL(10,2),
+  FOREIGN KEY (list_id) REFERENCES shopping_lists(list_id)
 );
 ```

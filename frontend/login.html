@@ -52,37 +52,48 @@
       </nav>
     </header>
 
-    <main>
-      <section class="brand-hero">
-        <img src="assets/frontpage.jpeg" alt="SuriBasket banner" />
-      </section>
-
-      <section class="page-title login-title">
-        <div>
-          <p class="eyebrow">Beveiligde toegang</p>
-
-          <h1>Login voor beheer.</h1>
-
-          <p>Log in om toegang te krijgen tot de adminomgeving.</p>
-        </div>
-      </section>
-
-      <section class="auth-layout">
-        <div class="panel auth-panel">
-          <div class="section-heading">
-            <p class="eyebrow">Authenticatie</p>
-
-            <h2>Inloggen</h2>
+    <main class="login-page">
+      <section class="login-screen" aria-label="Suri Basket toegang">
+        <div class="login-promise">
+          <div class="login-brand">
+            <span class="brand-mark">SB</span>
+            <strong>Suri Basket</strong>
           </div>
 
-          <form class="scanner-form" id="loginForm">
+          <div class="login-promise-text">
+            <h1>Jouw slimme keuze, elke keer.</h1>
+
+            <p>
+              Vergelijk prijzen, maak begrotingen en bewaar je inkoop wanneer
+              je met een account werkt.
+            </p>
+          </div>
+
+          <div class="login-points" aria-label="Suri Basket voordelen">
+            <span><strong>Vergelijk</strong>prijzen</span>
+            <span><strong>Bespaar</strong>meer</span>
+            <span><strong>Shop</strong>snel</span>
+          </div>
+        </div>
+
+        <section class="auth-card" aria-label="Inloggen en registreren">
+          <div class="auth-card-header">
+            <p class="eyebrow" id="authModeLabel">Welkom terug</p>
+            <h2 id="authTitle">Inloggen</h2>
+            <p id="authIntro">
+              Log in om je begrotingen en inkoopgeschiedenis verder te
+              gebruiken.
+            </p>
+          </div>
+
+          <form class="auth-form is-active" id="loginForm">
             <label for="loginUsername">Gebruikersnaam</label>
 
             <input
               type="text"
               id="loginUsername"
               autocomplete="username"
-              placeholder="Gebruikersnaam"
+              placeholder="Bijvoorbeeld warung123"
             />
 
             <label for="loginPassword">Wachtwoord</label>
@@ -91,60 +102,64 @@
               type="password"
               id="loginPassword"
               autocomplete="current-password"
-              placeholder="Wachtwoord"
+              placeholder="Vul je wachtwoord in"
             />
 
-            <button type="submit">Login</button>
+            <button type="submit">Inloggen</button>
+          </form>
+
+          <form class="auth-form" id="registerForm" hidden>
+            <label for="registerUsername">Gebruikersnaam</label>
+
+            <input
+              type="text"
+              id="registerUsername"
+              autocomplete="username"
+              placeholder="Bijvoorbeeld warung123"
+            />
+
+            <label for="registerPassword">Wachtwoord</label>
+
+            <input
+              type="password"
+              id="registerPassword"
+              autocomplete="new-password"
+              placeholder="Minimaal 6 tekens"
+            />
+
+            <label for="registerPasswordConfirm">Herhaal wachtwoord</label>
+
+            <input
+              type="password"
+              id="registerPasswordConfirm"
+              autocomplete="new-password"
+              placeholder="Nog een keer hetzelfde wachtwoord"
+            />
+
+            <button type="submit">Account maken</button>
           </form>
 
           <div id="loginMessage" class="result" aria-live="polite"></div>
+          <div id="registerMessage" class="result" aria-live="polite"></div>
+
+          <div class="auth-divider"><span>of</span></div>
+
+          <a class="guest-button" href="producten.html">Doorgaan als gast</a>
+
+          <p class="auth-switch">
+            <span id="authSwitchText">Nog geen account?</span>
+            <button type="button" id="showRegisterButton">Maak er een aan</button>
+            <button type="button" id="showLoginButton" hidden>
+              Terug naar login
+            </button>
+          </p>
+        </section>
+
+        <div class="login-trustbar" aria-label="Vertrouwen">
+          <span>Veilig en betrouwbaar</span>
+          <span>Jouw gegevens blijven beschermd</span>
+          <span>Gratis te gebruiken</span>
         </div>
-
-        <aside class="panel helper-panel">
-          <p class="eyebrow">Rollen</p>
-          <h2>Admin toegang</h2>
-          <p>
-            Na het inloggen controleert de backend of de gebruiker de juiste rol
-            heeft voor beveiligde routes.
-          </p>
-          <div class="mini-metrics" aria-label="Login controles">
-            <span><strong>JWT</strong>Sessie token</span>
-            <span><strong>2u</strong>Geldigheid</span>
-            <span><strong>Admin</strong>Rolcontrole</span>
-          </div>
-        </aside>
-      </section>
-
-      <section class="content-grid lower-grid">
-        <article class="panel">
-          <p class="eyebrow">Na login</p>
-          <h2>Beheer in een oogopslag</h2>
-          <div class="feature-list">
-            <a href="admin.html">
-              <strong>Database tellingen</strong>
-              <span
-                >Controleer hoeveel producten, varianten, winkels en
-                prijsmetingen actief zijn.</span
-              >
-            </a>
-            <a href="producten.html">
-              <strong>Productdata bekijken</strong>
-              <span
-                >Ga direct naar de prijslijst om lokale en publieke data te
-                vergelijken.</span
-              >
-            </a>
-          </div>
-        </article>
-
-        <article class="panel accent-panel">
-          <p class="eyebrow">Veiligheid</p>
-          <h2>Gebruik eigen gegevens</h2>
-          <p>
-            Zet `ADMIN_USERNAME`, `ADMIN_PASSWORD` en `JWT_SECRET` in je backend
-            `.env` voordat je Suri Basket buiten lokaal gebruik opent.
-          </p>
-        </article>
       </section>
     </main>
 
