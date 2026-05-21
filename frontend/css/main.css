@@ -6,12 +6,12 @@
   --soft: #f6efe3;
   --mist: #eef6f3;
   --line: #e1d8c8;
-  --teal: #126c65;
-  --teal-dark: #0a4642;
-  --leaf: #4d8c3f;
-  --tomato: #c84f3b;
-  --sun: #f3b340;
-  --berry: #6d315f;
+  --teal: #749838;
+  --teal-dark: #527123;
+  --leaf: #c4eb6a;
+  --tomato: #C52B2B;
+  --sun: #EECF3E;
+  --berry: #C4612B;
   --shadow: 0 18px 44px rgba(32, 25, 14, 0.1);
 }
 
@@ -102,6 +102,24 @@ a {
   justify-content: center;
   letter-spacing: 0;
   width: 54px;
+}
+
+.brand-logo {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(255, 249, 226, 0.94));
+  border: 1px solid rgba(82, 113, 35, 0.18);
+  box-shadow: 0 10px 22px rgba(32, 25, 14, 0.12);
+  overflow: hidden;
+  width: 82px;
+}
+
+.brand-logo img {
+  display: block;
+  height: 150%;
+  object-fit: cover;
+  object-position: center 62%;
+  transform: translateY(-8%) scale(1.05);
+  width: 100%;
 }
 
 .brand strong,

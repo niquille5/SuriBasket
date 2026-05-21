@@ -11,6 +11,7 @@ Suri Basket
 |   |-- db-query.js
 |   |-- package.json
 |   |-- server.js
+|   |-- user-data.js
 |   `-- scripts
 `-- frontend
     |-- index.html
@@ -61,9 +62,18 @@ Maak eerst een `.env` bestand in de backend map. Je kunt `backend/.env.example` 
 
 Voor login en rollen gebruikt de backend ook `ADMIN_USERNAME`, `ADMIN_PASSWORD` en `JWT_SECRET` uit `.env`.
 
+Normaal starten:
+
 ```powershell
-cd C:\Users\user\Suri Basket\backend
+cd C:\Users\user\sranan-prijsscanner\backend
 npm start
+```
+
+Tijdens ontwikkelen kun je nodemon gebruiken. Dan herstart de backend automatisch wanneer je backend-code wijzigt:
+
+```powershell
+cd C:\Users\user\sranan-prijsscanner\backend
+npm run dev
 ```
 
 De website en API draaien daarna op:
@@ -93,18 +103,22 @@ De hoofdwebsite start op `http://localhost:3000` met de loginpagina. Het dashboa
 - `/api/official-products`
 - `/api/cheapest/:product`
 - `/api/check-price/:product/:price`
+- `/api/register`
 - `/api/login`
 - `/api/me`
+- `/api/shopping-lists`
+- `/api/purchases`
 - `/api/admin/overview`
 
 `/api/admin/overview` is beveiligd. De gebruiker moet eerst inloggen en een admin-token meesturen.
+`/api/shopping-lists` bewaart begrotingslijsten per gebruiker. `/api/purchases` bewaart een afgeronde inkoopgeschiedenis.
 
 ## Database scripts
 
 Publieke productenlijst importeren:
 
 ```powershell
-cd C:\Users\user\Suri Basket\backend
+cd C:\Users\user\sranan-prijsscanner\backend
 npm run import:ez
 ```
 

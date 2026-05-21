@@ -1,3 +1,5 @@
+import { getAuthUser } from "./auth.js";
+
 export function initializeLayout() {
   markActiveNavigation();
   updateAuthNavigation();
@@ -16,20 +18,14 @@ function updateAuthNavigation() {
   const isAdmin = user && user.role === "admin";
 
   document.querySelectorAll('[data-auth-link="login"]').forEach((link) => {
-    link.classList.toggle("is-hidden", Boolean(isAdmin));
+    link.classList.toggle("is-hidden", Boolean(user));
   });
 
-  document
-    .querySelectorAll('[data-auth-link="admin"], [data-auth-link="logout"]')
-    .forEach((link) => {
-      link.classList.toggle("is-hidden", !isAdmin);
-    });
-}
+  document.querySelectorAll('[data-auth-link="admin"]').forEach((link) => {
+    link.classList.toggle("is-hidden", !isAdmin);
+  });
 
-function getAuthUser() {
-  try {
-    return JSON.parse(localStorage.getItem("authUser"));
-  } catch (error) {
-    return null;
-  }
+  document.querySelectorAll('[data-auth-link="logout"]').forEach((button) => {
+    button.classList.toggle("is-hidden", !user);
+  });
 }

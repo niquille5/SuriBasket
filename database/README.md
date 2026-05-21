@@ -39,6 +39,18 @@ Bevat importeurs uit de publieke SRD Check productenlijst.
 `official_product_prices`  
 Bevat de originele publieke prijsregels die zijn geimporteerd. Deze tabel bewaart ook broninformatie zoals bronlink, rij-nummer, groothandelprijs en kleinhandelprijs.
 
+`users`  
+Bevat eindgebruikers en admins. Het echte wachtwoord wordt niet opgeslagen; alleen de veilige hash staat in `password_hash`. Met `role` wordt bepaald of iemand een gewone gebruiker of admin is.
+
+`purchases`  
+Bevat afgeronde of bewaarde aankopen/inkoopregistraties van gebruikers. Deze tabel is logisch wanneer een gebruiker producten koopt of een inkoopgeschiedenis wil bewaren.
+
+`shopping_lists`
+Bevat begrotings- of boodschappenlijsten die een ingelogde gebruiker bewaart.
+
+`shopping_list_items`
+Bevat de producten binnen zo een bewaarde lijst, met aantal en geschatte prijs.
+
 ## Relaties Voor ERD
 
 Een product heeft een of meer productvarianten:
@@ -65,19 +77,92 @@ Een importeur kan meerdere publieke prijsregels hebben:
 importers.importer_id -> official_product_prices.importer_id
 ```
 
-## Gebruikers
-
-In deze versie worden gewone eindgebruikers niet opgeslagen in de database. Zij gebruiken de app zonder account.
-
-De admin-login wordt lokaal ingesteld via `backend/.env` met `ADMIN_USERNAME` en `ADMIN_PASSWORD`.
-
-Als gebruikers later wel opgeslagen moeten worden, kan er een aparte tabel komen:
+Een gebruiker kan meerdere aankopen of inkoopregistraties hebben:
 
 ```text
-users
-- user_id
-- username
-- password_hash
-- role
-- created_at
+users.user_id -> purchases.user_id
+```
+
+Een gebruiker kan meerdere boodschappenlijsten bewaren:
+
+```text
+users.user_id -> shopping_lists.user_id
+```
+
+Een boodschappenlijst heeft meerdere productregels:
+
+```text
+shopping_lists.list_id -> shopping_list_items.list_id
+```
+
+Een aankoop hoort bij een product:
+
+```text
+products.product_id -> purchases.product_id
+```
+
+Een aankoop kan verwijzen naar een publieke prijsregel:
+
+```text
+official_product_prices.official_price_id -> purchases.official_price_id
+```
+
+## Gebruikers
+
+Eindgebruikers worden opgeslagen in de tabel `users`.
+
+De tabel gebruikt `password_hash` in plaats van `password`, omdat wachtwoorden niet als gewone tekst opgeslagen mogen worden.
+
+De kolom `role` bepaalt of iemand een gewone gebruiker of admin is:
+
+```text
+user  = gewone eindgebruiker
+admin = beheerder
+```
+
+De `shopping_lists` en `shopping_list_items` tabellen bewaren een begroting per gebruiker. De `purchases` tabel wordt gebruikt wanneer een gebruiker die lijst als afgeronde inkoop of inkoopgeschiedenis opslaat.
+
+## SQL Voor Users En Purchases
+
+```sql
+CREATE TABLE users (
+  user_id INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(100) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  role ENUM('user', 'admin') NOT NULL DEFAULT 'user',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE purchases (
+  purchase_id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  product_id INT NOT NULL,
+  official_price_id INT,
+  quantity INT NOT NULL DEFAULT 1,
+  price DECIMAL(10,2) NOT NULL,
+  total_amount DECIMAL(10,2) GENERATED ALWAYS AS (quantity * price) STORED,
+  purchase_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  payment_method ENUM('cash', 'card', 'transfer') DEFAULT 'cash',
+  status ENUM('pending', 'completed', 'cancelled') DEFAULT 'pending',
+  FOREIGN KEY (user_id) REFERENCES users(user_id),
+  FOREIGN KEY (product_id) REFERENCES products(product_id),
+  FOREIGN KEY (official_price_id) REFERENCES official_product_prices(official_price_id)
+);
+
+CREATE TABLE shopping_lists (
+  list_id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  list_name VARCHAR(100),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+CREATE TABLE shopping_list_items (
+  item_id INT AUTO_INCREMENT PRIMARY KEY,
+  list_id INT NOT NULL,
+  product_name VARCHAR(150) NOT NULL,
+  quantity INT NOT NULL,
+  estimated_price DECIMAL(10,2),
+  FOREIGN KEY (list_id) REFERENCES shopping_lists(list_id)
+);
 ```

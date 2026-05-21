@@ -3,6 +3,16 @@ const cors = require("cors");
 const path = require("path");
 const jwt = require("jsonwebtoken");
 const { query } = require("./db-query");
+const {
+  createUser,
+  ensureAdminUser,
+  ensureUserTables,
+  findUserByUsername,
+  getShoppingLists,
+  passwordMatches,
+  savePurchases,
+  saveShoppingList
+} = require("./user-data");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -41,8 +51,11 @@ const apiEndpoints = [
   "/api/official-products",
   "/api/cheapest/:product",
   "/api/check-price/:product/:price",
+  "/api/register",
   "/api/login",
   "/api/me",
+  "/api/shopping-lists",
+  "/api/purchases",
   "/api/admin/overview"
 ];
 
@@ -67,32 +80,106 @@ app.get("/api/health", async (req, res) => {
   }
 });
 
-app.post("/api/login", (req, res) => {
+app.post("/api/register", async (req, res) => {
   const { username, password } = req.body;
-  const { adminUsername, adminPassword } = getAdminCredentials();
+  const cleanUsername = String(username || "").trim();
 
-  if (username !== adminUsername || password !== adminPassword) {
-    res.status(401).json({ message: "Ongeldige gebruikersnaam of wachtwoord" });
+  if (!isValidUsername(cleanUsername) || !isValidPassword(password)) {
+    res.status(400).json({
+      message: "Gebruik minimaal 3 tekens voor naam en 6 tekens voor wachtwoord"
+    });
     return;
   }
 
-  const token = jwt.sign(
-    { username: adminUsername, role: "admin" },
-    getJwtSecret(),
-    { expiresIn: "2h" }
-  );
-
-  res.json({
-    token,
-    user: {
-      username: adminUsername,
-      role: "admin"
+  try {
+    await ensureUserTables();
+    const user = await createUser(cleanUsername, password);
+    res.status(201).json(createLoginResponse(user));
+  } catch (err) {
+    if (err.code === "ER_DUP_ENTRY") {
+      res.status(409).json({ message: "Deze gebruikersnaam bestaat al" });
+      return;
     }
-  });
+
+    sendDatabaseError(res);
+  }
+});
+
+app.post("/api/login", async (req, res) => {
+  const { username, password } = req.body;
+  const cleanUsername = String(username || "").trim();
+
+  if (!cleanUsername || !password) {
+    res.status(400).json({ message: "Vul gebruikersnaam en wachtwoord in" });
+    return;
+  }
+
+  try {
+    await ensureUserTables();
+
+    const { adminUsername, adminPassword } = getAdminCredentials();
+    await ensureAdminUser(adminUsername, adminPassword);
+
+    const user = await findUserByUsername(cleanUsername);
+    const canLogin = user && (await passwordMatches(password, user.password_hash));
+
+    if (!canLogin) {
+      res.status(401).json({ message: "Ongeldige gebruikersnaam of wachtwoord" });
+      return;
+    }
+
+    res.json(createLoginResponse(user));
+  } catch (err) {
+    sendDatabaseError(res);
+  }
 });
 
 app.get("/api/me", requireAuth, (req, res) => {
   res.json({ user: req.user });
+});
+
+app.get("/api/shopping-lists", requireAuth, async (req, res) => {
+  try {
+    await ensureUserTables();
+    const lists = await getShoppingLists(req.user.user_id);
+    res.json(lists);
+  } catch (err) {
+    sendDatabaseError(res);
+  }
+});
+
+app.post("/api/shopping-lists", requireAuth, async (req, res) => {
+  const items = cleanBudgetItems(req.body.items);
+
+  if (!items.length) {
+    res.status(400).json({ message: "Voeg eerst producten toe aan je lijst" });
+    return;
+  }
+
+  try {
+    await ensureUserTables();
+    const listId = await saveShoppingList(req.user.user_id, req.body.list_name, items);
+    res.status(201).json({ list_id: listId, message: "Lijst opgeslagen" });
+  } catch (err) {
+    sendDatabaseError(res);
+  }
+});
+
+app.post("/api/purchases", requireAuth, async (req, res) => {
+  const items = cleanPurchaseItems(req.body.items);
+
+  if (!items.length) {
+    res.status(400).json({ message: "Voeg eerst producten toe aan je inkoop" });
+    return;
+  }
+
+  try {
+    await ensureUserTables();
+    await savePurchases(req.user.user_id, items, req.body.payment_method);
+    res.status(201).json({ message: "Inkoop opgeslagen" });
+  } catch (err) {
+    sendDatabaseError(res);
+  }
 });
 
 app.get("/api/summary", async (req, res) => {
@@ -185,6 +272,8 @@ app.get("/api/prices", async (req, res) => {
   try {
     const results = await query(`
       SELECT
+        p.product_id,
+        pv.variant_id,
         p.product_name,
         p.category,
         pv.brand,
@@ -349,6 +438,61 @@ function getPriceVerdict(userPrice, avgPrice) {
   if (userPrice < avgPrice) return "Goedkoop";
   if (userPrice > avgPrice) return "Duur";
   return "Gemiddeld";
+}
+
+function createLoginResponse(user) {
+  const safeUser = {
+    user_id: user.user_id,
+    username: user.username,
+    role: user.role
+  };
+
+  return {
+    token: jwt.sign(safeUser, getJwtSecret(), { expiresIn: "2h" }),
+    user: safeUser
+  };
+}
+
+function isValidUsername(username) {
+  return username.length >= 3 && username.length <= 100;
+}
+
+function isValidPassword(password) {
+  return typeof password === "string" && password.length >= 6;
+}
+
+function cleanBudgetItems(items) {
+  return cleanItems(items).map((item) => ({
+    product_name: item.product_name,
+    quantity: item.quantity,
+    estimated_price: item.price
+  }));
+}
+
+function cleanPurchaseItems(items) {
+  return cleanItems(items).map((item) => ({
+    product_id: item.product_id || null,
+    official_price_id: item.official_price_id || null,
+    product_name: item.product_name,
+    quantity: item.quantity,
+    price: item.price
+  }));
+}
+
+function cleanItems(items) {
+  if (!Array.isArray(items)) {
+    return [];
+  }
+
+  return items
+    .map((item) => ({
+      product_id: Number(item.product_id) || null,
+      official_price_id: Number(item.official_price_id) || null,
+      product_name: String(item.product_name || "").trim(),
+      quantity: Math.max(1, Math.round(Number(item.quantity) || 0)),
+      price: Number(item.price)
+    }))
+    .filter((item) => item.product_name && item.quantity > 0 && item.price >= 0);
 }
 
 function sendDatabaseError(res) {
