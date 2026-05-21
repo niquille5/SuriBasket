@@ -11,11 +11,15 @@ const {
   getShoppingLists,
   passwordMatches,
   savePurchases,
+<<<<<<< HEAD
   saveShoppingList,
   getFavorites,
   addFavorite,
   removeFavorite,
   isFavorited
+=======
+  saveShoppingList
+>>>>>>> 9689228 (Add user accounts, saved lists and updated login UI)
 } = require("./user-data");
 
 const app = express();

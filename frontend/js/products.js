@@ -205,7 +205,10 @@ function renderOfficialPrices(items) {
 
   state.renderedOfficialProducts = items.map((item, index) => ({
     key: "public-" + (item.official_price_id || index),
+<<<<<<< HEAD
     product_id: item.product_id,
+=======
+>>>>>>> 9689228 (Add user accounts, saved lists and updated login UI)
     official_price_id: item.official_price_id,
     product_name: item.product_name,
     category: item.category || "Algemeen",
