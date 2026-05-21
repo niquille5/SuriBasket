@@ -112,6 +112,8 @@ function renderLocalPrices(items) {
 
   state.renderedLocalProducts = items.map((item, index) => ({
     key: "local-" + index + "-" + item.product_name + "-" + item.store_name,
+    product_id: item.product_id,
+    variant_id: item.variant_id,
     product_name: item.product_name,
     category: item.category || "Algemeen",
     unit: getPackageText(item),
@@ -180,6 +182,7 @@ function renderOfficialPrices(items) {
 
   state.renderedOfficialProducts = items.map((item, index) => ({
     key: "public-" + (item.official_price_id || index),
+    official_price_id: item.official_price_id,
     product_name: item.product_name,
     category: item.category || "Algemeen",
     unit: item.retail_package || "stuk",

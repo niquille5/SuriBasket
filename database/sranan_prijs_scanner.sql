@@ -167,6 +167,47 @@ LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
+-- Boodschappenlijsten die een gebruiker bewaart.
+DROP TABLE IF EXISTS `shopping_lists`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `shopping_lists` (
+  `list_id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `list_name` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`list_id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `shopping_lists_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+LOCK TABLES `shopping_lists` WRITE;
+/*!40000 ALTER TABLE `shopping_lists` DISABLE KEYS */;
+/*!40000 ALTER TABLE `shopping_lists` ENABLE KEYS */;
+UNLOCK TABLES;
+
+-- Productregels binnen een bewaarde boodschappenlijst.
+DROP TABLE IF EXISTS `shopping_list_items`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `shopping_list_items` (
+  `item_id` int NOT NULL AUTO_INCREMENT,
+  `list_id` int NOT NULL,
+  `product_name` varchar(150) NOT NULL,
+  `quantity` int NOT NULL,
+  `estimated_price` decimal(10,2) DEFAULT NULL,
+  PRIMARY KEY (`item_id`),
+  KEY `list_id` (`list_id`),
+  CONSTRAINT `shopping_list_items_ibfk_1` FOREIGN KEY (`list_id`) REFERENCES `shopping_lists` (`list_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+LOCK TABLES `shopping_list_items` WRITE;
+/*!40000 ALTER TABLE `shopping_list_items` DISABLE KEYS */;
+/*!40000 ALTER TABLE `shopping_list_items` ENABLE KEYS */;
+UNLOCK TABLES;
+
 -- Aankopen of bewaarde inkoopregistraties van gebruikers.
 DROP TABLE IF EXISTS `purchases`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

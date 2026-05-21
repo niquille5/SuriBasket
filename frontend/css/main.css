@@ -104,6 +104,24 @@ a {
   width: 54px;
 }
 
+.brand-logo {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(255, 249, 226, 0.94));
+  border: 1px solid rgba(82, 113, 35, 0.18);
+  box-shadow: 0 10px 22px rgba(32, 25, 14, 0.12);
+  overflow: hidden;
+  width: 82px;
+}
+
+.brand-logo img {
+  display: block;
+  height: 150%;
+  object-fit: cover;
+  object-position: center 62%;
+  transform: translateY(-8%) scale(1.05);
+  width: 100%;
+}
+
 .brand strong,
 .brand small {
   display: block;
