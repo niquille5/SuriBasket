@@ -18,7 +18,9 @@
       </div>
       <nav class="navbar" aria-label="Hoofdnavigatie">
         <a class="brand" href="login.html">
-          <span class="brand-mark">SB</span>
+          <span class="brand-mark brand-logo">
+            <img src="assets/Suribasket_logo.jpeg" alt="Suri Basket" />
+          </span>
           <span>
             <strong>Suri Basket</strong>
             <small>Warung prijzen, checks en begrotingen</small>
@@ -197,6 +199,14 @@
             <button type="button" id="copyBudgetButton">
               Kopieer overzicht
             </button>
+
+            <button type="button" id="saveBudgetListButton">
+              Bewaar lijst
+            </button>
+
+            <button type="button" id="savePurchaseButton">
+              Bewaar als inkoop
+            </button>
           </div>
 
           <div id="budgetMessage" class="result" aria-live="polite"></div>
@@ -246,6 +256,6 @@
       <p>Prijsinformatie, publicatielijsten en consumentenvergelijking.</p>
     </footer>
 
-    <script type="module" src="js/app.js"></script>
+    <script src="js/script.js"></script>
   </body>
 </html>

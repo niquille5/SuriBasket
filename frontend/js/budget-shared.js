@@ -149,7 +149,7 @@ export function createBudgetList(elements) {
     if (!elements.table) return;
 
     if (!budget.items.length) {
-        elements.table.innerHTML =
+      elements.table.innerHTML =
         elements.table.tagName === "TBODY"
           ? '<tr><td colspan="6">Kies een pakket of voeg producten toe.</td></tr>'
           : '<p class="muted">Klik op Voeg toe bij een product om het hier te plaatsen.</p>';
@@ -326,6 +326,8 @@ export function buildBudgetProducts(prices) {
     if (!map.has(key)) {
       map.set(key, {
         key,
+        product_id: item.product_id || null,
+        variant_id: item.variant_id || null,
         product_name: item.product_name,
         category: item.category || "Algemeen",
         unit,
@@ -352,6 +354,8 @@ export function buildBudgetProducts(prices) {
   return [...map.values()]
     .map((item) => ({
       key: item.key,
+      product_id: item.product_id,
+      variant_id: item.variant_id,
       product_name: item.product_name,
       category: item.category,
       unit: item.unit,
