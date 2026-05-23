@@ -11,7 +11,11 @@ const {
   getShoppingLists,
   passwordMatches,
   savePurchases,
-  saveShoppingList
+  saveShoppingList,
+  getFavorites,
+  addFavorite,
+  removeFavorite,
+  isFavorited
 } = require("./user-data");
 
 const app = express();
@@ -361,6 +365,13 @@ app.get("/api/official-products", async (req, res) => {
         opp.source_name,
         opp.source_url,
         opp.source_row_number,
+        (
+          SELECT p2.product_id
+          FROM products p2
+          WHERE p2.product_name = opp.product_name
+          ORDER BY p2.product_id ASC
+          LIMIT 1
+        ) AS product_id,
         opp.product_name,
         opp.category,
         i.importer_name,
@@ -466,6 +477,85 @@ app.get("/api/check-price/:product/:price", async (req, res) => {
     sendDatabaseError(res);
   }
 });
+
+// Get favorites for authenticated user
+app.get("/api/favorites", requireAuth, async (req, res) => {
+  try {
+    const favorites = await getFavorites(req.user.user_id);
+    res.json(favorites);
+  } catch (err) {
+    console.error("Error fetching favorites:", err);
+    sendDatabaseError(res);
+  }
+});
+
+// Get favorites for a specific user (for logged-in user)
+app.get("/api/favorites/:user_id", requireAuth, async (req, res) => {
+  // Only allow users to view their own favorites
+  if (req.user.user_id !== parseInt(req.params.user_id) && req.user.role !== "admin") {
+    res.status(403).json({ message: "Geen toegang tot deze favorieten" });
+    return;
+  }
+  try {
+    const favorites = await getFavorites(req.params.user_id);
+    res.json(favorites);
+  } catch (err) {
+    console.error("Error fetching favorites:", err);
+    sendDatabaseError(res);
+  }
+});
+
+// Add favorite
+app.post("/api/favorites/add", requireAuth, async (req, res) => {
+  const { product_id, product_name, category } = req.body;
+  if (!product_id && !product_name) {
+    res.status(400).json({ message: "product_id of productnaam is vereist" });
+    return;
+  }
+  try {
+    const favoriteProductId = await addFavorite(req.user.user_id, {
+      product_id,
+      product_name,
+      category
+    });
+    res.status(201).json({
+      message: "Favoriet toegevoegd!",
+      product_id: favoriteProductId
+    });
+  } catch (err) {
+    console.error("Error adding favorite:", err);
+    sendDatabaseError(res);
+  }
+});
+
+// Remove favorite
+app.delete("/api/favorites/remove", requireAuth, async (req, res) => {
+  const { product_id, product_name } = req.body;
+  if (!product_id && !product_name) {
+    res.status(400).json({ message: "product_id of productnaam is vereist" });
+    return;
+  }
+  try {
+    await removeFavorite(req.user.user_id, { product_id, product_name });
+    res.json({ message: "Favoriet verwijderd!" });
+  } catch (err) {
+    console.error("Error removing favorite:", err);
+    sendDatabaseError(res);
+  }
+});
+
+// Check if product is favorited
+app.get("/api/favorites/check/:product_id", requireAuth, async (req, res) => {
+  try {
+    const favorited = await isFavorited(req.user.user_id, req.params.product_id);
+    res.json({ favorited });
+  } catch (err) {
+    console.error("Error checking favorite:", err);
+    sendDatabaseError(res);
+  }
+});
+
+
 
 function parseProductLabel(label) {
   const parts = String(label || "").split(" | ");
@@ -624,4 +714,3 @@ function assertProductionConfig() {
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
-

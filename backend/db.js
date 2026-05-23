@@ -22,3 +22,4 @@ db.query("SELECT 1 AS ok", (err) => {
 });
 
 module.exports = db;
+
