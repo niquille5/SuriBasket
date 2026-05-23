@@ -90,14 +90,52 @@
                 </button>
               </div>
 
-              <div class="filters">
-                <label for="searchInput">Zoekterm</label>
+              <div class="product-filters" aria-label="Producten filteren">
+                <div class="filters">
+                  <label for="searchInput">Zoekterm</label>
 
-                <input
-                  type="search"
-                  id="searchInput"
-                  placeholder="Product, importeur, merk of winkel"
-                />
+                  <input
+                    type="search"
+                    id="searchInput"
+                    placeholder="Product, importeur, merk of winkel"
+                  />
+                </div>
+
+                <div class="filters">
+                  <label for="productFilter">Producten</label>
+
+                  <select id="productFilter">
+                    <option value="">Alle producten</option>
+                  </select>
+                </div>
+
+                <div class="filters">
+                  <label for="categoryFilter">Categorie</label>
+
+                  <select id="categoryFilter">
+                    <option value="">Alle categorieen</option>
+                  </select>
+                </div>
+
+                <div class="filters">
+                  <label for="brandFilter">Merk</label>
+
+                  <select id="brandFilter">
+                    <option value="">Alle merken</option>
+                  </select>
+                </div>
+
+                <div class="filters">
+                  <label for="storeFilter">Winkel</label>
+
+                  <select id="storeFilter">
+                    <option value="">Alle winkels</option>
+                  </select>
+                </div>
+
+                <button type="button" id="clearProductFiltersButton">
+                  Wis filters
+                </button>
               </div>
             </div>
           </div>

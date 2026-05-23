@@ -39,6 +39,7 @@ async function loadProductTables() {
 
     state.officialProducts = onlyWarungProducts(officialProducts);
     state.budget.products = buildBudgetProducts(state.prices);
+    populateProductFilters();
     updateProductStats(state.prices.length);
     renderCurrentProductTable();
     state.budget.render();
@@ -53,6 +54,17 @@ function bindProductSearch() {
     searchInput.addEventListener("input", renderCurrentProductTable);
 
   document
+    .querySelectorAll(
+      "#productFilter, #categoryFilter, #brandFilter, #storeFilter",
+    )
+    .forEach((filter) =>
+      filter.addEventListener("input", renderCurrentProductTable),
+    );
+  document
+    .getElementById("clearProductFiltersButton")
+    ?.addEventListener("click", clearProductFilters);
+
+  document
     .getElementById("localPricesButton")
     ?.addEventListener("click", () => switchMode("local"));
   document
@@ -63,22 +75,27 @@ function bindProductSearch() {
 function switchMode(mode) {
   state.productMode = mode;
   setProductModeButtons();
+  populateProductFilters();
   renderCurrentProductTable();
 }
 
 function renderCurrentProductTable() {
   const searchInput = document.getElementById("searchInput");
   const query = searchInput ? searchInput.value.trim().toLowerCase() : "";
+  const selectedFilters = getSelectedProductFilters();
 
   if (state.productMode === "official") {
     setProductsTableMode("official");
-    const items = filterItems(state.officialProducts, query, [
-      "product_name",
-      "category",
-      "importer_name",
-      "wholesale_package",
-      "retail_package",
-    ]);
+    const items = filterByOptions(
+      filterItems(state.officialProducts, query, [
+        "product_name",
+        "category",
+        "importer_name",
+        "wholesale_package",
+        "retail_package",
+      ]),
+      selectedFilters,
+    );
     renderOfficialPrices(items);
     return;
   }
@@ -89,14 +106,17 @@ function renderCurrentProductTable() {
     "<tr><th>#</th><th>Product</th><th>Categorie</th><th>Merk</th><th>Verpakking</th><th>Winkel</th><th>Prijs</th><th>Actie</th></tr>",
   );
 
-  const items = filterItems(state.prices, query, [
-    "product_name",
-    "category",
-    "brand",
-    "store_name",
-    "location",
-    "unit",
-  ]);
+  const items = filterByOptions(
+    filterItems(state.prices, query, [
+      "product_name",
+      "category",
+      "brand",
+      "store_name",
+      "location",
+      "unit",
+    ]),
+    selectedFilters,
+  );
   renderLocalPrices(items);
 }
 
@@ -290,6 +310,122 @@ function filterItems(items, query, fields) {
         .includes(query),
     ),
   );
+}
+
+function filterByOptions(items, selectedFilters) {
+  return items.filter((item) => {
+    const matchesProduct =
+      !selectedFilters.product ||
+      item.product_name === selectedFilters.product;
+    const matchesCategory =
+      !selectedFilters.category ||
+      (item.category || "Algemeen") === selectedFilters.category;
+    const matchesBrand =
+      !selectedFilters.brand ||
+      getBrandValue(item) === selectedFilters.brand;
+    const matchesStore =
+      !selectedFilters.store ||
+      getStoreValue(item) === selectedFilters.store;
+
+    return matchesProduct && matchesCategory && matchesBrand && matchesStore;
+  });
+}
+
+function populateProductFilters() {
+  const sourceItems =
+    state.productMode === "official" ? state.officialProducts : state.prices;
+  const brandValues =
+    state.productMode === "official"
+      ? []
+      : getUniqueValues(sourceItems, getBrandValue);
+
+  populateSelect(
+    "productFilter",
+    "Alle producten",
+    getUniqueValues(sourceItems, (item) => item.product_name),
+  );
+  populateSelect(
+    "categoryFilter",
+    "Alle categorieen",
+    getUniqueValues(sourceItems, (item) => item.category || "Algemeen"),
+  );
+  populateSelect("brandFilter", "Alle merken", brandValues);
+  populateSelect(
+    "storeFilter",
+    state.productMode === "official" ? "Alle importeurs" : "Alle winkels",
+    getUniqueValues(sourceItems, getStoreValue),
+  );
+
+  const brandFilter = document.getElementById("brandFilter");
+  if (brandFilter) brandFilter.disabled = state.productMode === "official";
+}
+
+function clearProductFilters() {
+  const searchInput = document.getElementById("searchInput");
+  const filters = [
+    document.getElementById("productFilter"),
+    document.getElementById("categoryFilter"),
+    document.getElementById("brandFilter"),
+    document.getElementById("storeFilter"),
+  ];
+
+  if (searchInput) searchInput.value = "";
+  filters.forEach((filter) => {
+    if (filter) filter.value = "";
+  });
+  renderCurrentProductTable();
+}
+
+function getSelectedProductFilters() {
+  return {
+    product: document.getElementById("productFilter")?.value || "",
+    category: document.getElementById("categoryFilter")?.value || "",
+    brand: document.getElementById("brandFilter")?.value || "",
+    store: document.getElementById("storeFilter")?.value || "",
+  };
+}
+
+function populateSelect(id, defaultLabel, values) {
+  const select = document.getElementById(id);
+  if (!select) return;
+
+  const selectedValue = select.value;
+  select.innerHTML =
+    '<option value="">' +
+    escapeHtml(defaultLabel) +
+    "</option>" +
+    values
+      .map(
+        (value) =>
+          '<option value="' +
+          escapeHtml(value) +
+          '">' +
+          escapeHtml(value) +
+          "</option>",
+      )
+      .join("");
+
+  if (values.includes(selectedValue)) {
+    select.value = selectedValue;
+  }
+}
+
+function getUniqueValues(items, getValue) {
+  return [
+    ...new Set(
+      items.map(getValue).filter((value) => value !== null && value !== ""),
+    ),
+  ].sort((a, b) => a.localeCompare(b));
+}
+
+function getBrandValue(item) {
+  return item.brand || "Onbekend";
+}
+
+function getStoreValue(item) {
+  return state.productMode === "official"
+    ? item.importer_name || "Onbekend"
+    : item.store_name || "Onbekend";
 }
 
 function onlyWarungProducts(items) {

@@ -47,11 +47,16 @@ async function ensureUserTables() {
       item_id INT AUTO_INCREMENT PRIMARY KEY,
       list_id INT NOT NULL,
       product_name VARCHAR(150) NOT NULL,
+      category VARCHAR(100),
+      unit VARCHAR(100),
+      store_name VARCHAR(150),
       quantity INT NOT NULL,
       estimated_price DECIMAL(10,2),
       FOREIGN KEY (list_id) REFERENCES shopping_lists(list_id)
     )
   `);
+
+  await ensureShoppingListItemColumns();
 }
 
 async function createUser(username, password, role = "user") {
@@ -131,12 +136,15 @@ async function saveShoppingList(userId, listName, items) {
       await query(
         `
           INSERT INTO shopping_list_items
-            (list_id, product_name, quantity, estimated_price)
-          VALUES (?, ?, ?, ?)
+            (list_id, product_name, category, unit, store_name, quantity, estimated_price)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
         `,
         [
           listResult.insertId,
           item.product_name,
+          item.category || null,
+          item.unit || null,
+          item.store_name || null,
           item.quantity,
           item.estimated_price,
         ],
@@ -169,7 +177,15 @@ async function getShoppingLists(userId) {
   const listIds = lists.map((list) => list.list_id);
   const items = await query(
     `
-      SELECT item_id, list_id, product_name, quantity, estimated_price
+      SELECT
+        item_id,
+        list_id,
+        product_name,
+        category,
+        unit,
+        store_name,
+        quantity,
+        estimated_price
       FROM shopping_list_items
       WHERE list_id IN (?)
       ORDER BY item_id ASC
@@ -234,6 +250,35 @@ async function findProductId(item) {
   }
 
   return rows[0].product_id;
+}
+
+async function ensureShoppingListItemColumns() {
+  const columns = await query(
+    `
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_schema = DATABASE()
+        AND table_name = 'shopping_list_items'
+        AND column_name IN ('category', 'unit', 'store_name')
+    `,
+  );
+  const existingColumns = new Set(
+    columns.map((column) => column.column_name || column.COLUMN_NAME),
+  );
+
+  if (!existingColumns.has("category")) {
+    await query("ALTER TABLE shopping_list_items ADD COLUMN category VARCHAR(100)");
+  }
+
+  if (!existingColumns.has("unit")) {
+    await query("ALTER TABLE shopping_list_items ADD COLUMN unit VARCHAR(100)");
+  }
+
+  if (!existingColumns.has("store_name")) {
+    await query(
+      "ALTER TABLE shopping_list_items ADD COLUMN store_name VARCHAR(150)",
+    );
+  }
 }
 
 module.exports = {

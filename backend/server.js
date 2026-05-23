@@ -73,8 +73,50 @@ app.get("/favicon.ico", (req, res) => {
 
 app.get("/api/health", async (req, res) => {
   try {
-    await withTimeout(query("SELECT 1 AS ok"), 3000);
-    res.json({ status: "ok", database: "online" });
+    const [health] = await withTimeout(
+      query(`
+        SELECT
+          (SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'products') AS products_table_exists,
+          (SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'product_variants') AS variants_table_exists,
+          (SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'stores') AS stores_table_exists,
+          (SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'prices') AS prices_table_exists,
+          (SELECT COUNT(*) FROM products) AS products,
+          (SELECT COUNT(*) FROM product_variants) AS variants,
+          (SELECT COUNT(*) FROM stores) AS stores,
+          (SELECT COUNT(*) FROM prices) AS prices
+      `),
+      3000
+    );
+    const hasRequiredTables =
+      health.products_table_exists &&
+      health.variants_table_exists &&
+      health.stores_table_exists &&
+      health.prices_table_exists;
+    const hasAppData =
+      health.products > 0 &&
+      health.variants > 0 &&
+      health.stores > 0 &&
+      health.prices > 0;
+
+    if (!hasRequiredTables || !hasAppData) {
+      res.json({
+        status: "error",
+        database: "offline",
+        reason: hasRequiredTables ? "Database has no app data" : "Database schema is incomplete"
+      });
+      return;
+    }
+
+    res.json({
+      status: "ok",
+      database: "online",
+      counts: {
+        products: health.products,
+        variants: health.variants,
+        stores: health.stores,
+        prices: health.prices
+      }
+    });
   } catch (err) {
     res.json({ status: "error", database: "offline" });
   }
@@ -464,6 +506,9 @@ function isValidPassword(password) {
 function cleanBudgetItems(items) {
   return cleanItems(items).map((item) => ({
     product_name: item.product_name,
+    category: item.category,
+    unit: item.unit,
+    store_name: item.store_name,
     quantity: item.quantity,
     estimated_price: item.price
   }));
@@ -489,6 +534,9 @@ function cleanItems(items) {
       product_id: Number(item.product_id) || null,
       official_price_id: Number(item.official_price_id) || null,
       product_name: String(item.product_name || "").trim(),
+      category: String(item.category || "").trim(),
+      unit: String(item.unit || "").trim(),
+      store_name: String(item.store_name || "").trim(),
       quantity: Math.max(1, Math.round(Number(item.quantity) || 0)),
       price: Number(item.price)
     }))
@@ -576,3 +624,4 @@ function assertProductionConfig() {
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
+

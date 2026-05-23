@@ -1,24 +1,39 @@
 body[data-page="products"] main {
-  max-width: 1540px;
+  max-width: 1480px;
 }
 
 .products-workspace {
   align-items: start;
   display: grid;
   gap: 20px;
-  grid-template-columns: minmax(0, 1fr) 360px;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 340px);
 }
 
 .products-workspace .products-section {
   min-width: 0;
 }
 
+.products-section .section-heading.split {
+  align-items: start;
+  flex-direction: column;
+}
+
 .products-toolbar {
-  align-items: end;
-  display: flex;
-  flex-wrap: wrap;
+  align-items: stretch;
+  display: grid;
   gap: 14px;
-  justify-content: flex-end;
+  width: 100%;
+}
+
+.product-filters {
+  align-items: end;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+}
+
+.product-filters .filters:first-child {
+  grid-column: 1 / -1;
 }
 
 .product-stats {
@@ -162,8 +177,10 @@ body[data-page="products"] main {
   background: var(--soft);
   border: 1px solid var(--line);
   border-radius: 999px;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   padding: 4px;
+  width: min(520px, 100%);
 }
 
 .mode-switch button {
@@ -172,6 +189,7 @@ body[data-page="products"] main {
   color: var(--teal-dark);
   min-height: 38px;
   padding: 8px 12px;
+  white-space: nowrap;
 }
 
 .mode-switch button.active {
@@ -181,6 +199,10 @@ body[data-page="products"] main {
 
 .filters {
   min-width: 320px;
+}
+
+.product-filters .filters {
+  min-width: 0;
 }
 
 .products-section table {
@@ -264,6 +286,19 @@ body[data-page="products"] main {
   body[data-page="products"] main {
     max-width: 1180px;
   }
+
+  .products-workspace {
+    grid-template-columns: minmax(0, 1fr) 300px;
+  }
+
+  .product-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .product-filters .filters:first-child,
+  .product-filters button {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 900px) {
@@ -280,6 +315,10 @@ body[data-page="products"] main {
 
   .filters {
     min-width: 0;
+  }
+
+  .product-filters {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -339,6 +378,7 @@ body[data-page="products"] main {
 
 @media (max-width: 640px) {
   .products-toolbar,
+  .product-filters,
   .mode-switch {
     width: 100%;
   }
