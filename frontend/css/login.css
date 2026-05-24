@@ -1,10 +1,7 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap");
-
 body[data-page="login"] {
   background:
-    linear-gradient(90deg, rgba(34, 72, 10, 0.32), rgba(255, 253, 248, 0.06)),
-    url("../assets/Background login.png") center / cover no-repeat fixed;
-  font-family: "Poppins", "Segoe UI", Arial, Helvetica, sans-serif;
+    linear-gradient(90deg, rgba(62, 92, 18, 0.28), rgba(242, 244, 202, 0.18)),
+    url("../assets/frontpage.jpeg") center / cover no-repeat fixed;
 }
 
 body[data-page="login"] .site-header,
@@ -20,27 +17,21 @@ body[data-page="login"] main {
 
 .login-screen {
   align-items: center;
-  column-gap: clamp(28px, 4vw, 58px);
   display: grid;
-  grid-template-columns: minmax(320px, 0.95fr) minmax(390px, 500px);
+  gap: clamp(28px, 5vw, 74px);
+  grid-template-columns: minmax(320px, 1fr) minmax(390px, 520px);
   min-height: 100vh;
   overflow-x: hidden;
-  padding: clamp(24px, 4vw, 52px);
+  padding: clamp(28px, 5vw, 72px);
   position: relative;
-  row-gap: 12px;
 }
 
 .login-screen::before {
   background:
-    radial-gradient(
-      circle at 14% 18%,
-      rgba(238, 207, 62, 0.2),
-      transparent 26%
-    ),
     linear-gradient(
       90deg,
-      rgba(24, 49, 9, 0.36),
-      rgba(75, 105, 23, 0.12) 46%,
+      rgba(49, 86, 12, 0.42),
+      rgba(103, 137, 33, 0.18) 46%,
       rgba(255, 255, 255, 0.1)
     );
   content: "";
@@ -58,50 +49,34 @@ body[data-page="login"] main {
 
 .login-promise {
   color: #fff;
-  grid-row: 1 / span 2;
-  max-width: 580px;
+  max-width: 650px;
   padding-top: 8px;
-  transform: translateX(10px);
 }
 
 .login-brand {
-  display: block;
-  height: auto;
-  margin-bottom: clamp(20px, 2.4vw, 30px);
-  max-width: clamp(360px, 40vw, 560px);
-  overflow: visible;
-  width: 100%;
+  align-items: center;
+  display: flex;
+  gap: 14px;
+  margin-bottom: clamp(34px, 8vw, 92px);
 }
 
-.login-brand img {
-  display: block;
-  filter: drop-shadow(0 18px 28px rgba(35, 49, 8, 0.34));
-  height: auto;
-  object-fit: contain;
-  width: 100%;
+.login-brand .brand-mark {
+  background: linear-gradient(135deg, var(--sun), #f36f3a);
+  box-shadow: 0 14px 28px rgba(40, 55, 9, 0.24);
 }
 
-.login-promise-text {
-  border-left: 5px solid var(--sun);
-  max-width: 540px;
-  padding-left: clamp(16px, 2vw, 24px);
-}
-
-.login-kicker {
-  color: #fff3b7;
-  font-size: 14px;
-  font-weight: 900;
-  margin-bottom: 10px;
-  text-shadow: 0 8px 18px rgba(35, 49, 8, 0.34);
+.login-brand strong {
+  color: #fff;
+  font-size: clamp(34px, 4.6vw, 58px);
+  line-height: 1;
+  text-shadow: 0 10px 24px rgba(35, 49, 8, 0.3);
 }
 
 .login-promise h1 {
   color: #fff;
-  font-size: clamp(35px, 4.1vw, 50px);
-  font-weight: 900;
-  line-height: 1.06;
-  max-width: 540px;
-  text-shadow: 0 12px 28px rgba(28, 44, 8, 0.36);
+  font-size: clamp(44px, 6.2vw, 76px);
+  max-width: 650px;
+  text-shadow: 0 12px 28px rgba(35, 49, 8, 0.35);
 }
 
 .login-promise h1::first-line {
@@ -114,37 +89,34 @@ body[data-page="login"] main {
   animation: loginFadeUp 520ms ease both;
 }
 
-.login-promise-text > p:not(.login-kicker) {
+.login-promise p {
   color: #fff9ec;
-  font-size: clamp(17px, 1.6vw, 21px);
-  margin-top: 14px;
-  max-width: 500px;
+  font-size: clamp(20px, 2.1vw, 28px);
+  margin-top: 24px;
+  max-width: 560px;
   text-shadow: 0 8px 20px rgba(35, 49, 8, 0.34);
 }
 
 .login-points {
   display: grid;
-  gap: 12px;
+  gap: 18px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-top: 20px;
-  max-width: 500px;
+  margin-top: 42px;
+  max-width: 560px;
 }
 
 .login-points span {
   align-items: center;
-  background: rgba(255, 255, 255, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.26);
-  border-radius: 12px;
-  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
   color: #fff;
   display: flex;
-  flex-direction: column;
   font-weight: 800;
-  gap: 2px;
-  justify-content: center;
-  min-height: 48px;
-  padding: 11px 14px;
-  text-align: center;
+  gap: 8px;
+  min-height: 54px;
+  padding: 10px 16px;
+  backdrop-filter: blur(10px);
 }
 
 .login-points strong {
@@ -152,66 +124,40 @@ body[data-page="login"] main {
 }
 
 .auth-card {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 253, 248, 0.94));
-  border: 1px solid rgba(255, 255, 255, 0.86);
-  border-radius: 18px;
-  box-shadow:
-    0 28px 80px rgba(27, 38, 12, 0.26),
-    inset 0 1px 0 rgba(255, 255, 255, 0.88);
-  grid-column: 2;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 16px;
+  box-shadow: 0 24px 70px rgba(37, 49, 13, 0.24);
   justify-self: end;
   max-width: 520px;
-  overflow: hidden;
-  padding: clamp(24px, 3.2vw, 38px);
+  padding: clamp(28px, 4vw, 54px);
   width: 100%;
   animation: loginFadeIn 620ms ease both;
-  backdrop-filter: blur(14px);
-}
-
-.auth-card::before {
-  background:
-    linear-gradient(90deg, var(--teal-dark), var(--teal), var(--sun));
-  content: "";
-  display: block;
-  height: 6px;
-  margin:
-    calc(clamp(24px, 3.2vw, 38px) * -1)
-    calc(clamp(24px, 3.2vw, 38px) * -1)
-    24px;
 }
 
 .auth-card-header {
-  background:
-    radial-gradient(circle at 88% 10%, rgba(238, 207, 62, 0.2), transparent 32%),
-    #fbfff7;
-  border: 1px solid rgba(217, 223, 207, 0.78);
-  border-radius: 14px;
-  margin-bottom: 22px;
-  padding: 18px;
+  margin-bottom: 28px;
   text-align: center;
 }
 
 .auth-card-header .eyebrow {
   color: var(--teal);
-  letter-spacing: 0;
 }
 
 .auth-card h2 {
   color: #193912;
-  font-size: clamp(29px, 2.5vw, 36px);
-  letter-spacing: 0;
+  font-size: clamp(32px, 3vw, 44px);
 }
 
 .auth-card-header p:not(.eyebrow) {
   color: #6c7168;
-  font-size: 16px;
+  font-size: 18px;
   margin-top: 8px;
 }
 
 .auth-form {
   display: grid;
-  gap: 11px;
+  gap: 14px;
 }
 
 .auth-form[hidden] {
@@ -221,41 +167,30 @@ body[data-page="login"] main {
 .auth-form label {
   color: #173311;
   font-size: 15px;
-  font-weight: 800;
 }
 
 .auth-form input {
-  background:
-    linear-gradient(180deg, #ffffff, #fffefb);
-  border: 1px solid rgba(217, 223, 207, 0.98);
+  background: #fff;
+  border: 1px solid #dbe0d4;
   border-radius: 12px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  color: var(--ink);
-  min-height: 52px;
-  padding: 0 16px;
+  min-height: 56px;
   transition:
-    background 160ms ease,
     border-color 160ms ease,
     box-shadow 160ms ease;
 }
 
 .auth-form input:focus {
-  background: #fff;
   border-color: var(--teal);
-  box-shadow:
-    0 0 0 4px rgba(116, 152, 56, 0.16),
-    0 10px 24px rgba(82, 113, 35, 0.08);
+  box-shadow: 0 0 0 4px rgba(116, 152, 56, 0.16);
   outline: 0;
 }
 
 .auth-form button {
   background: linear-gradient(135deg, var(--teal), var(--teal-dark));
   border-radius: 12px;
-  box-shadow:
-    0 16px 28px rgba(82, 113, 35, 0.24),
-    inset 0 1px 0 rgba(255, 255, 255, 0.16);
-  margin-top: 12px;
-  min-height: 52px;
+  box-shadow: 0 14px 24px rgba(82, 113, 35, 0.2);
+  margin-top: 10px;
+  min-height: 56px;
   transition:
     box-shadow 160ms ease,
     transform 160ms ease;
@@ -264,9 +199,7 @@ body[data-page="login"] main {
 
 .auth-form button:hover {
   background: linear-gradient(135deg, #82a93e, var(--teal-dark));
-  box-shadow:
-    0 20px 34px rgba(82, 113, 35, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  box-shadow: 0 18px 30px rgba(82, 113, 35, 0.26);
   transform: translateY(-1px);
 }
 
@@ -275,7 +208,7 @@ body[data-page="login"] main {
   color: #82877c;
   display: flex;
   gap: 14px;
-  margin: 16px 0;
+  margin: 22px 0;
 }
 
 .auth-divider::before,
@@ -288,32 +221,29 @@ body[data-page="login"] main {
 
 .guest-button {
   align-items: center;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(217, 223, 207, 0.95);
+  background: #fff;
+  border: 1px solid #dfe3d9;
   border-radius: 12px;
   color: #60665d;
   display: flex;
   font-weight: 800;
   justify-content: center;
-  min-height: 52px;
+  min-height: 54px;
   transition:
-    background 160ms ease,
     border-color 160ms ease,
     color 160ms ease,
     transform 160ms ease;
 }
 
 .guest-button:hover {
-  background: #fbfff7;
   border-color: var(--teal);
-  box-shadow: 0 10px 22px rgba(82, 113, 35, 0.1);
   color: var(--teal-dark);
   transform: translateY(-1px);
 }
 
 .auth-switch {
   color: #767b73;
-  margin-top: 20px;
+  margin-top: 26px;
   text-align: center;
 }
 
@@ -333,35 +263,24 @@ body[data-page="login"] main {
 
 .login-trustbar {
   align-items: center;
-  background: rgba(255, 253, 248, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  border-radius: 12px;
+  background: rgba(255, 253, 248, 0.9);
+  border-radius: 999px 999px 0 0;
+  bottom: 0;
   color: var(--teal-dark);
-  display: grid;
-  gap: 10px;
-  grid-column: 2;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  justify-items: center;
-  justify-self: end;
-  min-height: 58px;
-  padding: 14px 18px;
-  position: relative;
-  width: min(520px, 100%);
-  box-shadow: 0 14px 30px rgba(37, 49, 13, 0.12);
+  display: flex;
+  gap: 26px;
+  justify-content: center;
+  left: 50%;
+  min-height: 66px;
+  padding: 18px 42px;
+  position: absolute;
+  transform: translateX(-50%);
+  width: min(760px, calc(100% - 34px));
 }
 
 .login-trustbar span {
-  line-height: 1.25;
   font-weight: 800;
-  min-height: 34px;
-  padding: 0 8px;
-  text-align: center;
-  white-space: normal;
-  width: 100%;
-}
-
-.login-trustbar span + span {
-  border-left: 1px solid rgba(82, 113, 35, 0.22);
+  white-space: nowrap;
 }
 
 @keyframes loginFadeUp {
@@ -390,27 +309,25 @@ body[data-page="login"] main {
 
 @media (max-width: 980px) {
   body[data-page="login"] {
-    background-position: center;
+    background-position: 38% center;
   }
 
   .login-screen {
     grid-template-columns: 1fr;
-    padding: 28px 20px 96px;
+    padding: 28px 20px 92px;
   }
 
   .login-screen::before {
-    background: rgba(62, 94, 17, 0.2);
+    background: rgba(62, 94, 17, 0.48);
   }
 
   .login-promise {
-    grid-row: auto;
     max-width: 720px;
     padding-top: 0;
-    transform: none;
   }
 
   .login-brand {
-    margin-bottom: 22px;
+    margin-bottom: 34px;
   }
 
   .login-points {
@@ -419,72 +336,53 @@ body[data-page="login"] main {
   }
 
   .auth-card {
-    grid-column: auto;
     justify-self: center;
-  }
-
-  .login-trustbar {
-    grid-column: auto;
-    justify-self: center;
-    width: min(520px, 100%);
   }
 }
 
 @media (max-width: 640px) {
   body[data-page="login"] {
-    background-position: center top;
+    background-position: 36% center;
   }
 
   .login-screen {
-    column-gap: 0;
-    row-gap: 18px;
-    padding: 20px 14px 28px;
+    gap: 22px;
+    padding: 22px 14px 96px;
   }
 
   .login-brand {
-    margin-bottom: 14px;
-    max-width: 320px;
-    height: auto;
+    margin-bottom: 24px;
   }
 
-  .login-promise-text {
-    border-left-width: 4px;
-    padding-left: 14px;
+  .login-brand .brand-mark {
+    height: 42px;
+    width: 46px;
   }
 
-  .login-kicker {
-    font-size: 13px;
-    margin-bottom: 8px;
+  .login-brand strong {
+    font-size: 31px;
   }
 
   .login-promise h1 {
-    font-size: 30px;
+    font-size: 38px;
   }
 
-  .login-promise-text > p:not(.login-kicker) {
-    font-size: 16px;
-    margin-top: 12px;
+  .login-promise p {
+    font-size: 17px;
+    margin-top: 14px;
   }
 
   .login-points {
-    gap: 6px;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    margin-top: 16px;
+    grid-template-columns: 1fr;
   }
 
   .login-points span {
-    font-size: 12px;
-    min-height: 44px;
-    padding: 8px 6px;
+    min-height: 48px;
   }
 
   .auth-card {
-    border-radius: 12px;
+    border-radius: 14px;
     padding: 24px 18px;
-  }
-
-  .auth-card::before {
-    margin: -24px -18px 24px;
   }
 
   .auth-card h2 {
@@ -496,25 +394,20 @@ body[data-page="login"] main {
   }
 
   .login-trustbar {
-    border-radius: 12px;
+    border-radius: 18px 18px 0 0;
+    display: grid;
     gap: 6px;
-    grid-column: auto;
-    grid-template-columns: 1fr;
-    justify-self: stretch;
+    left: auto;
     min-height: 78px;
     padding: 12px 18px;
+    position: relative;
+    text-align: center;
+    transform: none;
     width: 100%;
   }
 
   .login-trustbar span {
     font-size: 13px;
-    min-height: auto;
-    padding: 7px 0;
     white-space: normal;
-  }
-
-  .login-trustbar span + span {
-    border-left: 0;
-    border-top: 1px solid rgba(82, 113, 35, 0.18);
   }
 }

@@ -28,7 +28,6 @@ export async function initBudgetPage() {
 function getBudgetElements() {
   return {
     productSelect: document.getElementById("budgetProductSelect"),
-    productGrid: document.getElementById("budgetProductGrid"),
     quantityInput: document.getElementById("budgetQuantityInput"),
     addButton: document.getElementById("addBudgetItemButton"),
     clearButton: document.getElementById("clearBudgetButton"),

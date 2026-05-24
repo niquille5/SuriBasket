@@ -42,9 +42,6 @@ Bevat de originele publieke prijsregels die zijn geimporteerd. Deze tabel bewaar
 `users`  
 Bevat eindgebruikers en admins. Het echte wachtwoord wordt niet opgeslagen; alleen de veilige hash staat in `password_hash`. Met `role` wordt bepaald of iemand een gewone gebruiker of admin is.
 
-`favorites`
-Bevat favoriete producten per gebruiker.
-
 `purchases`  
 Bevat afgeronde of bewaarde aankopen/inkoopregistraties van gebruikers. Deze tabel is logisch wanneer een gebruiker producten koopt of een inkoopgeschiedenis wil bewaren.
 
@@ -92,13 +89,6 @@ Een gebruiker kan meerdere boodschappenlijsten bewaren:
 users.user_id -> shopping_lists.user_id
 ```
 
-Een gebruiker kan meerdere favoriete producten hebben:
-
-```text
-users.user_id -> favorites.user_id
-products.product_id -> favorites.product_id
-```
-
 Een boodschappenlijst heeft meerdere productregels:
 
 ```text
@@ -132,7 +122,7 @@ admin = beheerder
 
 De `shopping_lists` en `shopping_list_items` tabellen bewaren een begroting per gebruiker. De `purchases` tabel wordt gebruikt wanneer een gebruiker die lijst als afgeronde inkoop of inkoopgeschiedenis opslaat.
 
-## SQL Voor Users, Favorites En Purchases
+## SQL Voor Users En Purchases
 
 ```sql
 CREATE TABLE users (
@@ -141,16 +131,6 @@ CREATE TABLE users (
   password_hash VARCHAR(255) NOT NULL,
   role ENUM('user', 'admin') NOT NULL DEFAULT 'user',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE favorites (
-  favorites_id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT NOT NULL,
-  product_id INT NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(user_id),
-  FOREIGN KEY (product_id) REFERENCES products(product_id),
-  UNIQUE KEY unique_user_product (user_id, product_id)
 );
 
 CREATE TABLE purchases (

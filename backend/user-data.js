@@ -13,7 +13,6 @@ async function ensureUserTables() {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
-
   await query(`
     CREATE TABLE IF NOT EXISTS favorites (
       favorites_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -291,7 +290,6 @@ async function findProductId(item) {
   if (item.product_id) {
     return item.product_id;
   }
-
   const rows = await query(
     `
       SELECT product_id
@@ -301,14 +299,11 @@ async function findProductId(item) {
     `,
     [item.product_name],
   );
-
   if (!rows.length) {
     throw new Error("Product niet gevonden: " + item.product_name);
   }
-
   return rows[0].product_id;
 }
-
 async function getFavorites(userId) {
   return query(
     `
@@ -356,7 +351,6 @@ async function getFavorites(userId) {
     [userId],
   );
 }
-
 async function addFavorite(userId, favorite) {
   const productId = await getFavoriteProductId(favorite);
 
@@ -370,7 +364,6 @@ async function addFavorite(userId, favorite) {
 
   return productId;
 }
-
 async function removeFavorite(userId, favorite) {
   const productId = await getFavoriteProductId(favorite, { create: false });
   if (!productId) {
@@ -385,7 +378,6 @@ async function removeFavorite(userId, favorite) {
     [userId, productId],
   );
 }
-
 async function isFavorited(userId, productId) {
   const rows = await query(
     `
