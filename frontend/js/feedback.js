@@ -1,355 +1,230 @@
-// API Configuration
-const API_BASE_URL = 'http://localhost:3000'; // Change to your backend URL
-const API_ENDPOINTS = {
-    submit: `${API_BASE_URL}/api/feedback`,
-    stats: `${API_BASE_URL}/api/feedback/stats`
-};
+// Configuration: use backend API base URL (localhost:3000 as per dashboard context)
+    const API_BASE_URL = 'http://localhost:3000';
+    let apiAvailable = false;
 
-// DOM Elements
-const form = document.getElementById('feedbackForm');
-const submitBtn = document.getElementById('submitBtn');
-const alertDiv = document.getElementById('alertMessage');
-const charCounter = document.getElementById('charCounter');
-const messageField = document.getElementById('message');
-const starRatingInputs = document.querySelectorAll('input[name="rating"]');
-const ratingText = document.getElementById('ratingText');
-const issueTypeGroup = document.getElementById('issueTypeGroup');
-const fileUploadArea = document.getElementById('fileUploadArea');
-const screenshotInput = document.getElementById('screenshot');
-const screenshotPreview = document.getElementById('screenshotPreview');
-const previewImg = document.getElementById('previewImg');
-const removeScreenshotBtn = document.getElementById('removeScreenshot');
-
-// Helper Functions
-function showAlert(message, type = 'success') {
-    alertDiv.className = `alert ${type}`;
-    alertDiv.innerHTML = `
-        <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
-        <span>${message}</span>
-    `;
-    alertDiv.style.display = 'flex';
-    
-    setTimeout(() => {
-        alertDiv.style.display = 'none';
-    }, 5000);
-}
-
-function hideAlert() {
-    alertDiv.style.display = 'none';
-}
-
-function setLoading(isLoading) {
-    const btnText = submitBtn.querySelector('.btn-text');
-    const btnLoading = submitBtn.querySelector('.btn-loading');
-    
-    if (isLoading) {
-        btnText.style.display = 'none';
-        btnLoading.style.display = 'inline-flex';
-        submitBtn.disabled = true;
-    } else {
-        btnText.style.display = 'inline';
-        btnLoading.style.display = 'none';
-        submitBtn.disabled = false;
-    }
-}
-
-function updateCharCount() {
-    const length = messageField.value.length;
+    // DOM elements
+    const apiStatusSpan = document.getElementById('apiStatus');
+    const healthIconSpan = document.getElementById('healthIcon');
+    const healthMessageSpan = document.getElementById('healthMessage');
+    const feedbackForm = document.getElementById('feedbackForm');
+    const emailInput = document.getElementById('feedbackEmail');
+    const ratingRadios = document.querySelectorAll('input[name="rating"]');
+    const categorySelect = document.getElementById('feedbackCategory');
+    const messageTextarea = document.getElementById('feedbackMessage');
     const charCountSpan = document.getElementById('charCount');
-    charCountSpan.textContent = length;
-    
-    if (length > 800) {
-        charCounter.classList.add('warning');
-    } else {
-        charCounter.classList.remove('warning');
-    }
-    
-    if (length > 950) {
-        charCounter.classList.add('danger');
-    } else {
-        charCounter.classList.remove('danger');
-    }
-}
+    const submitBtn = document.getElementById('submitFeedbackBtn');
+    const resetBtn = document.getElementById('resetFormBtn');
 
-function updateRatingText(rating) {
-    const ratingMap = {
-        5: 'Excellent! ⭐⭐⭐⭐⭐',
-        4: 'Good! ⭐⭐⭐⭐',
-        3: 'Average ⭐⭐⭐',
-        2: 'Poor ⭐⭐',
-        1: 'Terrible ⭐'
-    };
-    ratingText.textContent = ratingMap[rating] || 'Select a rating';
-}
-
-function showIssueTypeField() {
-    const selectedRating = document.querySelector('input[name="rating"]:checked');
-    if (selectedRating && parseInt(selectedRating.value) <= 3) {
-        issueTypeGroup.style.display = 'block';
-    } else {
-        issueTypeGroup.style.display = 'none';
-        document.getElementById('issueType').value = '';
+    // Character counter update
+    function updateCharCount() {
+      const len = messageTextarea.value.length;
+      charCountSpan.textContent = len;
+      if (len > 900) {
+        charCountSpan.style.color = '#e67e22';
+      } else {
+        charCountSpan.style.color = '#6b7280';
+      }
     }
-}
+    if (messageTextarea) {
+      messageTextarea.addEventListener('input', updateCharCount);
+      updateCharCount();
+    }
 
-async function convertImageToBase64(file) {
-    return new Promise((resolve, reject) => {
-        if (!file) {
-            resolve(null);
-            return;
+    // Reset form handling (without clearing rating UI easily)
+    if (resetBtn) {
+      resetBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        feedbackForm.reset();
+        // manually clear rating checkboxes reset doesn't clear radio UI in all browsers consistently
+        ratingRadios.forEach(radio => radio.checked = false);
+        updateCharCount();
+        // also clear optional email
+        if (emailInput) emailInput.value = '';
+        if (categorySelect) categorySelect.value = '';
+        if (messageTextarea) messageTextarea.value = '';
+        updateCharCount();
+        // reset any validation styles
+        document.querySelectorAll('.form-group').forEach(g => g.classList.remove('error-shake'));
+      });
+    }
+
+    // Helper: show toast message
+    function showToast(message, type = 'success') {
+      const existingToast = document.querySelector('.toast-message');
+      if (existingToast) existingToast.remove();
+      const toast = document.createElement('div');
+      toast.className = `toast-message ${type}`;
+      toast.innerHTML = `<span>${type === 'success' ? '✅' : '❌'}</span> ${message}`;
+      document.body.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // Shake animation for validation
+    function shakeField(fieldElement) {
+      if (!fieldElement) return;
+      fieldElement.style.transform = 'translateX(4px)';
+      setTimeout(() => { fieldElement.style.transform = ''; }, 200);
+    }
+
+    // Validation
+    function validateFeedback() {
+      let isValid = true;
+      // rating validation: at least one checked
+      const ratingSelected = Array.from(ratingRadios).some(r => r.checked);
+      if (!ratingSelected) {
+        showToast('Selecteer een waardering (1-5 sterren)', 'error');
+        const ratingGroupDiv = document.querySelector('.rating-group');
+        if (ratingGroupDiv) shakeField(ratingGroupDiv);
+        isValid = false;
+        return false;
+      }
+      // category
+      const category = categorySelect.value;
+      if (!category || category === '') {
+        showToast('Kies een categorie voor de feedback', 'error');
+        shakeField(categorySelect);
+        isValid = false;
+        return false;
+      }
+      // message: minimum 10 chars
+      const msg = messageTextarea.value.trim();
+      if (msg.length < 10) {
+        showToast('Feedback bericht moet minimaal 10 karakters bevatten', 'error');
+        shakeField(messageTextarea);
+        isValid = false;
+        return false;
+      }
+      if (msg.length > 1000) {
+        showToast('Bericht mag maximaal 1000 karakters bevatten', 'error');
+        isValid = false;
+        return false;
+      }
+      return true;
+    }
+
+    // Submit feedback to database (POST /api/feedback)
+    async function submitFeedbackToDB(payload) {
+      // Using fetch with proper headers, expecting JSON response
+      const response = await fetch(`${API_BASE_URL}/api/feedback`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Server responded with ${response.status}: ${errorText}`);
+      }
+      return await response.json();
+    }
+
+    // Main submit handler
+    feedbackForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!validateFeedback()) return;
+
+      // gather data
+      const email = emailInput.value.trim() || null;
+      let ratingValue = null;
+      for (let radio of ratingRadios) {
+        if (radio.checked) {
+          ratingValue = parseInt(radio.value, 10);
+          break;
         }
-        
-        // Check file size (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-            reject(new Error('File size must be less than 5MB'));
-            return;
+      }
+      const category = categorySelect.value;
+      const message = messageTextarea.value.trim();
+      const userAgent = navigator.userAgent;
+
+      const feedbackData = {
+        email: email,
+        rating: ratingValue,
+        category: category,
+        message: message,
+        user_agent: userAgent,
+        status: 'pending',
+        created_at: new Date().toISOString()
+      };
+
+      // Disable button to prevent double submission
+      const originalBtnText = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '⏳ Versturen...';
+
+      try {
+        if (!apiAvailable) {
+          console.warn('API health check indicates backend offline, but attempting submission...');
         }
-        
-        // Check file type
-        if (!file.type.startsWith('image/')) {
-            reject(new Error('Only image files are allowed'));
-            return;
-        }
-        
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
+        const result = await submitFeedbackToDB(feedbackData);
+        showToast('Bedankt! Je feedback is opgeslagen in de database. 👍', 'success');
+        // reset form after success
+        feedbackForm.reset();
+        ratingRadios.forEach(r => r.checked = false);
+        if (messageTextarea) messageTextarea.value = '';
+        if (emailInput) emailInput.value = '';
+        if (categorySelect) categorySelect.value = '';
+        updateCharCount();
+        // optional: extra log
+        console.log('Feedback saved:', result);
+      } catch (err) {
+        console.error('Feedback submission error:', err);
+        showToast(`Fout bij opslaan: ${err.message}. Controleer of backend (localhost:3000) draait.`, 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnText;
+      }
     });
-}
 
-// Event Listeners
-messageField.addEventListener('input', updateCharCount);
-
-starRatingInputs.forEach(input => {
-    input.addEventListener('change', function() {
-        updateRatingText(this.value);
-        showIssueTypeField();
-    });
-});
-
-// File upload handling
-fileUploadArea.addEventListener('click', () => {
-    screenshotInput.click();
-});
-
-screenshotInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            previewImg.src = event.target.result;
-            screenshotPreview.style.display = 'block';
-            fileUploadArea.style.display = 'none';
-        };
-        reader.readAsDataURL(file);
-    }
-});
-
-removeScreenshotBtn.addEventListener('click', () => {
-    screenshotInput.value = '';
-    screenshotPreview.style.display = 'none';
-    fileUploadArea.style.display = 'block';
-});
-
-// Drag and drop upload
-fileUploadArea.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    fileUploadArea.style.borderColor = 'var(--primary-color)';
-    fileUploadArea.style.background = 'var(--light-gray)';
-});
-
-fileUploadArea.addEventListener('dragleave', (e) => {
-    e.preventDefault();
-    fileUploadArea.style.borderColor = 'var(--light-gray)';
-    fileUploadArea.style.background = 'transparent';
-});
-
-fileUploadArea.addEventListener('drop', (e) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-        screenshotInput.files = e.dataTransfer.files;
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            previewImg.src = event.target.result;
-            screenshotPreview.style.display = 'block';
-            fileUploadArea.style.display = 'none';
-        };
-        reader.readAsDataURL(file);
-    }
-    fileUploadArea.style.borderColor = 'var(--light-gray)';
-    fileUploadArea.style.background = 'transparent';
-});
-
-// Form submission
-form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    hideAlert();
-    
-    // Validate rating
-    const selectedRating = document.querySelector('input[name="rating"]:checked');
-    if (!selectedRating) {
-        showAlert('Please select a rating', 'error');
-        return;
-    }
-    
-    // Validate email
-    const email = document.getElementById('email').value.trim();
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        showAlert('Please enter a valid email address', 'error');
-        return;
-    }
-    
-    // Validate message
-    const message = document.getElementById('message').value.trim();
-    if (!message) {
-        showAlert('Please enter your feedback message', 'error');
-        return;
-    }
-    
-    // Validate page selection
-    const page = document.getElementById('page').value;
-    if (!page) {
-        showAlert('Please select which page you were on', 'error');
-        return;
-    }
-    
-    setLoading(true);
-    
-    try {
-        // Get browser info
-        const browserInfo = navigator.userAgent;
-        const referrer = document.referrer || 'Direct visit';
-        
-        // Convert screenshot to base64 if exists
-        let screenshotBase64 = null;
-        if (screenshotInput.files[0]) {
-            try {
-                screenshotBase64 = await convertImageToBase64(screenshotInput.files[0]);
-            } catch (uploadError) {
-                showAlert(uploadError.message, 'error');
-                setLoading(false);
-                return;
-            }
-        }
-        
-        // Prepare feedback data
-        const feedbackData = {
-            name: document.getElementById('name').value.trim() || null,
-            email: email,
-            rating: parseInt(selectedRating.value),
-            message: message,
-            page: page,
-            issueType: document.getElementById('issueType').value || null,
-            browserInfo: browserInfo,
-            referrer: referrer,
-            screenshot: screenshotBase64
-        };
-        
-        // Submit to backend
-        const response = await fetch(API_ENDPOINTS.submit, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(feedbackData)
+    // ========== API Health Check (align with dashboard "Backend verbinding") ==========
+    async function checkAPIHealth() {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        const response = await fetch(`${API_BASE_URL}/api/health`, {
+          method: 'GET',
+          signal: controller.signal,
         });
-        
-        const result = await response.json();
-        
-        if (response.ok && result.success) {
-            showAlert('✓ Thank you! Your feedback has been submitted successfully.', 'success');
-            form.reset();
-            
-            // Reset UI
-            document.querySelectorAll('input[name="rating"]').forEach(r => r.checked = false);
-            ratingText.textContent = 'Select a rating';
-            document.getElementById('charCount').textContent = '0';
-            charCounter.classList.remove('warning', 'danger');
-            screenshotPreview.style.display = 'none';
-            fileUploadArea.style.display = 'block';
-            issueTypeGroup.style.display = 'none';
-            
-            // Redirect to thank you page after 2 seconds
-            setTimeout(() => {
-                window.location.href = '/thank-you.html';
-            }, 2000);
+        clearTimeout(timeoutId);
+        if (response.ok) {
+          apiAvailable = true;
+          if (apiStatusSpan) {
+            apiStatusSpan.innerHTML = 'API online, database online';
+            apiStatusSpan.style.color = '#f1f1f1';
+          }
+          if (healthIconSpan) healthIconSpan.innerHTML = '🟢';
+          if (healthMessageSpan) healthMessageSpan.innerHTML = 'Backend actief — database gereed voor feedback.';
         } else {
-            throw new Error(result.message || 'Submission failed');
+          throw new Error('Health endpoint not ok');
         }
-    } catch (error) {
-        console.error('Submission error:', error);
-        showAlert(error.message || 'Sorry, something went wrong. Please try again or contact support.', 'error');
-    } finally {
-        setLoading(false);
+      } catch (err) {
+        apiAvailable = false;
+        if (apiStatusSpan) {
+          apiStatusSpan.innerHTML = 'Geen verbinding met localhost:3000';
+          apiStatusSpan.style.color = '#ffffff';
+        }
+        if (healthIconSpan) healthIconSpan.innerHTML = '🔴';
+        if (healthMessageSpan) healthMessageSpan.innerHTML = 'Geen verbinding met localhost:3000. Feedback wordt lokaal opgeslagen? Nee, databaseopslag vereist backend.';
+        console.warn('API health check failed', err);
+      }
     }
-});
 
-// Load statistics and testimonials
-async function loadStats() {
-    try {
-        const response = await fetch(API_ENDPOINTS.stats);
-        const data = await response.json();
-        
-        if (data.success) {
-            // Update stats badge
-            const avgRating = document.getElementById('avgRating');
-            const totalFeedback = document.getElementById('totalFeedback');
-            
-            if (avgRating) avgRating.textContent = `${data.stats.average_rating} ★`;
-            if (totalFeedback) totalFeedback.textContent = data.stats.total_feedback;
-            
-            // Load testimonials
-            const testimonialsList = document.getElementById('testimonialsList');
-            if (testimonialsList && data.testimonials && data.testimonials.length > 0) {
-                testimonialsList.innerHTML = '';
-                data.testimonials.forEach(testimonial => {
-                    const testimonialDiv = document.createElement('div');
-                    testimonialDiv.className = 'testimonial-item';
-                    testimonialDiv.innerHTML = `
-                        <div class="testimonial-rating">
-                            ${'★'.repeat(testimonial.rating)}${'☆'.repeat(5 - testimonial.rating)}
-                        </div>
-                        <div class="testimonial-text">"${testimonial.message.substring(0, 150)}${testimonial.message.length > 150 ? '...' : ''}"</div>
-                        <div class="testimonial-author">— ${testimonial.name || 'Anonymous'}</div>
-                    `;
-                    testimonialsList.appendChild(testimonialDiv);
-                });
-            }
-        }
-    } catch (error) {
-        console.error('Error loading stats:', error);
-        const statsBadge = document.getElementById('statsBadge');
-        if (statsBadge) {
-            statsBadge.innerHTML = '<i class="fas fa-chart-line"></i> Loading stats...';
-        }
-    }
-}
+    // Initialize API health
+    checkAPIHealth();
+    // Poll every 30s for status
+    setInterval(checkAPIHealth, 30000);
 
-// Auto-fill page from URL parameter
-function autoFillPageFromUrl() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const pageParam = urlParams.get('page');
-    if (pageParam) {
-        const pageSelect = document.getElementById('page');
-        if (pageSelect && [...pageSelect.options].some(opt => opt.value === pageParam)) {
-            pageSelect.value = pageParam;
-        }
-    }
-}
-
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    loadStats();
-    autoFillPageFromUrl();
-    updateCharCount();
-    
-    // Add animation to form elements
-    const formElements = document.querySelectorAll('.form-group');
-    formElements.forEach((el, index) => {
-        el.style.animation = `fadeIn 0.3s ease-out ${index * 0.05}s forwards`;
-        el.style.opacity = '0';
+    // style active nav link
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      if (link.getAttribute('href') === 'feedback.html') {
+        link.classList.add('active');
+        link.style.fontWeight = 'bold';
+        link.style.borderBottom = '2px solid var(--primary)';
+      }
     });
-});
+    
+    const handleRatingDisplay = () => {};

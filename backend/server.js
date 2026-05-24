@@ -577,5 +577,17 @@ app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
 
-
+// server.js
+app.get("/api/admin/feedback", requireRole("admin"), async (req, res) => {
+  try {
+    const [rows] = await query(`
+      SELECT f.feedback_id, f.username, f.message, f.created_at
+      FROM feedback f
+      ORDER BY f.created_at DESC
+    `);
+    res.json(rows);
+  } catch (err) {
+    sendDatabaseError(res);
+  }
+});
 
