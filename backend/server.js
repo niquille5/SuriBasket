@@ -11,15 +11,11 @@ const {
   getShoppingLists,
   passwordMatches,
   savePurchases,
-<<<<<<< HEAD
   saveShoppingList,
   getFavorites,
   addFavorite,
   removeFavorite,
   isFavorited
-=======
-  saveShoppingList
->>>>>>> 9689228 (Add user accounts, saved lists and updated login UI)
 } = require("./user-data");
 const {
   getFeedbackStats,
@@ -71,6 +67,11 @@ const apiEndpoints = [
   "/api/me",
   "/api/shopping-lists",
   "/api/purchases",
+  "/api/favorites",
+  "/api/favorites/:user_id",
+  "/api/favorites/add",
+  "/api/favorites/remove",
+  "/api/favorites/check/:product_id",
   "/api/feedback",
   "/api/feedback/stats",
   "/api/admin/feedback",

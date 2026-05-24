@@ -13,7 +13,7 @@ async function ensureUserTables() {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
-<<<<<<< HEAD
+
   await query(`
     CREATE TABLE IF NOT EXISTS favorites (
       favorites_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -26,8 +26,6 @@ async function ensureUserTables() {
     )
   `);
   await ensureFavoriteUniqueIndex();
-=======
->>>>>>> 9689228 (Add user accounts, saved lists and updated login UI)
 
   await query(`
     CREATE TABLE IF NOT EXISTS purchases (
@@ -69,7 +67,6 @@ async function ensureUserTables() {
   `);
 }
 
-<<<<<<< HEAD
 async function ensureFavoriteUniqueIndex() {
   const [indexInfo] = await query(`
     SELECT COUNT(*) AS index_exists
@@ -98,8 +95,6 @@ async function ensureFavoriteUniqueIndex() {
   `);
 }
 
-=======
->>>>>>> 9689228 (Add user accounts, saved lists and updated login UI)
 async function createUser(username, password, role = "user") {
   const passwordHash = await bcrypt.hash(password, passwordRounds);
 
@@ -264,10 +259,7 @@ async function findProductId(item) {
   if (item.product_id) {
     return item.product_id;
   }
-<<<<<<< HEAD
-=======
 
->>>>>>> 9689228 (Add user accounts, saved lists and updated login UI)
   const rows = await query(
     `
       SELECT product_id
@@ -277,12 +269,14 @@ async function findProductId(item) {
     `,
     [item.product_name],
   );
-<<<<<<< HEAD
+
   if (!rows.length) {
     throw new Error("Product niet gevonden: " + item.product_name);
   }
+
   return rows[0].product_id;
 }
+
 async function getFavorites(userId) {
   return query(
     `
@@ -330,6 +324,7 @@ async function getFavorites(userId) {
     [userId],
   );
 }
+
 async function addFavorite(userId, favorite) {
   const productId = await getFavoriteProductId(favorite);
 
@@ -343,6 +338,7 @@ async function addFavorite(userId, favorite) {
 
   return productId;
 }
+
 async function removeFavorite(userId, favorite) {
   const productId = await getFavoriteProductId(favorite, { create: false });
   if (!productId) {
@@ -357,6 +353,7 @@ async function removeFavorite(userId, favorite) {
     [userId, productId],
   );
 }
+
 async function isFavorited(userId, productId) {
   const rows = await query(
     `
@@ -417,28 +414,16 @@ async function getFavoriteProductId(favorite, options = { create: true }) {
 
   return result.insertId;
 }
-=======
 
-  if (!rows.length) {
-    throw new Error("Product niet gevonden: " + item.product_name);
-  }
-
-  return rows[0].product_id;
-}
-
->>>>>>> 9689228 (Add user accounts, saved lists and updated login UI)
 module.exports = {
   createUser,
   ensureAdminUser,
   ensureUserTables,
   findUserByUsername,
-<<<<<<< HEAD
   getFavorites,
   addFavorite,
   removeFavorite,
   isFavorited,
-=======
->>>>>>> 9689228 (Add user accounts, saved lists and updated login UI)
   getShoppingLists,
   passwordMatches,
   savePurchases,
