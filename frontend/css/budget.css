@@ -66,6 +66,19 @@
   margin-bottom: 20px;
 }
 
+.budget-section-header {
+  border-bottom: 1px solid var(--line);
+  grid-column: 1 / -1;
+  padding: 0 4px 16px;
+}
+
+.budget-section-header p:last-child {
+  color: var(--muted);
+  font-weight: 750;
+  margin-top: 6px;
+  max-width: 720px;
+}
+
 .preset-grid {
   display: grid;
   gap: 12px;
@@ -127,6 +140,11 @@
 
 .budget-add-panel {
   padding: 28px;
+}
+
+.budget-package-panel,
+.budget-add-panel {
+  align-self: stretch;
 }
 
 .budget-add-row label {
@@ -200,6 +218,10 @@
 .budget-package-panel {
   margin-bottom: 20px;
   padding: 28px;
+}
+
+.budget-selection-layout .budget-package-panel {
+  margin-bottom: 0;
 }
 
 .package-heading {
@@ -415,6 +437,10 @@
   .history-filters,
   .budget-add-row {
     grid-template-columns: 1fr;
+  }
+
+  .budget-section-header {
+    grid-column: auto;
   }
 
   .budget-add-row button {
