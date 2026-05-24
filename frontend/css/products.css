@@ -1,12 +1,24 @@
 body[data-page="products"] main {
-  max-width: 1540px;
+  max-width: 1440px;
+}
+
+body[data-page="products"] .page-title {
+  background:
+    radial-gradient(circle at 88% 18%, rgba(238, 207, 62, 0.34), transparent 26%),
+    linear-gradient(135deg, #243316, var(--teal-dark) 56%, #8c4f28);
+}
+
+body[data-page="products"] .products-section,
+body[data-page="products"] .note-panel {
+  border-top: 0;
+  box-shadow: 0 18px 40px rgba(32, 25, 14, 0.09);
 }
 
 .products-workspace {
   align-items: start;
   display: grid;
-  gap: 20px;
-  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 24px;
+  grid-template-columns: minmax(0, 1fr) 340px;
 }
 
 .products-workspace .products-section {
@@ -15,26 +27,28 @@ body[data-page="products"] main {
 
 .products-toolbar {
   align-items: end;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: 14px;
-  justify-content: flex-end;
+  grid-template-columns: minmax(380px, auto) minmax(260px, 340px);
+  justify-content: end;
 }
 
 .product-stats {
   display: grid;
-  gap: 10px;
+  gap: 12px;
   grid-template-columns: repeat(5, 1fr);
-  margin: 0 0 16px;
+  margin: 0 0 18px;
 }
 
 .product-stats span {
-  background: var(--mist);
+  background: linear-gradient(180deg, #ffffff, var(--mist));
   border: 1px solid rgba(18, 108, 101, 0.14);
-  border-radius: 12px;
+  border-radius: 14px;
+  box-shadow: 0 8px 18px rgba(32, 25, 14, 0.04);
   color: var(--muted);
   font-size: 13px;
-  padding: 12px;
+  min-height: 74px;
+  padding: 14px;
 }
 
 .product-stats strong {
@@ -87,6 +101,11 @@ body[data-page="products"] main {
   margin-bottom: 0;
 }
 
+.note-body {
+  border-top: 1px solid rgba(225, 216, 200, 0.72);
+  padding-top: 16px;
+}
+
 .note-list {
   display: grid;
   gap: 10px;
@@ -96,7 +115,7 @@ body[data-page="products"] main {
 }
 
 .note-item {
-  background: var(--mist);
+  background: linear-gradient(180deg, #ffffff, var(--mist));
   border: 1px solid rgba(18, 108, 101, 0.16);
   border-radius: 12px;
   display: grid;
@@ -167,32 +186,30 @@ body[data-page="products"] main {
 }
 
 .mode-switch {
-  background: var(--soft);
-  border: 1px solid var(--line);
-  border-radius: 999px;
+  background: #fffaf0;
+  border: 1px solid rgba(225, 216, 200, 0.9);
+  border-radius: 14px;
   display: flex;
-  gap: 8px;
+  gap: 6px;
   justify-content: center;
-  min-width: 500px;
+  min-width: 0;
   padding: 5px;
-  
-  position: absolute;
-  top: 79%;
-  left: 33%;
-  transform: translate(-50%, -50%);
+  width: 100%;
 }
 
 .mode-switch button {
   background: transparent;
-  border-radius: 999px;
+  border-radius: 10px;
   color: var(--teal-dark);
-  min-height: 38px;
-  min-width: 100px;
-  padding: 8px 16px;
+  min-height: 40px;
+  min-width: 0;
+  padding: 8px 14px;
+  white-space: nowrap;
 }
 
 .mode-switch button.active {
-  background: var(--teal);
+  background: linear-gradient(135deg, var(--teal-dark), var(--teal));
+  box-shadow: 0 8px 18px rgba(82, 113, 35, 0.18);
   color: #fff;
 }
 
@@ -203,6 +220,26 @@ body[data-page="products"] main {
 
 .filters {
   min-width: 320px;
+}
+
+.filters input {
+  background: #ffffff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.products-section .table-wrap {
+  background: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.products-section tbody tr {
+  transition:
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.products-section td strong {
+  color: var(--ink);
 }
 
 .products-section table {
@@ -324,6 +361,11 @@ body[data-page="products"] main {
   body[data-page="products"] main {
     max-width: 1180px;
   }
+
+  .products-toolbar {
+    grid-template-columns: 1fr;
+    justify-content: stretch;
+  }
 }
 
 @media (max-width: 900px) {
@@ -374,12 +416,85 @@ body[data-page="products"] main {
 
   .products-section td {
     border: 0;
-    padding: 6px 0;
+    display: grid;
+    gap: 8px;
+    grid-template-columns: 112px minmax(0, 1fr);
+    padding: 7px 0;
+  }
+
+  .products-section td::before {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 800;
   }
 
   .products-section td:nth-child(1) {
     color: var(--muted);
     font-size: 13px;
+  }
+
+  .products-section.is-local td:nth-child(1)::before,
+  .products-section.is-favorites td:nth-child(1)::before {
+    content: "#";
+  }
+
+  .products-section.is-local td:nth-child(2)::before,
+  .products-section.is-favorites td:nth-child(2)::before {
+    content: "Product";
+  }
+
+  .products-section.is-local td:nth-child(3)::before,
+  .products-section.is-favorites td:nth-child(3)::before {
+    content: "Categorie";
+  }
+
+  .products-section.is-local td:nth-child(4)::before,
+  .products-section.is-favorites td:nth-child(4)::before {
+    content: "Merk";
+  }
+
+  .products-section.is-local td:nth-child(5)::before,
+  .products-section.is-favorites td:nth-child(5)::before {
+    content: "Verpakking";
+  }
+
+  .products-section.is-local td:nth-child(6)::before,
+  .products-section.is-favorites td:nth-child(6)::before {
+    content: "Winkel";
+  }
+
+  .products-section.is-local td:nth-child(7)::before,
+  .products-section.is-favorites td:nth-child(7)::before {
+    content: "Prijs";
+  }
+
+  .products-section.is-local td:nth-child(8)::before,
+  .products-section.is-favorites td:nth-child(8)::before {
+    content: "Actie";
+  }
+
+  .products-section.is-official td:nth-child(1)::before {
+    content: "#";
+  }
+
+  .products-section.is-official td:nth-child(2)::before {
+    content: "Product";
+  }
+
+  .products-section.is-official td:nth-child(3)::before {
+    content: "Importeur";
+  }
+
+  .products-section.is-official td:nth-child(4)::before {
+    content: "Verpakking";
+  }
+
+  .products-section.is-official td:nth-child(5)::before {
+    content: "Prijs";
+  }
+
+  .products-section.is-official td:nth-child(6)::before {
+    content: "Actie";
   }
 
   .products-section.is-local td:nth-child(7),
@@ -391,6 +506,7 @@ body[data-page="products"] main {
   .products-section.is-local td:nth-child(8),
   .products-section.is-official td:nth-child(6),
   .products-section.is-favorites td:nth-child(8) {
+    align-items: center;
     text-align: left;
   }
 
@@ -423,6 +539,10 @@ body[data-page="products"] main {
 }
 
 @media (max-width: 420px) {
+  .products-section td {
+    grid-template-columns: 1fr;
+  }
+
   .note-controls {
     grid-template-columns: 64px 1fr 36px;
   }

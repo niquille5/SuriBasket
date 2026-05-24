@@ -10,6 +10,7 @@ export function createBudgetList(elements) {
     setProducts(prices) {
       budget.products = buildBudgetProducts(prices);
       renderProductOptions();
+      renderProductGrid();
       budget.render();
     },
 
@@ -58,6 +59,29 @@ export function createBudgetList(elements) {
         }
 
         const product = budget.products.find((item) => item.key === key);
+        budget.addProduct(product, quantity);
+      });
+    }
+
+    if (elements.productGrid) {
+      elements.productGrid.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-budget-product]");
+        if (!button) return;
+
+        const product = budget.products.find(
+          (item) => item.key === button.dataset.budgetProduct,
+        );
+        const quantity = Number(elements.quantityInput?.value) || 1;
+
+        if (elements.productSelect && product) {
+          elements.productSelect.value = product.key;
+        }
+
+        elements.productGrid
+          .querySelectorAll(".budget-product-card")
+          .forEach((card) => card.classList.remove("is-selected"));
+        button.classList.add("is-selected");
+
         budget.addProduct(product, quantity);
       });
     }
@@ -112,6 +136,39 @@ export function createBudgetList(elements) {
             "</option>",
         )
         .join("");
+  }
+
+  function renderProductGrid() {
+    if (!elements.productGrid) return;
+
+    if (!budget.products.length) {
+      elements.productGrid.innerHTML =
+        '<p class="muted">Geen producten gevonden.</p>';
+      return;
+    }
+
+    elements.productGrid.innerHTML = budget.products
+      .map(
+        (item) =>
+          '<button type="button" class="budget-product-card" data-budget-product="' +
+          escapeHtml(item.key) +
+          '">' +
+          '<span class="budget-product-card-body">' +
+          "<strong>" +
+          escapeHtml(item.product_name) +
+          "</strong>" +
+          '<span class="budget-product-meta">' +
+          escapeHtml(item.category) +
+          " | " +
+          escapeHtml(item.unit) +
+          "</span>" +
+          "</span>" +
+          '<em class="budget-product-price">' +
+          formatCurrency(item.price) +
+          "</em>" +
+          "</button>",
+      )
+      .join("");
   }
 
   function loadPreset(presetName) {
