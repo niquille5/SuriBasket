@@ -249,7 +249,8 @@ body[data-page="login"] main {
 }
 
 .auth-form button {
-  background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+  background:
+    linear-gradient(135deg, var(--teal), var(--teal-dark));
   border-radius: 12px;
   box-shadow:
     0 16px 28px rgba(82, 113, 35, 0.24),
