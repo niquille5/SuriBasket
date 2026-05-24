@@ -167,6 +167,33 @@ LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
+-- Doelprijsmeldingen van gebruikers.
+DROP TABLE IF EXISTS `price_alerts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `price_alerts` (
+  `alert_id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `product_id` int NOT NULL,
+  `variant_id` int DEFAULT NULL,
+  `target_price` decimal(10,2) NOT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`alert_id`),
+  KEY `idx_price_alert_user_product` (`user_id`,`product_id`,`variant_id`),
+  KEY `product_id` (`product_id`),
+  KEY `variant_id` (`variant_id`),
+  CONSTRAINT `price_alerts_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
+  CONSTRAINT `price_alerts_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`),
+  CONSTRAINT `price_alerts_ibfk_3` FOREIGN KEY (`variant_id`) REFERENCES `product_variants` (`variant_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+LOCK TABLES `price_alerts` WRITE;
+/*!40000 ALTER TABLE `price_alerts` DISABLE KEYS */;
+/*!40000 ALTER TABLE `price_alerts` ENABLE KEYS */;
+UNLOCK TABLES;
+
 -- Boodschappenlijsten die een gebruiker bewaart.
 DROP TABLE IF EXISTS `shopping_lists`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
