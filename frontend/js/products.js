@@ -12,10 +12,14 @@ const state = {
   renderedLocalProducts: [],
   renderedOfficialProducts: [],
   renderedFavoriteProducts: [],
+  renderedAlertProducts: [],
   budget: null,
   favorites: [],
+  priceAlerts: [],
+  alertKeys: new Set(),
   favoritedIds: new Set(),
   favoritedNames: new Set(),
+  alertProduct: null,
 };
 
 export async function initProductsPage() {
@@ -32,6 +36,7 @@ export async function initProductsPage() {
   });
 
   bindProductSearch();
+  createPriceAlertUi();
   await loadProductTables();
 }
 
@@ -46,6 +51,8 @@ async function loadProductTables() {
     state.budget.products = buildBudgetProducts(state.prices);
     populateProductFilters();
     await loadFavorites();
+    await loadPriceAlerts();
+    await showTriggeredPriceAlerts();
     updateProductStats(state.prices.length);
     renderCurrentProductTable();
     state.budget.render();
@@ -80,6 +87,9 @@ function bindProductSearch() {
   document
     .getElementById("favoritesButton")
     ?.addEventListener("click", () => switchMode("favorites"));
+  document
+    .getElementById("priceAlertsButton")
+    ?.addEventListener("click", () => switchMode("alerts"));
 }
 
 function switchMode(mode) {
@@ -117,6 +127,16 @@ function renderCurrentProductTable() {
       "<tr><th>#</th><th>Product</th><th>Categorie</th><th>Merk</th><th>Verpakking</th><th>Winkel</th><th>Prijs</th><th>Actie</th></tr>",
     );
     renderFavorites(query);
+    return;
+  }
+
+  if (state.productMode === "alerts") {
+    setProductsTableMode("alerts");
+    setText(document.getElementById("productsTableTitle"), "Prijsalerts");
+    setTableHead(
+      "<tr><th>#</th><th>Product</th><th>Categorie</th><th>Verpakking</th><th>Huidige prijs</th><th>Doelprijs</th><th>Status</th><th>Actie</th></tr>",
+    );
+    renderPriceAlerts(query);
     return;
   }
 
@@ -193,6 +213,7 @@ function renderLocalPrices(items) {
         '<button type="button" class="row-add-button" data-add-local="' +
         index +
         '">Voeg toe</button>' +
+        renderPriceAlertButton(item, "local", index) +
         renderFavoriteButton(item, "local", index) +
         "</div></td>" +
         "</tr>"
@@ -259,6 +280,7 @@ function renderOfficialPrices(items) {
         '<button type="button" class="row-add-button" data-add-official="' +
         index +
         '">Voeg toe</button>' +
+        renderPriceAlertButton(item, "official", index) +
         renderFavoriteButton(item, "official", index) +
         "</div></td>" +
         "</tr>",
@@ -335,6 +357,7 @@ function renderFavorites(query) {
         '<button type="button" class="row-add-button" data-add-favorite="' +
         index +
         '">Voeg toe</button>' +
+        renderPriceAlertButton(item, "favorite", index) +
         renderFavoriteButton(item, "favorite", index) +
         "</div></td>" +
         "</tr>"
@@ -343,6 +366,82 @@ function renderFavorites(query) {
     .join("");
 
   bindFavoriteRowButtons();
+  updateProductStats(items.length);
+}
+
+function renderPriceAlerts(query) {
+  const table = document.getElementById("pricesTable");
+  if (!table) return;
+
+  if (!hasAuthToken()) {
+    table.innerHTML =
+      '<tr><td colspan="8">Log in om je prijsalerts te bekijken.</td></tr>';
+    updateProductStats(0);
+    return;
+  }
+
+  const items = filterItems(state.priceAlerts, query, [
+    "product_name",
+    "category",
+    "brand",
+    "store_name",
+    "unit",
+    "package_label",
+  ]);
+
+  if (!items.length) {
+    table.innerHTML =
+      '<tr><td colspan="8">Geen prijsalerts gevonden.</td></tr>';
+    updateProductStats(0);
+    return;
+  }
+
+  state.renderedAlertProducts = items;
+  table.innerHTML = items
+    .map((item, index) => {
+      const packageText = getPackageText(item);
+      const currentPrice = Number(item.current_price);
+      const targetPrice = Number(item.target_price);
+      const hasCurrentPrice = Number.isFinite(currentPrice);
+
+      return (
+        "<tr>" +
+        "<td>" +
+        (index + 1) +
+        "</td>" +
+        "<td><strong>" +
+        escapeHtml(item.product_name) +
+        '</strong><span class="muted">' +
+        escapeHtml(item.brand || "") +
+        "</span></td>" +
+        "<td>" +
+        escapeHtml(item.category || "Algemeen") +
+        "</td>" +
+        "<td>" +
+        escapeHtml(packageText || "Niet ingevuld") +
+        "</td>" +
+        '<td class="price">' +
+        (hasCurrentPrice ? formatCurrency(currentPrice) : "Onbekend") +
+        '<span class="muted">' +
+        escapeHtml(item.store_name || "") +
+        "</span></td>" +
+        '<td class="price">' +
+        formatCurrency(targetPrice) +
+        "</td>" +
+        "<td>" +
+        renderAlertStatus(item) +
+        "</td>" +
+        '<td><div class="row-actions alert-row-actions">' +
+        '<button type="button" class="row-remove-alert-button" data-remove-alert="' +
+        index +
+        '">Verwijder alert</button>' +
+        "</div></td>" +
+        "</tr>"
+      );
+    })
+    .join("");
+
+  bindAlertRowButtons();
   updateProductStats(items.length);
 }
 
@@ -385,6 +484,22 @@ function bindProductRowButtons() {
       toggleFavorite(product);
     });
   });
+
+  table.querySelectorAll("[data-alert-local]").forEach((button) => {
+    button.addEventListener("click", () => {
+      showPriceAlertDialog(
+        state.renderedLocalProducts[Number(button.dataset.alertLocal)],
+      );
+    });
+  });
+
+  table.querySelectorAll("[data-alert-official]").forEach((button) => {
+    button.addEventListener("click", () => {
+      showPriceAlertDialog(
+        state.renderedOfficialProducts[Number(button.dataset.alertOfficial)],
+      );
+    });
+  });
 }
 
 function bindFavoriteRowButtons() {
@@ -408,6 +523,27 @@ function bindFavoriteRowButtons() {
       toggleFavorite(product);
     });
   });
+
+  table.querySelectorAll("[data-alert-favorite]").forEach((button) => {
+    button.addEventListener("click", () => {
+      showPriceAlertDialog(
+        state.renderedFavoriteProducts[Number(button.dataset.alertFavorite)],
+      );
+    });
+  });
+}
+
+function bindAlertRowButtons() {
+  const table = document.getElementById("pricesTable");
+  if (!table) return;
+
+  table.querySelectorAll("[data-remove-alert]").forEach((button) => {
+    button.addEventListener("click", () => {
+      removePriceAlert(
+        state.renderedAlertProducts[Number(button.dataset.removeAlert)],
+      );
+    });
+  });
 }
 
 function updateProductStats(visibleCount) {
@@ -417,6 +553,7 @@ function updateProductStats(visibleCount) {
     state.officialProducts.length,
   );
   setText(document.getElementById("favoritesTotal"), state.favorites.length);
+  setText(document.getElementById("alertsTotal"), state.priceAlerts.length);
   setText(document.getElementById("visiblePriceTotal"), visibleCount);
   setText(
     document.getElementById("noteItemTotal"),
@@ -434,6 +571,9 @@ function setProductModeButtons() {
   document
     .getElementById("favoritesButton")
     ?.classList.toggle("active", state.productMode === "favorites");
+  document
+    .getElementById("priceAlertsButton")
+    ?.classList.toggle("active", state.productMode === "alerts");
 }
 
 function setTableHead(html) {
@@ -448,6 +588,7 @@ function setProductsTableMode(mode) {
   section.classList.toggle("is-local", mode === "local");
   section.classList.toggle("is-official", mode === "official");
   section.classList.toggle("is-favorites", mode === "favorites");
+  section.classList.toggle("is-alerts", mode === "alerts");
 }
 
 function filterItems(items, query, fields) {
@@ -661,6 +802,50 @@ async function loadFavorites() {
   }
 }
 
+async function loadPriceAlerts() {
+  if (!hasAuthToken()) {
+    state.priceAlerts = [];
+    state.alertKeys = new Set();
+    setText(document.getElementById("alertsTotal"), 0);
+    return;
+  }
+
+  try {
+    const alerts = await fetchJsonWithAuth("/api/price-alerts");
+    state.priceAlerts = alerts;
+    state.alertKeys = new Set(alerts.map(getAlertKey));
+    setText(document.getElementById("alertsTotal"), alerts.length);
+  } catch (error) {
+    state.priceAlerts = [];
+    state.alertKeys = new Set();
+    setText(document.getElementById("alertsTotal"), 0);
+  }
+}
+
+async function removePriceAlert(alert) {
+  const alertId = Number(alert && alert.alert_id);
+  if (!alertId) return;
+
+  await fetchJsonWithAuth("/api/price-alerts/" + alertId, {
+    method: "DELETE",
+  });
+
+  await loadPriceAlerts();
+  renderCurrentProductTable();
+}
+
+async function showTriggeredPriceAlerts() {
+  if (!hasAuthToken()) return;
+
+  try {
+    const alerts = await fetchJsonWithAuth("/api/price-alerts/triggered");
+    if (!alerts.length) return;
+    renderTriggeredPriceAlerts(alerts);
+  } catch (error) {
+    // Price alerts should never block the product table.
+  }
+}
+
 function renderFavoriteButton(product, source, index) {
   const active = isProductFavorited(product);
   const label = active ? "Verwijder favoriet" : "Voeg toe aan favorieten";
@@ -680,6 +865,32 @@ function renderFavoriteButton(product, source, index) {
     symbol +
     "</button>"
   );
+}
+
+function renderPriceAlertButton(product, source, index) {
+  const active = isPriceAlertActive(product);
+  const label = active ? "Prijsalert actief" : "Maak prijsalert";
+
+  return (
+    '<button type="button" class="row-alert-button' +
+    (active ? " active" : "") +
+    '" data-alert-' +
+    source +
+    '="' +
+    index +
+    '" aria-label="' +
+    label +
+    '">' +
+    (active ? "Alert aan" : "Prijsalert") +
+    "</button>"
+  );
+}
+
+function renderAlertStatus(alert) {
+  const className = alert.triggered ? "alert-status reached" : "alert-status";
+  const label = alert.triggered ? "Doel bereikt" : "Actief";
+
+  return '<span class="' + className + '">' + label + "</span>";
 }
 
 function isProductFavorited(product) {
@@ -702,11 +913,199 @@ function syncProductId(productName, productId) {
   const normalizedName = normalizeFavoriteName(productName);
   if (!normalizedName || !productId) return;
 
-  [state.prices, state.officialProducts, state.favorites].forEach((items) => {
+  [
+    state.prices,
+    state.officialProducts,
+    state.favorites,
+    state.priceAlerts,
+  ].forEach((items) => {
     items.forEach((item) => {
       if (normalizeFavoriteName(item.product_name) === normalizedName) {
         item.product_id = productId;
       }
     });
   });
+}
+
+function createPriceAlertUi() {
+  if (document.getElementById("priceAlertDialog")) return;
+
+  const dialog = document.createElement("div");
+  dialog.id = "priceAlertDialog";
+  dialog.className = "price-alert-dialog";
+  dialog.setAttribute("aria-hidden", "true");
+  dialog.innerHTML =
+    '<div class="price-alert-card" role="dialog" aria-modal="true" aria-labelledby="priceAlertTitle">' +
+    '<div class="price-alert-heading">' +
+    '<div><p class="eyebrow">Prijsalert</p><h2 id="priceAlertTitle">Doelprijs instellen</h2></div>' +
+    '<button type="button" class="price-alert-close" id="priceAlertClose" aria-label="Sluiten">x</button>' +
+    "</div>" +
+    '<p id="priceAlertProduct" class="price-alert-product"></p>' +
+    '<label for="priceAlertTarget">Meld wanneer de prijs maximaal is</label>' +
+    '<div class="price-alert-input"><span>SRD</span><input type="number" min="0.01" step="0.01" id="priceAlertTarget" /></div>' +
+    '<div id="priceAlertMessage" class="price-alert-message" aria-live="polite"></div>' +
+    '<div class="price-alert-actions">' +
+    '<button type="button" class="table-button" id="priceAlertCancel">Annuleer</button>' +
+    '<button type="button" id="priceAlertSave">Opslaan</button>' +
+    "</div>" +
+    "</div>";
+
+  document.body.appendChild(dialog);
+
+  document
+    .getElementById("priceAlertClose")
+    ?.addEventListener("click", hidePriceAlertDialog);
+  document
+    .getElementById("priceAlertCancel")
+    ?.addEventListener("click", hidePriceAlertDialog);
+  document
+    .getElementById("priceAlertSave")
+    ?.addEventListener("click", saveCurrentPriceAlert);
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) hidePriceAlertDialog();
+  });
+}
+
+function showPriceAlertDialog(product) {
+  if (!product) return;
+
+  if (!hasAuthToken()) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  state.alertProduct = product;
+  const dialog = document.getElementById("priceAlertDialog");
+  const productText = document.getElementById("priceAlertProduct");
+  const targetInput = document.getElementById("priceAlertTarget");
+  const message = document.getElementById("priceAlertMessage");
+
+  const price = Number(product.price);
+  if (productText) {
+    productText.textContent =
+      product.product_name +
+      " | huidige prijs " +
+      (Number.isFinite(price) ? formatCurrency(price) : "onbekend");
+  }
+  if (targetInput) {
+    targetInput.value = Number.isFinite(price) ? price.toFixed(2) : "";
+    setTimeout(() => targetInput.focus(), 0);
+  }
+  if (message) {
+    message.textContent = "";
+    message.className = "price-alert-message";
+  }
+
+  dialog?.classList.add("show");
+  dialog?.setAttribute("aria-hidden", "false");
+}
+
+function hidePriceAlertDialog() {
+  const dialog = document.getElementById("priceAlertDialog");
+  dialog?.classList.remove("show");
+  dialog?.setAttribute("aria-hidden", "true");
+  state.alertProduct = null;
+}
+
+async function saveCurrentPriceAlert() {
+  const product = state.alertProduct;
+  const targetInput = document.getElementById("priceAlertTarget");
+  const message = document.getElementById("priceAlertMessage");
+  const targetPrice = Number(targetInput?.value);
+
+  if (!product || !Number.isFinite(targetPrice) || targetPrice <= 0) {
+    showPriceAlertMessage("Vul een geldige doelprijs in.", "error");
+    return;
+  }
+
+  try {
+    await fetchJsonWithAuth("/api/price-alerts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        product_id: product.product_id || null,
+        product_name: product.product_name,
+        category: product.category || null,
+        variant_id: product.variant_id || null,
+        target_price: targetPrice,
+      }),
+    });
+    showPriceAlertMessage("Prijsalert opgeslagen.", "success");
+    await loadPriceAlerts();
+    syncAlertProduct(product);
+    renderCurrentProductTable();
+    setTimeout(hidePriceAlertDialog, 700);
+  } catch (error) {
+    if (message) {
+      showPriceAlertMessage("Prijsalert kon niet worden opgeslagen.", "error");
+    }
+  }
+}
+
+function showPriceAlertMessage(text, type) {
+  const message = document.getElementById("priceAlertMessage");
+  if (!message) return;
+
+  message.textContent = text;
+  message.className = "price-alert-message " + type;
+}
+
+function renderTriggeredPriceAlerts(alerts) {
+  const existing = document.getElementById("triggeredPriceAlerts");
+  existing?.remove();
+
+  const panel = document.createElement("div");
+  panel.id = "triggeredPriceAlerts";
+  panel.className = "triggered-price-alerts";
+  panel.innerHTML =
+    '<div class="triggered-price-alerts-heading">' +
+    "<strong>Prijsdoel bereikt</strong>" +
+    '<button type="button" aria-label="Sluiten">x</button>' +
+    "</div>" +
+    alerts
+      .map(
+        (alert) =>
+          '<div class="triggered-price-alert">' +
+          "<strong>" +
+          escapeHtml(alert.product_name) +
+          "</strong>" +
+          "<span>" +
+          escapeHtml(alert.store_name || "Beste beschikbare prijs") +
+          ": " +
+          formatCurrency(alert.current_price) +
+          " bij doel " +
+          formatCurrency(alert.target_price) +
+          "</span>" +
+          "</div>",
+      )
+      .join("");
+
+  document.body.appendChild(panel);
+  panel.querySelector("button")?.addEventListener("click", () => panel.remove());
+}
+
+function isPriceAlertActive(product) {
+  return state.alertKeys.has(getAlertKey(product));
+}
+
+function getAlertKey(product) {
+  if (!product) return "";
+  const productPart = product.product_id
+    ? "id:" + Number(product.product_id)
+    : "name:" + normalizeFavoriteName(product.product_name);
+  return productPart + ":variant:" + Number(product.variant_id || 0);
+}
+
+function syncAlertProduct(product) {
+  const saved = state.priceAlerts.find(
+    (alert) =>
+      normalizeFavoriteName(alert.product_name) ===
+        normalizeFavoriteName(product.product_name) &&
+      Number(alert.variant_id || 0) === Number(product.variant_id || 0),
+  );
+
+  if (saved?.product_id && !product.product_id) {
+    product.product_id = saved.product_id;
+    syncProductId(product.product_name, saved.product_id);
+  }
 }

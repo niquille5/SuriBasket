@@ -13,8 +13,11 @@ const {
   savePurchases,
   saveShoppingList,
   getFavorites,
+  getPriceAlerts,
   addFavorite,
+  savePriceAlert,
   removeFavorite,
+  removePriceAlert,
   isFavorited
 } = require("./user-data");
 
@@ -60,6 +63,8 @@ const apiEndpoints = [
   "/api/me",
   "/api/shopping-lists",
   "/api/purchases",
+  "/api/price-alerts",
+  "/api/price-alerts/triggered",
   "/api/admin/overview"
 ];
 
@@ -551,6 +556,68 @@ app.get("/api/favorites/check/:product_id", requireAuth, async (req, res) => {
     res.json({ favorited });
   } catch (err) {
     console.error("Error checking favorite:", err);
+    sendDatabaseError(res);
+  }
+});
+
+app.get("/api/price-alerts", requireAuth, async (req, res) => {
+  try {
+    const alerts = await getPriceAlerts(req.user.user_id);
+    res.json(alerts);
+  } catch (err) {
+    console.error("Error fetching price alerts:", err);
+    sendDatabaseError(res);
+  }
+});
+
+app.get("/api/price-alerts/triggered", requireAuth, async (req, res) => {
+  try {
+    const alerts = await getPriceAlerts(req.user.user_id, {
+      triggeredOnly: true
+    });
+    res.json(alerts);
+  } catch (err) {
+    console.error("Error fetching triggered price alerts:", err);
+    sendDatabaseError(res);
+  }
+});
+
+app.post("/api/price-alerts", requireAuth, async (req, res) => {
+  const targetPrice = Number(req.body.target_price);
+
+  if (!Number.isFinite(targetPrice) || targetPrice <= 0) {
+    res.status(400).json({ message: "Vul een geldige doelprijs in" });
+    return;
+  }
+
+  try {
+    const alert = await savePriceAlert(req.user.user_id, {
+      product_id: req.body.product_id,
+      product_name: req.body.product_name,
+      category: req.body.category,
+      variant_id: req.body.variant_id,
+      target_price: targetPrice
+    });
+    res.status(201).json(alert);
+  } catch (err) {
+    console.error("Error saving price alert:", err);
+    res.status(400).json({ message: "Prijsalert kon niet worden opgeslagen" });
+  }
+});
+
+app.delete("/api/price-alerts/:alert_id", requireAuth, async (req, res) => {
+  const alertId = Number(req.params.alert_id);
+
+  if (!alertId) {
+    res.status(400).json({ message: "Ongeldige prijsalert" });
+    return;
+  }
+
+  try {
+    await removePriceAlert(req.user.user_id, alertId);
+    res.json({ message: "Prijsalert verwijderd" });
+  } catch (err) {
+    console.error("Error removing price alert:", err);
     sendDatabaseError(res);
   }
 });
