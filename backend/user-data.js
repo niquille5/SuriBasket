@@ -59,9 +59,30 @@ async function ensureUserTables() {
       item_id INT AUTO_INCREMENT PRIMARY KEY,
       list_id INT NOT NULL,
       product_name VARCHAR(150) NOT NULL,
+      category VARCHAR(100),
+      unit VARCHAR(100),
+      store_name VARCHAR(150),
       quantity INT NOT NULL,
       estimated_price DECIMAL(10,2),
       FOREIGN KEY (list_id) REFERENCES shopping_lists(list_id)
+    )
+  `);
+
+  await ensureShoppingListItemColumns();
+
+  await query(`
+    CREATE TABLE IF NOT EXISTS price_alerts (
+      alert_id INT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT NOT NULL,
+      product_id INT NOT NULL,
+      variant_id INT,
+      target_price DECIMAL(10,2) NOT NULL,
+      is_active BOOLEAN NOT NULL DEFAULT TRUE,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(user_id),
+      FOREIGN KEY (product_id) REFERENCES products(product_id),
+      FOREIGN KEY (variant_id) REFERENCES product_variants(variant_id),
+      KEY idx_price_alert_user_product (user_id, product_id, variant_id)
     )
   `);
 }
@@ -171,12 +192,15 @@ async function saveShoppingList(userId, listName, items) {
       await query(
         `
           INSERT INTO shopping_list_items
-            (list_id, product_name, quantity, estimated_price)
-          VALUES (?, ?, ?, ?)
+            (list_id, product_name, category, unit, store_name, quantity, estimated_price)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
         `,
         [
           listResult.insertId,
           item.product_name,
+          item.category || null,
+          item.unit || null,
+          item.store_name || null,
           item.quantity,
           item.estimated_price,
         ],
@@ -209,7 +233,15 @@ async function getShoppingLists(userId) {
   const listIds = lists.map((list) => list.list_id);
   const items = await query(
     `
-      SELECT item_id, list_id, product_name, quantity, estimated_price
+      SELECT
+        item_id,
+        list_id,
+        product_name,
+        category,
+        unit,
+        store_name,
+        quantity,
+        estimated_price
       FROM shopping_list_items
       WHERE list_id IN (?)
       ORDER BY item_id ASC
@@ -359,6 +391,153 @@ async function isFavorited(userId, productId) {
   return rows.length > 0;
 }
 
+async function getPriceAlerts(userId, options = {}) {
+  await ensureUserTables();
+  const triggeredOnly = Boolean(options.triggeredOnly);
+
+  const alerts = await query(
+    `
+      SELECT
+        pa.alert_id,
+        pa.product_id,
+        pa.variant_id,
+        pa.target_price,
+        pa.is_active,
+        pa.created_at,
+        p.product_name,
+        p.category,
+        pv.brand,
+        pv.weight,
+        pv.unit,
+        pv.package_label
+      FROM price_alerts pa
+      JOIN products p ON pa.product_id = p.product_id
+      LEFT JOIN product_variants pv ON pa.variant_id = pv.variant_id
+      WHERE pa.user_id = ?
+        AND pa.is_active = TRUE
+      ORDER BY pa.created_at DESC
+    `,
+    [userId],
+  );
+
+  const alertsWithPrices = [];
+
+  for (const alert of alerts) {
+    const [currentPrice] = await query(
+      `
+        SELECT
+          pr.price AS current_price,
+          pr.date_checked,
+          s.store_name,
+          s.location,
+          pv.variant_id,
+          pv.brand,
+          pv.weight,
+          pv.unit,
+          pv.package_label
+        FROM prices pr
+        JOIN product_variants pv ON pr.variant_id = pv.variant_id
+        JOIN stores s ON pr.store_id = s.store_id
+        WHERE pv.product_id = ?
+          AND (? IS NULL OR pv.variant_id = ?)
+        ORDER BY pr.price ASC, pr.date_checked DESC, pr.price_id ASC
+        LIMIT 1
+      `,
+      [alert.product_id, alert.variant_id, alert.variant_id],
+    );
+
+    const current = currentPrice || {};
+    const currentValue = Number(current.current_price);
+    const targetValue = Number(alert.target_price);
+    const isTriggered =
+      Number.isFinite(currentValue) &&
+      Number.isFinite(targetValue) &&
+      currentValue <= targetValue;
+
+    alertsWithPrices.push({
+      ...alert,
+      target_price: targetValue,
+      current_price: Number.isFinite(currentValue) ? currentValue : null,
+      store_name: current.store_name || null,
+      location: current.location || null,
+      date_checked: current.date_checked || null,
+      brand: current.brand || alert.brand,
+      weight: current.weight || alert.weight,
+      unit: current.unit || alert.unit,
+      package_label: current.package_label || alert.package_label,
+      triggered: isTriggered,
+    });
+  }
+
+  return triggeredOnly
+    ? alertsWithPrices.filter((alert) => alert.triggered)
+    : alertsWithPrices;
+}
+
+async function savePriceAlert(userId, alert) {
+  await ensureUserTables();
+  const productId = await getFavoriteProductId(alert);
+  const variantId = Number(alert.variant_id) || null;
+  const targetPrice = Number(alert.target_price);
+
+  if (!productId || !Number.isFinite(targetPrice) || targetPrice <= 0) {
+    throw new Error("Invalid price alert");
+  }
+
+  const [existingAlert] = await query(
+    `
+      SELECT alert_id
+      FROM price_alerts
+      WHERE user_id = ?
+        AND product_id = ?
+        AND (
+          (? IS NULL AND variant_id IS NULL)
+          OR variant_id = ?
+        )
+      LIMIT 1
+    `,
+    [userId, productId, variantId, variantId],
+  );
+
+  if (existingAlert) {
+    await query(
+      `
+        UPDATE price_alerts
+        SET target_price = ?, is_active = TRUE
+        WHERE alert_id = ? AND user_id = ?
+      `,
+      [targetPrice, existingAlert.alert_id, userId],
+    );
+  } else {
+    await query(
+      `
+        INSERT INTO price_alerts
+          (user_id, product_id, variant_id, target_price, is_active)
+        VALUES (?, ?, ?, ?, TRUE)
+      `,
+      [userId, productId, variantId, targetPrice],
+    );
+  }
+
+  const alerts = await getPriceAlerts(userId);
+  return alerts.find(
+    (item) =>
+      Number(item.product_id) === Number(productId) &&
+      Number(item.variant_id || 0) === Number(variantId || 0) &&
+      Number(item.target_price) === Number(targetPrice),
+  );
+}
+
+async function removePriceAlert(userId, alertId) {
+  await query(
+    `
+      DELETE FROM price_alerts
+      WHERE user_id = ? AND alert_id = ?
+    `,
+    [userId, alertId],
+  );
+}
+
 async function getFavoriteProductId(favorite, options = { create: true }) {
   if (typeof favorite === "number" || typeof favorite === "string") {
     return Number(favorite) || null;
@@ -406,14 +585,47 @@ async function getFavoriteProductId(favorite, options = { create: true }) {
 
   return result.insertId;
 }
+
+async function ensureShoppingListItemColumns() {
+  const columns = await query(
+    `
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_schema = DATABASE()
+        AND table_name = 'shopping_list_items'
+        AND column_name IN ('category', 'unit', 'store_name')
+    `,
+  );
+  const existingColumns = new Set(
+    columns.map((column) => column.column_name || column.COLUMN_NAME),
+  );
+
+  if (!existingColumns.has("category")) {
+    await query("ALTER TABLE shopping_list_items ADD COLUMN category VARCHAR(100)");
+  }
+
+  if (!existingColumns.has("unit")) {
+    await query("ALTER TABLE shopping_list_items ADD COLUMN unit VARCHAR(100)");
+  }
+
+  if (!existingColumns.has("store_name")) {
+    await query(
+      "ALTER TABLE shopping_list_items ADD COLUMN store_name VARCHAR(150)",
+    );
+  }
+}
+
 module.exports = {
   createUser,
   ensureAdminUser,
   ensureUserTables,
   findUserByUsername,
   getFavorites,
+  getPriceAlerts,
   addFavorite,
+  savePriceAlert,
   removeFavorite,
+  removePriceAlert,
   isFavorited,
   getShoppingLists,
   passwordMatches,

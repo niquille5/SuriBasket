@@ -1,12 +1,7 @@
-import { getAuthUser, saveLogin } from "./auth.js";
+import { saveLogin } from "./auth.js";
 import { showMessage } from "./dom.js";
 
 export function initLoginPage() {
-  if (localStorage.getItem("authToken")) {
-    redirectAfterLogin(getAuthUser());
-    return;
-  }
-
   document.getElementById("loginForm")?.addEventListener("submit", handleLogin);
   document
     .getElementById("registerForm")

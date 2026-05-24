@@ -10,6 +10,7 @@ export function createBudgetList(elements) {
     setProducts(prices) {
       budget.products = buildBudgetProducts(prices);
       renderProductOptions();
+      renderHistoryProductOptions();
       budget.render();
     },
 
@@ -66,7 +67,6 @@ export function createBudgetList(elements) {
       elements.clearButton.addEventListener("click", () => {
         budget.items = [];
         budget.render();
-        showMessage(elements.message, "average", "Begroting leeggemaakt.");
       });
     }
 
@@ -103,6 +103,33 @@ export function createBudgetList(elements) {
           (item) =>
             '<option value="' +
             escapeHtml(item.key) +
+            '">' +
+            escapeHtml(item.product_name) +
+            " | " +
+            escapeHtml(item.unit) +
+            " - " +
+            formatCurrency(item.price) +
+            "</option>",
+        )
+        .join("");
+  }
+
+  function renderHistoryProductOptions() {
+    if (!elements.historyProductFilter) return;
+
+    if (!budget.products.length) {
+      elements.historyProductFilter.innerHTML =
+        '<option value="">Geen producten gevonden</option>';
+      return;
+    }
+
+    elements.historyProductFilter.innerHTML =
+      '<option value="">Alle producten</option>' +
+      budget.products
+        .map(
+          (item) =>
+            '<option value="' +
+            escapeHtml(item.product_name) +
             '">' +
             escapeHtml(item.product_name) +
             " | " +
@@ -151,7 +178,7 @@ export function createBudgetList(elements) {
     if (!budget.items.length) {
       elements.table.innerHTML =
         elements.table.tagName === "TBODY"
-          ? '<tr><td colspan="6">Kies een pakket of voeg producten toe.</td></tr>'
+          ? '<tr class="budget-empty-row"><td colspan="6">Kies een pakket of voeg producten toe.</td></tr>'
           : '<p class="muted">Klik op Voeg toe bij een product om het hier te plaatsen.</p>';
       updateTotals();
       return;

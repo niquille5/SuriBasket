@@ -108,10 +108,13 @@ De hoofdwebsite start op `http://localhost:3000` met de loginpagina. Het dashboa
 - `/api/me`
 - `/api/shopping-lists`
 - `/api/purchases`
+- `/api/price-alerts`
+- `/api/price-alerts/triggered`
 - `/api/admin/overview`
 
 `/api/admin/overview` is beveiligd. De gebruiker moet eerst inloggen en een admin-token meesturen.
 `/api/shopping-lists` bewaart begrotingslijsten per gebruiker. `/api/purchases` bewaart een afgeronde inkoopgeschiedenis.
+`/api/price-alerts` bewaart doelprijzen per gebruiker en `/api/price-alerts/triggered` geeft meldingen terug wanneer een product op of onder de doelprijs staat.
 
 ## Database scripts
 
