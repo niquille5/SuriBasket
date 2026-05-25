@@ -1,3 +1,14 @@
+body[data-page="admin"] .page-title {
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(135deg, #172611, var(--teal-dark) 58%, #9b4c2d);
+  background-size:
+    34px 34px,
+    34px 34px,
+    auto;
+}
+
 body[data-page="admin"] .feature-list {
   display: grid;
   gap: 10px;
@@ -18,12 +29,26 @@ body[data-page="admin"] #logoutButton {
 }
 
 .admin-feedback-item {
-  background: linear-gradient(180deg, #ffffff, var(--mist));
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), var(--mist));
   border: 1px solid rgba(18, 108, 101, 0.14);
   border-radius: 12px;
+  box-shadow:
+    0 12px 26px rgba(32, 25, 14, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.78);
   display: grid;
   gap: 10px;
   padding: 14px;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.admin-feedback-item:hover {
+  border-color: rgba(116, 152, 56, 0.34);
+  box-shadow: 0 16px 32px rgba(82, 113, 35, 0.08);
+  transform: translateY(-2px);
 }
 
 .admin-feedback-item strong {

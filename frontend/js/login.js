@@ -2,6 +2,7 @@ import { saveLogin } from "./auth.js";
 import { showMessage } from "./dom.js";
 
 export function initLoginPage() {
+  fillRememberedUser();
   document.getElementById("loginForm")?.addEventListener("submit", handleLogin);
   document
     .getElementById("registerForm")
@@ -12,6 +13,12 @@ export function initLoginPage() {
   document
     .getElementById("showLoginButton")
     ?.addEventListener("click", () => showAuthMode("login"));
+  document
+    .getElementById("forgotPasswordButton")
+    ?.addEventListener("click", showForgotPasswordMessage);
+  document
+    .getElementById("googleLoginButton")
+    ?.addEventListener("click", showGoogleLoginMessage);
 }
 
 async function handleLogin(event) {
@@ -20,11 +27,14 @@ async function handleLogin(event) {
   const username = document.getElementById("loginUsername").value.trim();
   const password = document.getElementById("loginPassword").value;
   const message = document.getElementById("loginMessage");
+  const submitButton = event.submitter;
 
   if (!username || !password) {
     showMessage(message, "error", "Vul gebruikersnaam en wachtwoord in.");
     return;
   }
+
+  setButtonLoading(submitButton, "Inloggen...");
 
   try {
     const response = await fetch("/api/login", {
@@ -36,6 +46,7 @@ async function handleLogin(event) {
     if (!response.ok) throw new Error("Login failed");
 
     const result = await response.json();
+    rememberUser(username);
     saveLogin(result.token, result.user);
     showMessage(message, "good", "Login gelukt. Je wordt doorgestuurd.");
 
@@ -44,6 +55,8 @@ async function handleLogin(event) {
     }, 600);
   } catch (error) {
     showMessage(message, "error", "Ongeldige gebruikersnaam of wachtwoord.");
+  } finally {
+    setButtonLoading(submitButton);
   }
 }
 
@@ -54,6 +67,7 @@ async function handleRegister(event) {
   const password = document.getElementById("registerPassword").value;
   const passwordConfirm = document.getElementById("registerPasswordConfirm").value;
   const message = document.getElementById("registerMessage");
+  const submitButton = event.submitter;
 
   if (!username || !password) {
     showMessage(message, "error", "Vul een gebruikersnaam en wachtwoord in.");
@@ -69,6 +83,8 @@ async function handleRegister(event) {
     showMessage(message, "error", "De wachtwoorden zijn niet hetzelfde.");
     return;
   }
+
+  setButtonLoading(submitButton, "Account maken...");
 
   try {
     const response = await fetch("/api/register", {
@@ -90,6 +106,8 @@ async function handleRegister(event) {
     }, 600);
   } catch (error) {
     showMessage(message, "error", "Account maken is niet gelukt.");
+  } finally {
+    setButtonLoading(submitButton);
   }
 }
 
@@ -118,6 +136,65 @@ function showAuthMode(mode) {
       : "Log in om je begrotingen en inkoopgeschiedenis verder te gebruiken.",
   );
   setText("authSwitchText", isRegister ? "Heb je al een account?" : "Nog geen account?");
+}
+
+function fillRememberedUser() {
+  const rememberedUsername = localStorage.getItem("suriBasketRememberedUser");
+  const usernameInput = document.getElementById("loginUsername");
+  const rememberInput = document.getElementById("rememberLogin");
+
+  if (rememberedUsername && usernameInput) {
+    usernameInput.value = rememberedUsername;
+  }
+
+  if (rememberedUsername && rememberInput) {
+    rememberInput.checked = true;
+  }
+}
+
+function rememberUser(username) {
+  const rememberInput = document.getElementById("rememberLogin");
+
+  if (rememberInput?.checked) {
+    localStorage.setItem("suriBasketRememberedUser", username);
+    return;
+  }
+
+  localStorage.removeItem("suriBasketRememberedUser");
+}
+
+function showForgotPasswordMessage() {
+  const message = document.getElementById("loginMessage");
+  showMessage(
+    message,
+    "average",
+    "Wachtwoord herstellen is voorbereid voor een volgende versie.",
+  );
+}
+
+function showGoogleLoginMessage() {
+  const message = document.getElementById("loginMessage");
+  showMessage(
+    message,
+    "average",
+    "Google login is visueel voorbereid. Gebruik nu je Suri Basket account.",
+  );
+}
+
+function setButtonLoading(button, text) {
+  if (!button) return;
+
+  if (text) {
+    button.dataset.originalText = button.textContent;
+    button.textContent = text;
+    button.disabled = true;
+    button.classList.add("is-loading");
+    return;
+  }
+
+  button.textContent = button.dataset.originalText || button.textContent;
+  button.disabled = false;
+  button.classList.remove("is-loading");
 }
 
 function setText(id, value) {

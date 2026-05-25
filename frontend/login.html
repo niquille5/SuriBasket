@@ -30,6 +30,7 @@
           <a href="scanner.html" data-nav-page="scanner">Prijscheck</a>
           <a href="begroting.html" data-nav-page="budget">Begroting</a>
           <a href="over.html" data-nav-page="about">Over</a>
+          <a href="feedback.html" data-nav-page="feedback">Feedback</a>
           <a href="login.html" data-auth-link="login" data-nav-page="login"
             >Login</a
           >
@@ -78,6 +79,8 @@
         </div>
 
         <section class="auth-card" aria-label="Inloggen en registreren">
+          <div class="auth-orbit" aria-hidden="true"></div>
+
           <div class="auth-card-header">
             <p class="eyebrow" id="authModeLabel">Welkom terug</p>
             <h2 id="authTitle">Inloggen</h2>
@@ -88,23 +91,42 @@
           </div>
 
           <form class="auth-form is-active" id="loginForm">
-            <label for="loginUsername">Gebruikersnaam</label>
+            <label for="loginUsername">E-mail of gebruikersnaam</label>
 
-            <input
-              type="text"
-              id="loginUsername"
-              autocomplete="username"
-              placeholder="Bijvoorbeeld warung123"
-            />
+            <div class="input-shell">
+              <span class="input-icon" aria-hidden="true">@</span>
+              <input
+                type="text"
+                id="loginUsername"
+                autocomplete="username"
+                placeholder="naam@email.com of warung123"
+                required
+              />
+            </div>
 
             <label for="loginPassword">Wachtwoord</label>
 
-            <input
-              type="password"
-              id="loginPassword"
-              autocomplete="current-password"
-              placeholder="Vul je wachtwoord in"
-            />
+            <div class="input-shell">
+              <span class="input-icon" aria-hidden="true">*</span>
+              <input
+                type="password"
+                id="loginPassword"
+                autocomplete="current-password"
+                placeholder="Vul je wachtwoord in"
+                required
+              />
+            </div>
+
+            <div class="auth-options">
+              <label class="remember-option" for="rememberLogin">
+                <input type="checkbox" id="rememberLogin" />
+                <span>Remember me</span>
+              </label>
+
+              <button type="button" class="forgot-link" id="forgotPasswordButton">
+                Forgot password?
+              </button>
+            </div>
 
             <button type="submit">Inloggen</button>
           </form>
@@ -112,30 +134,42 @@
           <form class="auth-form" id="registerForm" hidden>
             <label for="registerUsername">Gebruikersnaam</label>
 
-            <input
-              type="text"
-              id="registerUsername"
-              autocomplete="username"
-              placeholder="Bijvoorbeeld warung123"
-            />
+            <div class="input-shell">
+              <span class="input-icon" aria-hidden="true">@</span>
+              <input
+                type="text"
+                id="registerUsername"
+                autocomplete="username"
+                placeholder="Bijvoorbeeld warung123"
+                required
+              />
+            </div>
 
             <label for="registerPassword">Wachtwoord</label>
 
-            <input
-              type="password"
-              id="registerPassword"
-              autocomplete="new-password"
-              placeholder="Minimaal 6 tekens"
-            />
+            <div class="input-shell">
+              <span class="input-icon" aria-hidden="true">*</span>
+              <input
+                type="password"
+                id="registerPassword"
+                autocomplete="new-password"
+                placeholder="Minimaal 6 tekens"
+                required
+              />
+            </div>
 
             <label for="registerPasswordConfirm">Herhaal wachtwoord</label>
 
-            <input
-              type="password"
-              id="registerPasswordConfirm"
-              autocomplete="new-password"
-              placeholder="Nog een keer hetzelfde wachtwoord"
-            />
+            <div class="input-shell">
+              <span class="input-icon" aria-hidden="true">*</span>
+              <input
+                type="password"
+                id="registerPasswordConfirm"
+                autocomplete="new-password"
+                placeholder="Nog een keer hetzelfde wachtwoord"
+                required
+              />
+            </div>
 
             <button type="submit">Account maken</button>
           </form>
@@ -143,17 +177,32 @@
           <div id="loginMessage" class="result" aria-live="polite"></div>
           <div id="registerMessage" class="result" aria-live="polite"></div>
 
-          <div class="auth-divider"><span>of</span></div>
+          <div class="auth-secondary">
+            <div class="auth-divider"><span>of</span></div>
 
-          <a class="guest-button" href="producten.html">Doorgaan als gast</a>
-
-          <p class="auth-switch">
-            <span id="authSwitchText">Nog geen account?</span>
-            <button type="button" id="showRegisterButton">Maak er een aan</button>
-            <button type="button" id="showLoginButton" hidden>
-              Terug naar login
+            <button
+              type="button"
+              class="social-login-button"
+              id="googleLoginButton"
+            >
+              <span aria-hidden="true">G</span>
+              <strong>Inloggen met Google</strong>
             </button>
-          </p>
+
+            <a class="guest-button" href="producten.html">
+              Doorgaan als gast
+            </a>
+
+            <p class="auth-switch">
+              <span id="authSwitchText">Nog geen account?</span>
+              <button type="button" id="showRegisterButton">
+                Maak er een aan
+              </button>
+              <button type="button" id="showLoginButton" hidden>
+                Terug naar login
+              </button>
+            </p>
+          </div>
         </section>
 
         <div class="login-trustbar" aria-label="Vertrouwen">
