@@ -7,6 +7,50 @@ body[data-page="admin"] #logoutButton {
   align-self: flex-end;
 }
 
+.admin-feedback-panel {
+  grid-column: 1 / -1;
+}
+
+.admin-feedback-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.admin-feedback-item {
+  background: linear-gradient(180deg, #ffffff, var(--mist));
+  border: 1px solid rgba(18, 108, 101, 0.14);
+  border-radius: 12px;
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+}
+
+.admin-feedback-item strong {
+  color: var(--teal-dark);
+}
+
+.admin-feedback-item p {
+  color: var(--ink);
+  margin: 0;
+}
+
+.admin-feedback-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-feedback-meta span {
+  background: #fffaf0;
+  border: 1px solid rgba(225, 216, 200, 0.95);
+  border-radius: 999px;
+  color: var(--teal-dark);
+  font-size: 13px;
+  font-weight: 850;
+  padding: 5px 10px;
+}
+
 @media (max-width: 900px) {
   body[data-page="admin"] #logoutButton {
     align-self: stretch;

@@ -20,6 +20,12 @@ const {
   removePriceAlert,
   isFavorited
 } = require("./user-data");
+const {
+  getFeedbackStats,
+  getRecentFeedback,
+  saveFeedback,
+  updateFeedbackStatus
+} = require("./feedback-data");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -38,6 +44,7 @@ const pages = {
   "/scanner.html": "scanner.html",
   "/begroting.html": "begroting.html",
   "/over.html": "over.html",
+  "/feedback.html": "feedback.html",
   "/login.html": "login.html",
   "/admin.html": "admin.html"
 };
@@ -63,6 +70,14 @@ const apiEndpoints = [
   "/api/me",
   "/api/shopping-lists",
   "/api/purchases",
+  "/api/favorites",
+  "/api/favorites/:user_id",
+  "/api/favorites/add",
+  "/api/favorites/remove",
+  "/api/favorites/check/:product_id",
+  "/api/feedback",
+  "/api/feedback/stats",
+  "/api/admin/feedback",
   "/api/price-alerts",
   "/api/price-alerts/triggered",
   "/api/admin/overview"
@@ -233,6 +248,38 @@ app.post("/api/purchases", requireAuth, async (req, res) => {
   }
 });
 
+app.post("/api/feedback", async (req, res) => {
+  const feedback = cleanFeedback(req.body, req);
+
+  if (!feedback) {
+    res.status(400).json({
+      success: false,
+      message: "Vul een geldige beoordeling, e-mail en bericht in"
+    });
+    return;
+  }
+
+  try {
+    const feedbackId = await saveFeedback(feedback);
+    res.status(201).json({
+      success: true,
+      feedback_id: feedbackId,
+      message: "Feedback opgeslagen"
+    });
+  } catch (err) {
+    sendDatabaseError(res);
+  }
+});
+
+app.get("/api/feedback/stats", async (req, res) => {
+  try {
+    const data = await getFeedbackStats();
+    res.json({ success: true, ...data });
+  } catch (err) {
+    sendDatabaseError(res);
+  }
+});
+
 app.get("/api/summary", async (req, res) => {
   try {
     const [summary] = await query(`
@@ -291,6 +338,34 @@ app.get("/api/admin/overview", requireRole("admin"), async (req, res) => {
       role: req.user.role,
       summary
     });
+  } catch (err) {
+    sendDatabaseError(res);
+  }
+});
+
+app.get("/api/admin/feedback", requireRole("admin"), async (req, res) => {
+  try {
+    const feedback = await getRecentFeedback(12);
+    res.json({ feedback });
+  } catch (err) {
+    sendDatabaseError(res);
+  }
+});
+
+app.patch("/api/admin/feedback/:id", requireRole("admin"), async (req, res) => {
+  const feedbackId = Number(req.params.id);
+
+  if (!feedbackId) {
+    res.status(400).json({ message: "Ongeldig feedbacknummer" });
+    return;
+  }
+
+  try {
+    await updateFeedbackStatus(feedbackId, {
+      ...req.body,
+      responded_by: req.user.username
+    });
+    res.json({ message: "Feedback bijgewerkt" });
   } catch (err) {
     sendDatabaseError(res);
   }
@@ -681,6 +756,34 @@ function cleanPurchaseItems(items) {
   }));
 }
 
+function cleanFeedback(body, req) {
+  const rating = Number(body.rating);
+  const email = String(body.email || "").trim().slice(0, 255);
+  const message = String(body.message || "").trim().slice(0, 5000);
+
+  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+    return null;
+  }
+
+  if (!isEmail(email) || !message) {
+    return null;
+  }
+
+  return {
+    name: String(body.name || "").trim().slice(0, 120),
+    email,
+    rating,
+    message,
+    page: String(body.page || "").trim().slice(0, 120),
+    issueType: String(body.issueType || "").trim().slice(0, 80),
+    browserInfo: String(body.browserInfo || "").slice(0, 2000),
+    referrer: String(body.referrer || "").slice(0, 1000),
+    screenshot: typeof body.screenshot === "string" ? body.screenshot : null,
+    ipAddress: req.ip || null,
+    userAgent: String(req.headers["user-agent"] || "").slice(0, 2000)
+  };
+}
+
 function cleanItems(items) {
   if (!Array.isArray(items)) {
     return [];
@@ -698,6 +801,10 @@ function cleanItems(items) {
       price: Number(item.price)
     }))
     .filter((item) => item.product_name && item.quantity > 0 && item.price >= 0);
+}
+
+function isEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 function sendDatabaseError(res) {

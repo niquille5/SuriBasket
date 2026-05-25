@@ -192,7 +192,7 @@ body[data-page="products"] main {
   min-width: 640px;
   padding: 5px;
   width: min(520px, 100%);
-  
+
   position: absolute;
   top: 79%;
   left: 33%;

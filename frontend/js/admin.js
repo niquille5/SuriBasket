@@ -5,6 +5,7 @@ import { escapeHtml } from "./dom.js";
 export async function initAdminPage() {
   bindLogoutButton(document.getElementById("logoutButton"));
   await loadAdminOverview();
+  await loadAdminFeedback();
 }
 
 async function loadAdminOverview() {
@@ -42,6 +43,63 @@ async function loadAdminOverview() {
   } catch (error) {
     showLoginRequired(status, overview);
   }
+}
+
+async function loadAdminFeedback() {
+  const list = document.getElementById("adminFeedbackList");
+  if (!list || !hasAuthToken()) return;
+
+  try {
+    const data = await fetchJsonWithAuth("/api/admin/feedback");
+    renderAdminFeedback(list, data.feedback || []);
+  } catch (error) {
+    list.innerHTML =
+      '<span class="muted">Feedback kan alleen door een admin worden bekeken.</span>';
+  }
+}
+
+function renderAdminFeedback(list, items) {
+  if (!items.length) {
+    list.innerHTML = '<span class="muted">Er is nog geen feedback binnengekomen.</span>';
+    return;
+  }
+
+  list.innerHTML = items
+    .map(
+      (item) =>
+        '<article class="admin-feedback-item">' +
+        "<div>" +
+        "<strong>" +
+        escapeHtml(item.page_visited || "Algemeen") +
+        "</strong>" +
+        '<span class="muted">' +
+        escapeHtml(item.name || "Anonieme gebruiker") +
+        " | " +
+        escapeHtml(formatFeedbackDate(item.created_at)) +
+        "</span>" +
+        "</div>" +
+        '<div class="admin-feedback-meta">' +
+        "<span>" +
+        item.rating +
+        "/5</span>" +
+        "<span>" +
+        escapeHtml(item.status) +
+        "</span>" +
+        "<span>" +
+        escapeHtml(item.priority) +
+        "</span>" +
+        "</div>" +
+        "<p>" +
+        escapeHtml(item.message) +
+        "</p>" +
+        "</article>",
+    )
+    .join("");
+}
+
+function formatFeedbackDate(value) {
+  if (!value) return "datum onbekend";
+  return new Date(value).toLocaleDateString("nl-NL");
 }
 
 function showLoginRequired(status, overview) {

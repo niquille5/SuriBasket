@@ -10,6 +10,7 @@ export function createBudgetList(elements) {
     setProducts(prices) {
       budget.products = buildBudgetProducts(prices);
       renderProductOptions();
+      renderProductGrid();
       renderHistoryProductOptions();
       budget.render();
     },
@@ -63,6 +64,29 @@ export function createBudgetList(elements) {
       });
     }
 
+    if (elements.productGrid) {
+      elements.productGrid.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-budget-product]");
+        if (!button) return;
+
+        const product = budget.products.find(
+          (item) => item.key === button.dataset.budgetProduct,
+        );
+        const quantity = Number(elements.quantityInput?.value) || 1;
+
+        if (elements.productSelect && product) {
+          elements.productSelect.value = product.key;
+        }
+
+        elements.productGrid
+          .querySelectorAll(".budget-product-card")
+          .forEach((card) => card.classList.remove("is-selected"));
+        button.classList.add("is-selected");
+
+        budget.addProduct(product, quantity);
+      });
+    }
+
     if (elements.clearButton) {
       elements.clearButton.addEventListener("click", () => {
         budget.items = [];
@@ -112,6 +136,39 @@ export function createBudgetList(elements) {
             "</option>",
         )
         .join("");
+  }
+
+  function renderProductGrid() {
+    if (!elements.productGrid) return;
+
+    if (!budget.products.length) {
+      elements.productGrid.innerHTML =
+        '<p class="muted">Geen producten gevonden.</p>';
+      return;
+    }
+
+    elements.productGrid.innerHTML = budget.products
+      .map(
+        (item) =>
+          '<button type="button" class="budget-product-card" data-budget-product="' +
+          escapeHtml(item.key) +
+          '">' +
+          '<span class="budget-product-card-body">' +
+          "<strong>" +
+          escapeHtml(item.product_name) +
+          "</strong>" +
+          '<span class="budget-product-meta">' +
+          escapeHtml(item.category) +
+          " | " +
+          escapeHtml(item.unit) +
+          "</span>" +
+          "</span>" +
+          '<em class="budget-product-price">' +
+          formatCurrency(item.price) +
+          "</em>" +
+          "</button>",
+      )
+      .join("");
   }
 
   function renderHistoryProductOptions() {
@@ -197,28 +254,28 @@ export function createBudgetList(elements) {
         const subtotal = item.price * item.quantity;
         return (
           "<tr>" +
-          "<td><strong>" +
+          '<td data-label="Product"><strong>' +
           escapeHtml(item.product_name) +
           '</strong><span class="muted">' +
           escapeHtml(item.store_name) +
           " | " +
           escapeHtml(item.unit) +
           "</span></td>" +
-          "<td>" +
+          '<td data-label="Categorie">' +
           escapeHtml(item.category) +
           "</td>" +
-          '<td class="price">' +
+          '<td class="price" data-label="Richtprijs">' +
           formatCurrency(item.price) +
           "</td>" +
-          '<td><input class="quantity-input" type="number" min="1" step="1" value="' +
+          '<td data-label="Aantal"><input class="quantity-input" type="number" min="1" step="1" value="' +
           item.quantity +
           '" data-budget-key="' +
           escapeHtml(item.key) +
           '"></td>' +
-          '<td class="price">' +
+          '<td class="price" data-label="Subtotaal">' +
           formatCurrency(subtotal) +
           "</td>" +
-          '<td><button type="button" class="table-button" data-remove-budget="' +
+          '<td data-label="Actie"><button type="button" class="table-button" data-remove-budget="' +
           escapeHtml(item.key) +
           '">Verwijder</button></td>' +
           "</tr>"
