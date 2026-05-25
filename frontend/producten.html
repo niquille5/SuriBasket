@@ -19,7 +19,7 @@
       <nav class="navbar" aria-label="Hoofdnavigatie">
         <a class="brand" href="login.html">
           <span class="brand-mark brand-logo">
-            <img src="assets/Suribasket_logo.jpeg" alt="Suri Basket" />
+            <img src="assets/Suribasket_logo.png" alt="Suri Basket" />
           </span>
           <span>
             <strong>Suri Basket</strong>
@@ -88,16 +88,58 @@
                 <button type="button" id="officialPricesButton">
                   Publieke productenlijst
                 </button>
+                <button type="button" id="favoritesButton">Favorieten</button>
+                <button type="button" id="priceAlertsButton">
+                  Prijsalerts
+                </button>
               </div>
 
-              <div class="filters">
-                <label for="searchInput">Zoekterm</label>
+              <div class="product-filters" aria-label="Producten filteren">
+                <div class="filters">
+                  <label for="searchInput">Zoekterm</label>
 
-                <input
-                  type="search"
-                  id="searchInput"
-                  placeholder="Product, importeur, merk of winkel"
-                />
+                  <input
+                    type="search"
+                    id="searchInput"
+                    placeholder="Product, importeur, merk of winkel"
+                  />
+                </div>
+
+                <div class="filters">
+                  <label for="productFilter">Producten</label>
+
+                  <select id="productFilter">
+                    <option value="">Alle producten</option>
+                  </select>
+                </div>
+
+                <div class="filters">
+                  <label for="categoryFilter">Categorie</label>
+
+                  <select id="categoryFilter">
+                    <option value="">Alle categorieen</option>
+                  </select>
+                </div>
+
+                <div class="filters">
+                  <label for="brandFilter">Merk</label>
+
+                  <select id="brandFilter">
+                    <option value="">Alle merken</option>
+                  </select>
+                </div>
+
+                <div class="filters">
+                  <label for="storeFilter">Winkel</label>
+
+                  <select id="storeFilter">
+                    <option value="">Alle winkels</option>
+                  </select>
+                </div>
+
+                <button type="button" id="clearProductFiltersButton">
+                  Wis filters
+                </button>
               </div>
             </div>
           </div>
@@ -105,13 +147,14 @@
           <div class="product-stats" aria-label="Producten overzicht">
             <span
               ><strong id="localPriceTotal">0</strong> eigen database
-              regels</span
-            >
+              regels</span>
 
-            <span
-              ><strong id="officialPriceTotal">0</strong> publieke lijst
-              regels</span
-            >
+            <span><strong id="officialPriceTotal">0</strong> publieke lijst
+              regels</span>
+
+             <span><strong id="favoritesTotal">0</strong> favorieten</span>
+
+            <span><strong id="alertsTotal">0</strong> prijsalerts</span>
 
             <span><strong id="visiblePriceTotal">0</strong> zichtbaar</span>
 

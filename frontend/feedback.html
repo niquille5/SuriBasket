@@ -19,7 +19,7 @@
     <nav class="navbar" aria-label="Hoofdnavigatie">
       <a class="brand" href="login.html">
         <span class="brand-mark brand-logo">
-          <img src="assets/Suribasket_logo.jpeg" alt="Suri Basket">
+          <img src="assets/Suribasket_logo.png" alt="Suri Basket" />
         </span>
         <span>
           <strong>Suri Basket</strong>
@@ -37,88 +37,227 @@
         <a href="admin.html" class="is-hidden" data-auth-link="admin" data-nav-page="admin">Admin</a>
         <button type="button" class="nav-logout is-hidden" id="navLogoutButton" data-auth-link="logout">Uitloggen</button>
       </div>
-    </nav>
-  </header>
 
-  <main class="feedback-main">
-    <div class="feedback-header">
-      <p class="eyebrow">Jouw mening telt</p>
-      <h1>Feedback & Suggesties</h1>
-      <p class="subtitle">Help ons Suri Basket te verbeteren. Stuur jouw feedback, bugmeldingen of feature-ideeën — wij beoordelen het en verwerken in de database.</p>
-    </div>
+      <nav class="navbar" aria-label="Hoofdnavigatie">
+        <a class="brand" href="login.html">
+          <span class="brand-mark brand-logo">
+            <img src="assets/Suribasket_logo.png" alt="Suri Basket" />
+          </span>
+          <span>
+            <strong>Suri Basket</strong>
+            <small>Warung prijzen, checks en begrotingen</small>
+          </span>
+        </a>
 
-    <div class="feedback-grid">
-      <div class="feedback-form-panel">
-        <form id="feedbackForm" action="#" method="POST">
-          <div class="form-group">
-            <label><span>E-mailadres (optioneel)</span></label><p>We gebruiken je email alleen om contact op te nemen indien nodig.</p>
-            <input type="email" id="feedbackEmail" placeholder="jouw@email.com" autocomplete="email">
+        <div class="nav-links">
+          <a href="index.html" data-nav-page="dashboard">Dashboard</a>
+          <a href="producten.html" data-nav-page="products">Producten</a>
+          <a href="scanner.html" data-nav-page="scanner">Prijscheck</a>
+          <a href="begroting.html" data-nav-page="budget">Begroting</a>
+          <a href="over.html" data-nav-page="about">Over</a>
+          <a href="feedback.html" data-nav-page="feedback">Feedback</a>
+          <a href="login.html" data-auth-link="login" data-nav-page="login">
+            Login
+          </a>
+          <a
+            href="admin.html"
+            class="is-hidden"
+            data-auth-link="admin"
+            data-nav-page="admin"
+          >
+            Admin
+          </a>
+          <button
+            type="button"
+            class="nav-logout is-hidden"
+            id="navLogoutButton"
+            data-auth-link="logout"
+          >
+            Uitloggen
+          </button>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <section class="page-title">
+        <div>
+          <p class="eyebrow">Feedback</p>
+
+          <h1>Help Suri Basket beter maken.</h1>
+
+          <p>
+            Laat weten wat duidelijk werkt, wat verwarrend is of waar een
+            prijs, lijst of scherm beter kan voor warungs en kleine ondernemers.
+          </p>
+        </div>
+
+        <a class="button primary" href="producten.html">Terug naar prijzen</a>
+      </section>
+
+      <section class="feedback-layout" id="feedback-form">
+        <div class="panel feedback-form-panel">
+          <div class="section-heading">
+            <p class="eyebrow">Jouw ervaring</p>
+            <h2>Feedback sturen</h2>
+            <p>
+              Je feedback helpt om de productenlijst, prijscheck en begroting
+              praktischer te maken.
+            </p>
           </div>
 
-          <div class="form-group">
-            <label><span>Beoordeel uw ervaring <i class="required-star">*</i></span></label>
-            <div class="rating-group" id="ratingGroup">
-              <input type="radio" id="star5" name="rating" value="5"><label for="star5" title="Uitstekend">★</label>
-              <input type="radio" id="star4" name="rating" value="4"><label for="star4" title="Goed">★</label>
-              <input type="radio" id="star3" name="rating" value="3"><label for="star3" title="Gemiddeld">★</label>
-              <input type="radio" id="star2" name="rating" value="2"><label for="star2" title="Matig">★</label>
-              <input type="radio" id="star1" name="rating" value="1"><label for="star1" title="Slecht">★</label>
+          <div id="alertMessage" class="alert" role="status" aria-live="polite"></div>
+
+          <form id="feedbackForm" class="feedback-form">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="name">Naam <span class="optional">(optioneel)</span></label>
+                <input
+                  type="text"
+                  id="name"
+                  placeholder="Bijvoorbeeld Warung Noord"
+                  autocomplete="name"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="email">E-mail <span class="required">*</span></label>
+                <input
+                  type="email"
+                  id="email"
+                  required
+                  placeholder="naam@email.com"
+                  autocomplete="email"
+                />
+                <small class="field-hint">
+                  Alleen nodig als we iets moeten terugvragen.
+                </small>
+              </div>
             </div>
-          </div>
 
-          <div class="form-group">
-            <label><span>Categorie <i class="required-star">*</i></span></label>
-            <select id="feedbackCategory" required>
-              <option value="" disabled selected>-- Selecteer categorie --</option>
-              <option value="bug">🐞 Bug / Technisch probleem</option>
-              <option value="feature">💡 Feature suggestie</option>
-              <option value="prijsdata">📊 Prijsdata / Product fout</option>
-              <option value="verbetering">⚙️ Algemene verbetering</option>
-              <option value="andere">🗣️ Andere</option>
-            </select>
-          </div>
+            <div class="form-group">
+              <label>Beoordeling <span class="required">*</span></label>
+              <div class="star-rating-container">
+                <div class="star-rating" id="starRating" aria-label="Beoordeling">
+                  <input type="radio" name="rating" value="5" id="star5" />
+                  <label for="star5">&#9733;</label>
+                  <input type="radio" name="rating" value="4" id="star4" />
+                  <label for="star4">&#9733;</label>
+                  <input type="radio" name="rating" value="3" id="star3" />
+                  <label for="star3">&#9733;</label>
+                  <input type="radio" name="rating" value="2" id="star2" />
+                  <label for="star2">&#9733;</label>
+                  <input type="radio" name="rating" value="1" id="star1" />
+                  <label for="star1">&#9733;</label>
+                </div>
+                <span class="rating-text" id="ratingText">Kies een score</span>
+              </div>
+            </div>
 
-          <div class="form-group">
-            <label><span>Jouw feedback <i class="required-star">*</i></span></label>
-            <textarea id="feedbackMessage" rows="5" placeholder="Beschrijf hier jouw ervaring, suggestie of probleem... Minimaal 10 karakters." maxlength="1000" class="textarea"></textarea>
-            <div class="char-counter"><span id="charCount">0</span>/1000 karakters</div>
-          </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="page">Over welke pagina gaat het? <span class="required">*</span></label>
+                <select id="page" required>
+                  <option value="">Kies een pagina</option>
+                  <option value="dashboard">Dashboard</option>
+                  <option value="products">Producten</option>
+                  <option value="scanner">Prijscheck</option>
+                  <option value="budget">Begroting</option>
+                  <option value="login">Login</option>
+                  <option value="admin">Admin</option>
+                  <option value="other">Iets anders</option>
+                </select>
+              </div>
 
-          <div class="form-actions">
-            <button type="submit" class="btn btn-primary" id="submitFeedbackBtn">versturen</button>
-            <button type="reset" class="btn btn-outline" id="resetFormBtn">wissen</button>
-          </div>
-          <div class="form-note">
-            <span> Feedback wordt opgeslagen in onze database ter review. Geen spam, alleen verbeteringen.</span>
-          </div>
-        </form>
-      </div>
+              <div class="form-group" id="issueTypeGroup" hidden>
+                <label for="issueType">Wat ging er mis?</label>
+                <select id="issueType">
+                  <option value="">Kies een soort probleem</option>
+                  <option value="bug">Technische fout</option>
+                  <option value="confusing">Onduidelijke layout</option>
+                  <option value="slow">Laadt langzaam</option>
+                  <option value="price">Prijs klopt niet</option>
+                  <option value="other_issue">Iets anders</option>
+                </select>
+              </div>
+            </div>
 
-      <div class="feedback-info-panel">
-        <div class="info-card">
-          <h3>Wat gebeurt er met jouw feedback?</h3>
-          <p class="p1">Alle ingezonden feedback wordt opgeslagen in ons database. Ons team beoordeelt elke inzending regelmatig. Jouw input helpt ons om Suri Basket te verbeteren.</p>
+            <div class="form-group">
+              <label for="message">Bericht <span class="required">*</span></label>
+              <textarea
+                id="message"
+                rows="5"
+                required
+                maxlength="1000"
+                placeholder="Vertel kort wat je zag, wat beter kan of welke informatie mist."
+              ></textarea>
+              <div class="char-counter" id="charCounter">
+                <span id="charCount">0</span> / 1000 tekens
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="screenshot">Screenshot <span class="optional">(optioneel)</span></label>
+              <div class="file-upload-area" id="fileUploadArea">
+                <input type="file" id="screenshot" accept="image/*" hidden />
+                <strong>Screenshot toevoegen</strong>
+                <span>Klik hier of sleep een afbeelding naar dit vak.</span>
+                <small>PNG of JPG tot 5MB</small>
+              </div>
+
+              <div id="screenshotPreview" class="screenshot-preview" hidden>
+                <img id="previewImg" alt="Voorbeeld van je screenshot" />
+                <button type="button" id="removeScreenshot" class="table-button">
+                  Verwijder screenshot
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+              <span class="btn-text">Feedback versturen</span>
+              <span class="btn-loading" hidden>Bezig met versturen...</span>
+            </button>
+          </form>
         </div>
 
-        <div class="info-card">
-          <h3>Voorbeeld feedback</h3>
-          <div class="feedback-examples">
-            <p><strong>Prijsdata suggestie:</strong> “Product ‘Tapioca’ mist bij Supermarket X. Graag toevoegen.”</p>
-            <p><strong>Bug melding:</strong> “Scanner geeft gemiddelde prijs niet weer op mobiel.”</p>
-            <p><strong>Feature idee:</strong> “Exporteer begroting naar PDF of WhatsApp.”</p>
-          </div>
+        <aside class="feedback-side">
+          <article class="panel feedback-stats-card">
+            <p class="eyebrow">Status</p>
+            <h2>Feedbackoverzicht</h2>
+            <div class="stats-badge" id="statsBadge">
+              <span id="avgRating">Nog geen score</span>
+              <span id="totalFeedback">0</span>
+              <span>reacties</span>
+            </div>
+          </article>
 
-          <div id="backendHealthContainer" class="status-badge">
-            <span id="healthIcon">🟡</span> <span id="healthMessage">Controleren backend...</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </main>
+          <article class="panel">
+            <p class="eyebrow">Waarom dit helpt</p>
+            <h2>Wat we ermee doen</h2>
+            <div class="workflow-list feedback-workflow">
+              <span><strong>Check</strong>We bekijken of iets niet klopt.</span>
+              <span><strong>Verbeter</strong>We passen tekst, prijzen of schermen aan.</span>
+              <span><strong>Test</strong>We controleren of het daarna duidelijker werkt.</span>
+            </div>
+          </article>
 
-  <footer>
-    <strong>Suri Basket</strong>
-    <p>Prijsinformatie, publicatielijsten en consumentenvergelijking.</p>
-  </footer>
-  <script type="module" src="js/feedback.js"></script>
-    </body>
+          <article class="panel testimonial-card" id="testimonials">
+            <p class="eyebrow">Gebruikers</p>
+            <h2>Laatste reacties</h2>
+            <div id="testimonialsList">
+              <p class="muted">Nog geen reacties geladen.</p>
+            </div>
+          </article>
+        </aside>
+      </section>
+    </main>
+
+    <footer>
+      <strong>Suri Basket</strong>
+      <p>Prijsinformatie, publicatielijsten en consumentenvergelijking.</p>
+    </footer>
+
+    <script type="module" src="js/app.js"></script>
+    <script src="js/feedback.js"></script>
+  </body>
+</html>

@@ -1,230 +1,310 @@
-// Configuration: use backend API base URL (localhost:3000 as per dashboard context)
-    const API_BASE_URL = 'http://localhost:3000';
-    let apiAvailable = false;
+const feedbackApi = {
+  submit: "/api/feedback",
+  stats: "/api/feedback/stats",
+};
 
-    // DOM elements
-    const apiStatusSpan = document.getElementById('apiStatus');
-    const healthIconSpan = document.getElementById('healthIcon');
-    const healthMessageSpan = document.getElementById('healthMessage');
-    const feedbackForm = document.getElementById('feedbackForm');
-    const emailInput = document.getElementById('feedbackEmail');
-    const ratingRadios = document.querySelectorAll('input[name="rating"]');
-    const categorySelect = document.getElementById('feedbackCategory');
-    const messageTextarea = document.getElementById('feedbackMessage');
-    const charCountSpan = document.getElementById('charCount');
-    const submitBtn = document.getElementById('submitFeedbackBtn');
-    const resetBtn = document.getElementById('resetFormBtn');
+const form = document.getElementById("feedbackForm");
+const submitButton = document.getElementById("submitBtn");
+const alertBox = document.getElementById("alertMessage");
+const messageField = document.getElementById("message");
+const charCounter = document.getElementById("charCounter");
+const ratingText = document.getElementById("ratingText");
+const issueTypeGroup = document.getElementById("issueTypeGroup");
+const fileUploadArea = document.getElementById("fileUploadArea");
+const screenshotInput = document.getElementById("screenshot");
+const screenshotPreview = document.getElementById("screenshotPreview");
+const previewImage = document.getElementById("previewImg");
+const removeScreenshotButton = document.getElementById("removeScreenshot");
 
-    // Character counter update
-    function updateCharCount() {
-      const len = messageTextarea.value.length;
-      charCountSpan.textContent = len;
-      if (len > 900) {
-        charCountSpan.style.color = '#e67e22';
-      } else {
-        charCountSpan.style.color = '#6b7280';
-      }
-    }
-    if (messageTextarea) {
-      messageTextarea.addEventListener('input', updateCharCount);
-      updateCharCount();
-    }
+const ratingLabels = {
+  5: "Heel goed",
+  4: "Goed",
+  3: "Redelijk",
+  2: "Kan beter",
+  1: "Niet goed",
+};
 
-    // Reset form handling (without clearing rating UI easily)
-    if (resetBtn) {
-      resetBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        feedbackForm.reset();
-        // manually clear rating checkboxes reset doesn't clear radio UI in all browsers consistently
-        ratingRadios.forEach(radio => radio.checked = false);
-        updateCharCount();
-        // also clear optional email
-        if (emailInput) emailInput.value = '';
-        if (categorySelect) categorySelect.value = '';
-        if (messageTextarea) messageTextarea.value = '';
-        updateCharCount();
-        // reset any validation styles
-        document.querySelectorAll('.form-group').forEach(g => g.classList.remove('error-shake'));
-      });
-    }
+export function initFeedbackPage() {
+  bindFeedbackForm();
+  loadFeedbackStats();
+  fillPageFromUrl();
+  updateCharCount();
+});
 
-    // Helper: show toast message
-    function showToast(message, type = 'success') {
-      const existingToast = document.querySelector('.toast-message');
-      if (existingToast) existingToast.remove();
-      const toast = document.createElement('div');
-      toast.className = `toast-message ${type}`;
-      toast.innerHTML = `<span>${type === 'success' ? '✅' : '❌'}</span> ${message}`;
-      document.body.appendChild(toast);
-      setTimeout(() => {
-        toast.style.opacity = '0';
-        setTimeout(() => toast.remove(), 300);
-      }, 4000);
-    }
+function bindFeedbackForm() {
+  if (!form) return;
 
-    // Shake animation for validation
-    function shakeField(fieldElement) {
-      if (!fieldElement) return;
-      fieldElement.style.transform = 'translateX(4px)';
-      setTimeout(() => { fieldElement.style.transform = ''; }, 200);
-    }
+  messageField?.addEventListener("input", updateCharCount);
 
-    // Validation
-    function validateFeedback() {
-      let isValid = true;
-      // rating validation: at least one checked
-      const ratingSelected = Array.from(ratingRadios).some(r => r.checked);
-      if (!ratingSelected) {
-        showToast('Selecteer een waardering (1-5 sterren)', 'error');
-        const ratingGroupDiv = document.querySelector('.rating-group');
-        if (ratingGroupDiv) shakeField(ratingGroupDiv);
-        isValid = false;
-        return false;
-      }
-      // category
-      const category = categorySelect.value;
-      if (!category || category === '') {
-        showToast('Kies een categorie voor de feedback', 'error');
-        shakeField(categorySelect);
-        isValid = false;
-        return false;
-      }
-      // message: minimum 10 chars
-      const msg = messageTextarea.value.trim();
-      if (msg.length < 10) {
-        showToast('Feedback bericht moet minimaal 10 karakters bevatten', 'error');
-        shakeField(messageTextarea);
-        isValid = false;
-        return false;
-      }
-      if (msg.length > 1000) {
-        showToast('Bericht mag maximaal 1000 karakters bevatten', 'error');
-        isValid = false;
-        return false;
-      }
-      return true;
-    }
+  document.querySelectorAll('input[name="rating"]').forEach((input) => {
+    input.addEventListener("change", () => {
+      updateRatingText(input.value);
+      toggleIssueType(input.value);
+    });
+  });
 
-    // Submit feedback to database (POST /api/feedback)
-    async function submitFeedbackToDB(payload) {
-      // Using fetch with proper headers, expecting JSON response
-      const response = await fetch(`${API_BASE_URL}/api/feedback`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Server responded with ${response.status}: ${errorText}`);
-      }
-      return await response.json();
-    }
+  fileUploadArea?.addEventListener("click", () => screenshotInput?.click());
+  fileUploadArea?.addEventListener("dragover", handleDragOver);
+  fileUploadArea?.addEventListener("dragleave", clearDragState);
+  fileUploadArea?.addEventListener("drop", handleFileDrop);
+  screenshotInput?.addEventListener("change", () =>
+    showScreenshotPreview(screenshotInput.files[0]),
+  );
+  removeScreenshotButton?.addEventListener("click", removeScreenshot);
 
-    // Main submit handler
-    feedbackForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!validateFeedback()) return;
+  form.addEventListener("submit", submitFeedback);
+}
 
-      // gather data
-      const email = emailInput.value.trim() || null;
-      let ratingValue = null;
-      for (let radio of ratingRadios) {
-        if (radio.checked) {
-          ratingValue = parseInt(radio.value, 10);
-          break;
-        }
-      }
-      const category = categorySelect.value;
-      const message = messageTextarea.value.trim();
-      const userAgent = navigator.userAgent;
+async function submitFeedback(event) {
+  event.preventDefault();
+  hideAlert();
 
-      const feedbackData = {
-        email: email,
-        rating: ratingValue,
-        category: category,
-        message: message,
-        user_agent: userAgent,
-        status: 'pending',
-        created_at: new Date().toISOString()
-      };
+  const selectedRating = document.querySelector('input[name="rating"]:checked');
+  const email = document.getElementById("email").value.trim();
+  const message = messageField.value.trim();
+  const page = document.getElementById("page").value;
 
-      // Disable button to prevent double submission
-      const originalBtnText = submitBtn.innerHTML;
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = '⏳ Versturen...';
+  if (!selectedRating) {
+    showAlert("Kies eerst een beoordeling.", "error");
+    return;
+  }
 
-      try {
-        if (!apiAvailable) {
-          console.warn('API health check indicates backend offline, but attempting submission...');
-        }
-        const result = await submitFeedbackToDB(feedbackData);
-        showToast('Bedankt! Je feedback is opgeslagen in de database. 👍', 'success');
-        // reset form after success
-        feedbackForm.reset();
-        ratingRadios.forEach(r => r.checked = false);
-        if (messageTextarea) messageTextarea.value = '';
-        if (emailInput) emailInput.value = '';
-        if (categorySelect) categorySelect.value = '';
-        updateCharCount();
-        // optional: extra log
-        console.log('Feedback saved:', result);
-      } catch (err) {
-        console.error('Feedback submission error:', err);
-        showToast(`Fout bij opslaan: ${err.message}. Controleer of backend (localhost:3000) draait.`, 'error');
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalBtnText;
-      }
+  if (!isValidEmail(email)) {
+    showAlert("Vul een geldig e-mailadres in.", "error");
+    return;
+  }
+
+  if (!page) {
+    showAlert("Kies over welke pagina je feedback gaat.", "error");
+    return;
+  }
+
+  if (!message) {
+    showAlert("Schrijf kort wat je wilt doorgeven.", "error");
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const screenshot = await getScreenshotData();
+    const response = await fetch(feedbackApi.submit, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: document.getElementById("name").value.trim() || null,
+        email,
+        rating: Number(selectedRating.value),
+        page,
+        issueType: document.getElementById("issueType").value || null,
+        message,
+        browserInfo: navigator.userAgent,
+        referrer: document.referrer || "Direct bezoek",
+        screenshot,
+      }),
     });
 
-    // ========== API Health Check (align with dashboard "Backend verbinding") ==========
-    async function checkAPIHealth() {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
-        const response = await fetch(`${API_BASE_URL}/api/health`, {
-          method: 'GET',
-          signal: controller.signal,
-        });
-        clearTimeout(timeoutId);
-        if (response.ok) {
-          apiAvailable = true;
-          if (apiStatusSpan) {
-            apiStatusSpan.innerHTML = 'API online, database online';
-            apiStatusSpan.style.color = '#f1f1f1';
-          }
-          if (healthIconSpan) healthIconSpan.innerHTML = '🟢';
-          if (healthMessageSpan) healthMessageSpan.innerHTML = 'Backend actief — database gereed voor feedback.';
-        } else {
-          throw new Error('Health endpoint not ok');
-        }
-      } catch (err) {
-        apiAvailable = false;
-        if (apiStatusSpan) {
-          apiStatusSpan.innerHTML = 'Geen verbinding met localhost:3000';
-          apiStatusSpan.style.color = '#ffffff';
-        }
-        if (healthIconSpan) healthIconSpan.innerHTML = '🔴';
-        if (healthMessageSpan) healthMessageSpan.innerHTML = 'Geen verbinding met localhost:3000. Feedback wordt lokaal opgeslagen? Nee, databaseopslag vereist backend.';
-        console.warn('API health check failed', err);
-      }
-    }
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(result.message || "Versturen lukt nu niet.");
 
-    // Initialize API health
-    checkAPIHealth();
-    // Poll every 30s for status
-    setInterval(checkAPIHealth, 30000);
+    showAlert("Dank je. Je feedback is verstuurd.", "success");
+    resetForm();
+    loadFeedbackStats();
+  } catch (error) {
+    showAlert(
+      error.message ||
+        "Feedback kon niet worden verstuurd. Controleer of de backend aan staat.",
+      "error",
+    );
+  } finally {
+    setLoading(false);
+  }
+}
 
-    // style active nav link
-    document.querySelectorAll('.nav-links a').forEach(link => {
-      if (link.getAttribute('href') === 'feedback.html') {
-        link.classList.add('active');
-        link.style.fontWeight = 'bold';
-        link.style.borderBottom = '2px solid var(--primary)';
-      }
-    });
-    
-    const handleRatingDisplay = () => {};
+async function loadFeedbackStats() {
+  try {
+    const response = await fetch(feedbackApi.stats);
+    const data = await response.json();
+    if (!response.ok || !data.success) throw new Error("Geen feedbackstatistiek.");
+
+    setText("avgRating", formatRating(data.stats.average_rating));
+    setText("totalFeedback", data.stats.total_feedback || 0);
+    renderTestimonials(data.testimonials || []);
+  } catch (error) {
+    setText("avgRating", "Nog geen score");
+    setText("totalFeedback", "0");
+    renderTestimonials([]);
+  }
+}
+
+function renderTestimonials(items) {
+  const list = document.getElementById("testimonialsList");
+  if (!list) return;
+
+  if (!items.length) {
+    list.innerHTML = '<p class="muted">Nog geen reacties geladen.</p>';
+    return;
+  }
+
+  list.innerHTML = "";
+  items.slice(0, 3).forEach((item) => {
+    const article = document.createElement("article");
+    article.className = "testimonial-item";
+
+    const rating = document.createElement("div");
+    rating.className = "testimonial-rating";
+    rating.textContent = "★".repeat(item.rating) + "☆".repeat(5 - item.rating);
+
+    const text = document.createElement("p");
+    text.className = "testimonial-text";
+    text.textContent = shortenText(item.message, 150);
+
+    const author = document.createElement("span");
+    author.className = "testimonial-author";
+    author.textContent = item.name || "Anonieme gebruiker";
+
+    article.append(rating, text, author);
+    list.appendChild(article);
+  });
+}
+
+function updateCharCount() {
+  if (!messageField || !charCounter) return;
+
+  const count = messageField.value.length;
+  setText("charCount", count);
+  charCounter.classList.toggle("warning", count > 800);
+  charCounter.classList.toggle("danger", count > 950);
+}
+
+function updateRatingText(value) {
+  if (ratingText) ratingText.textContent = ratingLabels[value] || "Kies een score";
+}
+
+function toggleIssueType(value) {
+  if (!issueTypeGroup) return;
+
+  const shouldShow = Number(value) <= 3;
+  issueTypeGroup.hidden = !shouldShow;
+  if (!shouldShow) document.getElementById("issueType").value = "";
+}
+
+function handleDragOver(event) {
+  event.preventDefault();
+  fileUploadArea.classList.add("is-dragging");
+}
+
+function clearDragState(event) {
+  event.preventDefault();
+  fileUploadArea.classList.remove("is-dragging");
+}
+
+function handleFileDrop(event) {
+  event.preventDefault();
+  fileUploadArea.classList.remove("is-dragging");
+
+  const file = event.dataTransfer.files[0];
+  if (!file || !file.type.startsWith("image/")) return;
+
+  screenshotInput.files = event.dataTransfer.files;
+  showScreenshotPreview(file);
+}
+
+function showScreenshotPreview(file) {
+  if (!file || !previewImage || !screenshotPreview) return;
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    previewImage.src = event.target.result;
+    screenshotPreview.hidden = false;
+    fileUploadArea.hidden = true;
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeScreenshot() {
+  screenshotInput.value = "";
+  screenshotPreview.hidden = true;
+  fileUploadArea.hidden = false;
+}
+
+async function getScreenshotData() {
+  const file = screenshotInput?.files[0];
+  if (!file) return null;
+
+  if (file.size > 5 * 1024 * 1024) {
+    throw new Error("De screenshot mag maximaal 5MB zijn.");
+  }
+
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Upload alleen een afbeelding.");
+  }
+
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("Screenshot kon niet worden gelezen."));
+    reader.readAsDataURL(file);
+  });
+}
+
+function setLoading(isLoading) {
+  const text = submitButton?.querySelector(".btn-text");
+  const loading = submitButton?.querySelector(".btn-loading");
+
+  if (!submitButton || !text || !loading) return;
+
+  submitButton.disabled = isLoading;
+  text.hidden = isLoading;
+  loading.hidden = !isLoading;
+}
+
+function resetForm() {
+  form.reset();
+  updateRatingText("");
+  updateCharCount();
+  issueTypeGroup.hidden = true;
+  removeScreenshot();
+}
+
+function showAlert(message, type = "success") {
+  if (!alertBox) return;
+
+  alertBox.className = "alert " + type;
+  alertBox.textContent = message;
+  alertBox.style.display = "block";
+}
+
+function hideAlert() {
+  if (alertBox) alertBox.style.display = "none";
+}
+
+function fillPageFromUrl() {
+  const page = new URLSearchParams(window.location.search).get("page");
+  const select = document.getElementById("page");
+  if (!page || !select) return;
+
+  const exists = [...select.options].some((option) => option.value === page);
+  if (exists) select.value = page;
+}
+
+function isValidEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function formatRating(value) {
+  const rating = Number(value);
+  if (!rating) return "Nog geen score";
+  return rating.toFixed(1) + " / 5";
+}
+
+function shortenText(value, maxLength) {
+  const text = String(value || "");
+  if (text.length <= maxLength) return text;
+  return text.slice(0, maxLength - 3) + "...";
+}
+
+function setText(id, value) {
+  const element = document.getElementById(id);
+  if (element) element.textContent = value;
+}

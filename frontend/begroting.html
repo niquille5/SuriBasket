@@ -19,7 +19,7 @@
       <nav class="navbar" aria-label="Hoofdnavigatie">
         <a class="brand" href="login.html">
           <span class="brand-mark brand-logo">
-            <img src="assets/Suribasket_logo.jpeg" alt="Suri Basket" />
+            <img src="assets/Suribasket_logo.png" alt="Suri Basket" />
           </span>
           <span>
             <strong>Suri Basket</strong>
@@ -55,7 +55,7 @@
     </header>
 
     <main>
-      <section class="page-title">
+      <section class="page-title budget-page-title">
         <div>
           <p class="eyebrow">Inkopen plannen</p>
 
@@ -67,123 +67,29 @@
           </p>
         </div>
 
-        <a class="button primary" href="producten.html">Bekijk prijzen</a>
+        <a class="button primary budget-prices-link" href="producten.html">
+          Alle prijzen bekijken
+        </a>
       </section>
 
-      <section class="budget-layout">
+      <section class="budget-layout" aria-label="Begroting uitleg">
         <div class="panel budget-builder">
           <div class="section-heading split">
             <div>
               <p class="eyebrow">Lijst bouwen</p>
 
-              <h2>Begrotingslijst</h2>
+              <h2 class="budget-builder-intro">Zo maak je een duidelijke lijst</h2>
             </div>
-
-            <button type="button" id="clearBudgetButton">Leegmaken</button>
           </div>
 
           <div class="budget-steps" aria-label="Begroting stappen">
-            <span><strong>1</strong>Kies pakket</span>
+            <span><strong>1</strong>Kies een pakket of los product</span>
 
-            <span><strong>2</strong>Voeg producten toe</span>
+            <span><strong>2</strong>Pas aantallen rustig aan</span>
 
-            <span><strong>3</strong>Controleer totaal</span>
-          </div>
+            <span><strong>3</strong>Bewaar of maak een nieuwe lijst</span>
 
-          <div class="preset-grid" aria-label="Begrotingspakketten">
-            <button type="button" class="preset-card" data-preset="starter">
-              <strong>Basis warung</strong>
-
-              <span>Rijst, olie, suiker, zout, uien en aardappelen.</span>
-            </button>
-
-            <button type="button" class="preset-card" data-preset="kitchen">
-              <strong>Keukenvoorraad</strong>
-
-              <span>Specerijen, groente, peulvruchten, conserven en thee.</span>
-            </button>
-
-            <button type="button" class="preset-card" data-preset="month">
-              <strong>Maandinkoop klein</strong>
-
-              <span>Een bredere voorraad voor dagelijkse verkoop.</span>
-            </button>
-          </div>
-
-          <div class="budget-add-panel">
-            <div class="section-heading compact">
-              <p class="eyebrow">Los product</p>
-
-              <h2>Zelf toevoegen</h2>
-            </div>
-
-            <div class="budget-add-row">
-              <div>
-                <label for="budgetProductSelect">Product toevoegen</label>
-
-                <select id="budgetProductSelect">
-                  <option value="">Producten worden geladen...</option>
-                </select>
-              </div>
-
-              <div>
-                <label for="budgetQuantityInput">Aantal</label>
-
-                <input
-                  type="number"
-                  id="budgetQuantityInput"
-                  min="1"
-                  step="1"
-                  value="1"
-                />
-              </div>
-
-              <button type="button" id="addBudgetItemButton">Toevoegen</button>
-            </div>
-          </div>
-
-          <div class="section-heading compact table-heading">
-            <div>
-              <p class="eyebrow">Overzicht</p>
-
-              <h2>Geselecteerde producten</h2>
-            </div>
-          </div>
-
-          <div class="table-wrap budget-table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Product</th>
-
-                  <th>Categorie</th>
-
-                  <th>Richtprijs</th>
-
-                  <th>Aantal</th>
-
-                  <th>Subtotaal</th>
-
-                  <th>Actie</th>
-                </tr>
-              </thead>
-
-              <tbody id="budgetTable">
-                <tr>
-                  <td colspan="6">Kies een pakket of voeg producten toe.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <aside class="panel budget-summary">
-          <div class="budget-total-card">
-            <p class="eyebrow">Totaal</p>
-
-            <h2 id="budgetTotal">SRD 0,00</h2>
-
-            <p id="budgetCount">0 producten geselecteerd</p>
+            <span><strong>4</strong>Bekijk je geschiedenis terug</span>
           </div>
 
           <div class="budget-note">
@@ -194,60 +100,226 @@
               verschillen per winkel, verpakking en datum.
             </p>
           </div>
+        </div>
+      </section>
 
-          <div class="budget-actions">
-            <button type="button" id="copyBudgetButton">
-              Kopieer overzicht
+      <div id="budgetMessage" class="result" aria-live="polite"></div>
+
+      <section class="budget-selection-layout" aria-label="Producten kiezen">
+        <div class="budget-section-header">
+          <p class="eyebrow">Stap 1</p>
+
+          <h2>Kies producten voor je begroting</h2>
+
+          <p>
+            Gebruik een pakket als startpunt of voeg losse producten toe met een
+            eigen aantal.
+          </p>
+        </div>
+
+        <div class="panel budget-package-panel" aria-labelledby="packageInfoTitle">
+          <div class="section-heading compact package-heading">
+            <div>
+              <p class="eyebrow">Pakketten</p>
+
+              <h2 id="packageInfoTitle">Voorraad sneller samenstellen</h2>
+            </div>
+          </div>
+
+          <div class="preset-grid" aria-label="Begrotingspakketten">
+            <button type="button" class="preset-card" data-preset="starter">
+              <strong>Pakket 1</strong>
+
+              <span>
+                Basis warung: dagelijkse producten voor snelle aanvulling.
+                Rijst, olie, suiker, zout, uien en aardappelen.
+              </span>
             </button>
 
+            <button type="button" class="preset-card" data-preset="kitchen">
+              <strong>Pakket 2</strong>
+
+              <span>
+                Keukenvoorraad: specerijen, groente, peulvruchten, conserven en
+                thee.
+              </span>
+            </button>
+
+            <button type="button" class="preset-card" data-preset="month">
+              <strong>Pakket 3</strong>
+
+              <span>
+                Maandinkoop klein: een bredere voorraad voor dagelijkse verkoop.
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <div class="panel budget-add-panel">
+          <div class="section-heading compact package-heading">
+            <div>
+              <p class="eyebrow">Los product</p>
+
+              <h2>Zelf toevoegen</h2>
+            </div>
+          </div>
+
+          <div class="budget-add-row">
+            <div>
+              <label for="budgetProductSelect">Product toevoegen</label>
+
+              <select id="budgetProductSelect">
+                <option value="">Producten worden geladen...</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="budgetQuantityInput">Aantal</label>
+
+              <input
+                type="number"
+                id="budgetQuantityInput"
+                min="1"
+                step="1"
+                value="1"
+              />
+            </div>
+
+            <button type="button" id="addBudgetItemButton">Toevoegen</button>
+          </div>
+
+          <div class="budget-quick-pick">
+            <div>
+              <p class="eyebrow">Snel kiezen</p>
+              <h3>Beschikbare producten</h3>
+            </div>
+
+            <div
+              class="budget-product-grid"
+              id="budgetProductGrid"
+              aria-label="Producten snel kiezen"
+            ></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel budget-overview-panel">
+        <div class="section-heading compact table-heading">
+          <div>
+            <p class="eyebrow">Stap 2</p>
+
+            <h2>Controleer de lijst</h2>
+
+            <p class="table-hint">
+              Controleer producten, aantallen, verpakking, richtprijs en
+              subtotaal voordat je de begroting opslaat.
+            </p>
+          </div>
+
+          <div class="budget-total-card">
+            <p class="eyebrow">Totaal</p>
+
+            <h2 id="budgetTotal">SRD 0,00</h2>
+
+            <p id="budgetCount">0 producten geselecteerd</p>
+          </div>
+        </div>
+
+        <div class="table-wrap budget-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+
+                <th>Categorie</th>
+
+                <th>Richtprijs</th>
+
+                <th>Aantal</th>
+
+                <th>Subtotaal</th>
+
+                <th>Actie</th>
+              </tr>
+            </thead>
+
+            <tbody id="budgetTable">
+              <tr class="budget-empty-row">
+                <td colspan="6">Kies een pakket of voeg producten toe.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="budget-overview-footer">
+          <div class="budget-control-summary">
+            <p class="eyebrow">Stap 3</p>
+
+            <div class="status-cards">
+              <span class="status-card average"
+                ><strong>Aantal</strong>Check hoeveelheden per regel.</span
+              >
+              <span class="status-card good"
+                ><strong>Totaal</strong>Gebruik als richtbedrag.</span
+              >
+              <span class="status-card expensive"
+                ><strong>Datum</strong>Prijzen kunnen wijzigen.</span
+              >
+            </div>
+          </div>
+
+          <div class="budget-overview-actions">
             <button type="button" id="saveBudgetListButton">
               Bewaar lijst
             </button>
 
-            <button type="button" id="savePurchaseButton">
-              Bewaar als inkoop
+            <button type="button" id="clearBudgetButton">
+              Nieuwe lijst
             </button>
           </div>
-
-          <div id="budgetMessage" class="result" aria-live="polite"></div>
-        </aside>
+        </div>
       </section>
 
-      <section class="content-grid lower-grid">
-        <article class="panel">
-          <p class="eyebrow">Pakketlogica</p>
-          <h2>Voorraad sneller samenstellen</h2>
-          <div class="workflow-list">
-            <span
-              ><strong>Basis</strong>Dagelijkse producten voor snelle
-              aanvulling.</span
-            >
-            <span
-              ><strong>Keuken</strong>Specerijen, peulvruchten en
-              conserven.</span
-            >
-            <span
-              ><strong>Maand</strong>Een bredere voorraad met hogere
-              aantallen.</span
-            >
-          </div>
-        </article>
+      <section class="panel budget-history-panel" id="budgetHistoryPanel">
+        <div class="section-heading split">
+          <div>
+            <p class="eyebrow">Stap 4</p>
 
-        <article class="panel">
-          <p class="eyebrow">Controle</p>
-          <h2>Voor je kopieert</h2>
-          <div class="status-cards">
-            <span class="status-card average"
-              ><strong>Aantal</strong>Check hoeveelheden per regel.</span
-            >
-            <span class="status-card good"
-              ><strong>Totaal</strong>Gebruik als richtbedrag.</span
-            >
-            <span class="status-card expensive"
-              ><strong>Datum</strong>Prijzen kunnen wijzigen.</span
-            >
+            <h2>Begroting geschiedenis</h2>
+
+            <p class="table-hint">
+              Bekijk opgeslagen begrotingen met een productfilter, een
+              datumperiode of beide.
+            </p>
           </div>
-        </article>
+        </div>
+
+        <div class="history-filters" aria-label="Filter begroting geschiedenis">
+          <div>
+            <label for="historyDateFrom">Startdatum</label>
+            <input type="date" id="historyDateFrom" required />
+          </div>
+
+          <div>
+            <label for="historyDateTo">Einddatum</label>
+            <input type="date" id="historyDateTo" required />
+          </div>
+
+          <div>
+            <label for="historyProductFilter">Product</label>
+            <select id="historyProductFilter">
+              <option value="">Alle producten</option>
+            </select>
+          </div>
+
+          <button type="button" id="applyHistoryFiltersButton">
+            Filters toepassen
+          </button>
+        </div>
+
+        <div id="budgetHistoryList" class="budget-history-list">
+          <p class="muted">Kies een product, of kies een startdatum en einddatum, om begroting geschiedenis te bekijken.</p>
+        </div>
       </section>
     </main>
 
@@ -256,6 +328,6 @@
       <p>Prijsinformatie, publicatielijsten en consumentenvergelijking.</p>
     </footer>
 
-    <script type="module" src="js/begroting.js"></script>
+    <script type="module" src="js/app.js"></script>
   </body>
 </html>
