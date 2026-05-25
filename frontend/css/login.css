@@ -2,6 +2,7 @@
 
 body[data-page="login"] {
   background:
+    linear-gradient(120deg, rgba(255, 255, 255, 0.08), transparent 34%, rgba(238, 207, 62, 0.1) 66%, transparent),
     radial-gradient(circle at 78% 18%, rgba(238, 207, 62, 0.2), transparent 26%),
     radial-gradient(circle at 18% 84%, rgba(196, 235, 106, 0.18), transparent 24%),
     linear-gradient(90deg, rgba(34, 72, 10, 0.32), rgba(255, 253, 248, 0.06)),
@@ -33,6 +34,7 @@ body[data-page="login"] main {
 }
 
 .login-screen::before {
+  animation: loginGridDrift 18s linear infinite;
   background:
     linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
@@ -100,6 +102,7 @@ body[data-page="login"] main {
 }
 
 .login-brand img {
+  animation: loginLogoLift 5.4s ease-in-out infinite;
   display: block;
   filter: drop-shadow(0 18px 28px rgba(35, 49, 8, 0.34));
   height: auto;
@@ -111,6 +114,18 @@ body[data-page="login"] main {
   border-left: 5px solid var(--sun);
   max-width: 540px;
   padding-left: clamp(16px, 2vw, 24px);
+  position: relative;
+}
+
+.login-promise-text::before {
+  animation: loginAccentSlide 3.8s ease-in-out infinite;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0), #fff4a5, rgba(255, 255, 255, 0));
+  content: "";
+  height: 54px;
+  left: -5px;
+  position: absolute;
+  top: 6px;
+  width: 5px;
 }
 
 .login-kicker {
@@ -171,6 +186,16 @@ body[data-page="login"] main {
   min-height: 48px;
   padding: 11px 14px;
   text-align: center;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.login-points span:hover {
+  background: rgba(255, 255, 255, 0.26);
+  border-color: rgba(255, 255, 255, 0.46);
+  transform: translateY(-2px);
 }
 
 .login-points strong {
@@ -179,7 +204,7 @@ body[data-page="login"] main {
 
 .auth-card {
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(255, 253, 248, 0.88));
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 253, 248, 0.9));
   border: 1px solid rgba(255, 255, 255, 0.9);
   border-radius: 22px;
   box-shadow:
@@ -194,6 +219,17 @@ body[data-page="login"] main {
   width: 100%;
   animation: loginFadeIn 620ms ease both;
   backdrop-filter: blur(22px);
+  transition:
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.auth-card:hover {
+  box-shadow:
+    0 34px 82px rgba(27, 38, 12, 0.32),
+    0 0 0 1px rgba(196, 235, 106, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.92);
+  transform: translateY(-2px);
 }
 
 .auth-orbit {
@@ -213,7 +249,9 @@ body[data-page="login"] main {
 
 .auth-card::before {
   background:
-    linear-gradient(90deg, var(--teal-dark), var(--teal), var(--sun));
+    linear-gradient(90deg, var(--teal-dark), var(--teal), var(--sun), var(--teal));
+  background-size: 220% 100%;
+  animation: loginBarSweep 5s ease-in-out infinite;
   content: "";
   display: block;
   height: 5px;
@@ -225,7 +263,7 @@ body[data-page="login"] main {
 
 .auth-card-header {
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(238, 246, 243, 0.44));
+    linear-gradient(135deg, rgba(255, 255, 255, 0.78), rgba(238, 246, 243, 0.5));
   border: 1px solid rgba(217, 223, 207, 0.64);
   border-radius: 16px;
   box-shadow:
@@ -290,6 +328,13 @@ body[data-page="login"] main {
     transform 160ms ease;
 }
 
+.input-shell:hover {
+  border-color: rgba(18, 108, 101, 0.28);
+  box-shadow:
+    0 12px 24px rgba(82, 113, 35, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
 .input-shell:focus-within {
   background: #fff;
   border-color: var(--teal);
@@ -350,42 +395,84 @@ body[data-page="login"] main {
 
 .auth-options {
   align-items: center;
+  background: #fff;
+  border: 1px solid rgba(18, 108, 101, 0.28);
+  border-radius: 14px;
+  box-shadow:
+    0 10px 22px rgba(82, 113, 35, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
   display: flex;
   gap: 12px;
   justify-content: space-between;
-  margin: 3px 0 0;
+  margin: 6px 0 0;
+  min-height: 50px;
+  padding: 0 13px;
 }
 
 .remember-option {
   align-items: center;
-  color: #626a5d;
+  color: var(--teal-dark);
   cursor: pointer;
   display: inline-flex;
   font-size: 13px;
   font-weight: 800;
   gap: 8px;
+  line-height: 1;
+  min-height: 34px;
 }
 
 .remember-option input {
-  accent-color: var(--teal);
+  accent-color: #fff;
+  appearance: none;
+  background: #fff;
+  border: 2px solid rgba(18, 108, 101, 0.7);
+  border-radius: 5px;
+  cursor: pointer;
   height: 16px;
   min-height: 0;
+  position: relative;
   width: 16px;
 }
 
+.remember-option input:checked {
+  background: var(--teal);
+  border-color: var(--teal);
+}
+
+.remember-option input:checked::after {
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  content: "";
+  height: 8px;
+  left: 4px;
+  position: absolute;
+  top: 1px;
+  transform: rotate(45deg);
+  width: 4px;
+}
+
 .forgot-link {
-  background: transparent;
+  align-items: center;
+  background: #fff;
+  border: 1px solid rgba(18, 108, 101, 0.28);
+  border-radius: 999px;
+  box-shadow: none;
   color: var(--teal-dark);
+  display: inline-flex;
   font-size: 13px;
   font-weight: 900;
-  min-height: auto;
-  padding: 0;
+  justify-content: center;
+  line-height: 1;
+  min-height: 34px;
+  padding: 0 12px;
+  width: auto;
 }
 
 .forgot-link:hover {
-  background: transparent;
+  background: #f8fff5;
+  border-color: rgba(18, 108, 101, 0.48);
   box-shadow: none;
-  color: var(--tomato);
+  color: var(--teal-dark);
   transform: none;
 }
 
@@ -409,6 +496,26 @@ body[data-page="login"] main {
     0 20px 34px rgba(82, 113, 35, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.18);
   transform: translateY(-1px);
+}
+
+.auth-form .forgot-link {
+  background: #fff;
+  border: 1px solid rgba(18, 108, 101, 0.28);
+  border-radius: 999px;
+  box-shadow: none;
+  color: var(--teal-dark);
+  margin-top: 0;
+  min-height: 34px;
+  padding: 0 12px;
+  width: auto;
+}
+
+.auth-form .forgot-link:hover {
+  background: #f8fff5;
+  border-color: rgba(18, 108, 101, 0.48);
+  box-shadow: none;
+  color: var(--teal-dark);
+  transform: none;
 }
 
 .auth-form button.is-loading {
@@ -573,10 +680,24 @@ body[data-page="login"] main {
   justify-items: center;
   justify-self: end;
   min-height: 58px;
+  overflow: hidden;
   padding: 14px 18px;
   position: relative;
   width: min(520px, 100%);
   box-shadow: 0 14px 30px rgba(37, 49, 13, 0.12);
+}
+
+.login-trustbar::before {
+  animation: loginTrustSweep 4.6s ease-in-out infinite;
+  background: linear-gradient(90deg, transparent, rgba(238, 207, 62, 0.34), transparent);
+  content: "";
+  height: 100%;
+  left: -35%;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  transform: skewX(-18deg);
+  width: 28%;
 }
 
 .login-trustbar span {
@@ -584,9 +705,11 @@ body[data-page="login"] main {
   font-weight: 800;
   min-height: 34px;
   padding: 0 8px;
+  position: relative;
   text-align: center;
   white-space: normal;
   width: 100%;
+  z-index: 1;
 }
 
 .login-trustbar span + span {
@@ -617,6 +740,48 @@ body[data-page="login"] main {
   }
 }
 
+@keyframes loginGridDrift {
+  from {
+    background-position:
+      0 0,
+      0 0,
+      center,
+      center;
+  }
+
+  to {
+    background-position:
+      38px 38px,
+      38px 38px,
+      center,
+      center;
+  }
+}
+
+@keyframes loginLogoLift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes loginAccentSlide {
+  0%,
+  100% {
+    opacity: 0.56;
+    transform: translateY(0);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateY(72px);
+  }
+}
+
 @keyframes loginFloat {
   0%,
   100% {
@@ -625,6 +790,29 @@ body[data-page="login"] main {
 
   50% {
     transform: translate3d(-18px, 16px, 0) rotate(8deg);
+  }
+}
+
+@keyframes loginBarSweep {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes loginTrustSweep {
+  0%,
+  20% {
+    left: -35%;
+  }
+
+  70%,
+  100% {
+    left: 110%;
   }
 }
 
@@ -637,6 +825,28 @@ body[data-page="login"] main {
 @keyframes spinDot {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-screen::before,
+  .login-screen::after,
+  .login-brand img,
+  .login-promise h1,
+  .login-promise p,
+  .login-brand,
+  .auth-card,
+  .auth-orbit,
+  .auth-card::before,
+  .login-trustbar::before {
+    animation: none;
+  }
+
+  .auth-card:hover,
+  .login-points span:hover,
+  .input-shell:focus-within,
+  .guest-button:hover {
+    transform: none;
   }
 }
 
@@ -736,8 +946,17 @@ body[data-page="login"] main {
   }
 
   .auth-options {
-    align-items: flex-start;
+    align-items: stretch;
     flex-direction: column;
+  }
+
+  .remember-option {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .auth-form .forgot-link {
+    width: 100%;
   }
 
   .auth-secondary {
