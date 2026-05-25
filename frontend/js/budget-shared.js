@@ -254,28 +254,28 @@ export function createBudgetList(elements) {
         const subtotal = item.price * item.quantity;
         return (
           "<tr>" +
-          "<td><strong>" +
+          '<td data-label="Product"><strong>' +
           escapeHtml(item.product_name) +
           '</strong><span class="muted">' +
           escapeHtml(item.store_name) +
           " | " +
           escapeHtml(item.unit) +
           "</span></td>" +
-          "<td>" +
+          '<td data-label="Categorie">' +
           escapeHtml(item.category) +
           "</td>" +
-          '<td class="price">' +
+          '<td class="price" data-label="Richtprijs">' +
           formatCurrency(item.price) +
           "</td>" +
-          '<td><input class="quantity-input" type="number" min="1" step="1" value="' +
+          '<td data-label="Aantal"><input class="quantity-input" type="number" min="1" step="1" value="' +
           item.quantity +
           '" data-budget-key="' +
           escapeHtml(item.key) +
           '"></td>' +
-          '<td class="price">' +
+          '<td class="price" data-label="Subtotaal">' +
           formatCurrency(subtotal) +
           "</td>" +
-          '<td><button type="button" class="table-button" data-remove-budget="' +
+          '<td data-label="Actie"><button type="button" class="table-button" data-remove-budget="' +
           escapeHtml(item.key) +
           '">Verwijder</button></td>' +
           "</tr>"
