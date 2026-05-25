@@ -27,12 +27,44 @@ html {
 
 body {
   background:
-    linear-gradient(180deg, rgba(18, 108, 101, 0.08), transparent 360px),
+    radial-gradient(circle at 8% 8%, rgba(238, 207, 62, 0.2), transparent 30%),
+    radial-gradient(circle at 92% 10%, rgba(116, 152, 56, 0.18), transparent 28%),
+    radial-gradient(circle at 78% 82%, rgba(196, 235, 106, 0.14), transparent 30%),
+    linear-gradient(135deg, #fffdf8 0%, #f5faee 36%, #eef6f3 68%, #fff7df 100%),
     var(--paper);
+  background-attachment: fixed;
   color: var(--ink);
   font-family: "Segoe UI", Arial, Helvetica, sans-serif;
   line-height: 1.55;
   min-height: 100vh;
+}
+
+body:not([data-page="login"]) {
+  background:
+    radial-gradient(circle at 8% 8%, rgba(238, 207, 62, 0.2), transparent 30%),
+    radial-gradient(circle at 92% 10%, rgba(116, 152, 56, 0.18), transparent 28%),
+    radial-gradient(circle at 78% 82%, rgba(196, 235, 106, 0.14), transparent 30%),
+    linear-gradient(135deg, #fffdf8 0%, #f5faee 36%, #eef6f3 68%, #fff7df 100%),
+    var(--paper);
+}
+
+body:not([data-page="login"])::before {
+  background:
+    linear-gradient(rgba(82, 113, 35, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(82, 113, 35, 0.035) 1px, transparent 1px),
+    radial-gradient(circle at 18% 28%, rgba(196, 235, 106, 0.18), transparent 22%),
+    radial-gradient(circle at 86% 64%, rgba(238, 207, 62, 0.16), transparent 24%);
+  background-size:
+    38px 38px,
+    38px 38px,
+    auto,
+    auto;
+  content: "";
+  inset: 0;
+  opacity: 0.78;
+  pointer-events: none;
+  position: fixed;
+  z-index: -1;
 }
 
 a {
@@ -283,17 +315,49 @@ main {
 .hero,
 .page-title {
   background:
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
     radial-gradient(
       circle at 12% 12%,
       rgba(243, 179, 64, 0.42),
       transparent 28%
     ),
     linear-gradient(135deg, var(--teal-dark), var(--teal) 58%, var(--berry));
+  background-size:
+    34px 34px,
+    34px 34px,
+    auto,
+    auto;
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 18px;
   box-shadow: var(--shadow);
   color: #fff;
   overflow: hidden;
+  position: relative;
+}
+
+.hero::after,
+.page-title::after {
+  background: linear-gradient(90deg, transparent, rgba(238, 207, 62, 0.78), transparent);
+  bottom: 0;
+  content: "";
+  height: 3px;
+  left: 32px;
+  position: absolute;
+  right: 32px;
+}
+
+.hero::before,
+.page-title::before {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.14), transparent);
+  content: "";
+  height: 100%;
+  pointer-events: none;
+  position: absolute;
+  right: 18%;
+  top: 0;
+  transform: skewX(-16deg);
+  width: 80px;
 }
 
 .page-title {
@@ -316,6 +380,8 @@ main {
   font-size: 18px;
   margin-top: 16px;
   max-width: 760px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .hero-actions {
@@ -368,11 +434,18 @@ button {
 button {
   background: var(--tomato);
   color: #fff;
+  transition:
+    background 0.18s ease,
+    box-shadow 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
 }
 
 .button.primary:hover,
 button:hover {
   background: #aa3f2f;
+  box-shadow: 0 14px 28px rgba(197, 43, 43, 0.18);
+  transform: translateY(-1px);
 }
 
 .button.secondary {
@@ -386,10 +459,14 @@ button:hover {
 .scanner-section,
 .products-section,
 .note-panel {
-  background: rgba(255, 255, 255, 0.94);
-  border: 1px solid var(--line);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(255, 253, 248, 0.92));
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(225, 216, 200, 0.74);
   border-radius: 14px;
-  box-shadow: var(--shadow);
+  box-shadow:
+    0 18px 42px rgba(32, 25, 14, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.82);
 }
 
 .panel,
@@ -399,6 +476,19 @@ button:hover {
   border-top: 5px solid var(--teal);
   min-width: 0;
   padding: 22px;
+  position: relative;
+  overflow: hidden;
+}
+
+.panel::before,
+.scanner-section::before,
+.products-section::before,
+.note-panel::before {
+  background: linear-gradient(90deg, var(--teal-dark), var(--leaf), var(--sun));
+  content: "";
+  height: 5px;
+  inset: 0 0 auto;
+  position: absolute;
 }
 
 .content-grid {
@@ -429,15 +519,22 @@ button:hover {
 }
 
 .feature-list a {
-  background: var(--mist);
+  background:
+    linear-gradient(180deg, #ffffff, var(--mist));
   border: 1px solid rgba(18, 108, 101, 0.16);
   border-radius: 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.74);
   display: block;
   padding: 15px;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
 }
 
 .feature-list a:hover {
-  border-color: var(--tomato);
+  border-color: rgba(116, 152, 56, 0.36);
+  box-shadow: 0 14px 28px rgba(82, 113, 35, 0.08);
   transform: translateY(-1px);
 }
 
@@ -478,12 +575,30 @@ button:hover {
 .mini-metrics span,
 .status-card,
 .workflow-list span {
-  background: var(--mist);
+  background:
+    linear-gradient(180deg, #ffffff, var(--mist));
   border: 1px solid rgba(18, 108, 101, 0.16);
   border-radius: 12px;
+  box-shadow:
+    0 10px 22px rgba(32, 25, 14, 0.045),
+    inset 0 1px 0 rgba(255, 255, 255, 0.78);
   color: var(--muted);
   display: block;
   padding: 13px;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.mini-metrics span:hover,
+.status-card:hover,
+.workflow-list span:hover {
+  border-color: rgba(116, 152, 56, 0.34);
+  box-shadow:
+    0 14px 30px rgba(82, 113, 35, 0.08),
+    0 0 0 1px rgba(196, 235, 106, 0.1);
+  transform: translateY(-2px);
 }
 
 .mini-metrics strong,
@@ -588,9 +703,13 @@ label {
 
 input,
 select {
-  background: #fff;
-  border: 1px solid var(--line);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(251, 255, 247, 0.94));
+  border: 1px solid rgba(116, 152, 56, 0.2);
   border-radius: 10px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.88),
+    0 8px 18px rgba(82, 113, 35, 0.035);
   color: var(--ink);
   font-size: 16px;
   min-height: 46px;
@@ -601,7 +720,10 @@ select {
 input:focus,
 select:focus {
   border-color: var(--teal);
-  outline: 3px solid rgba(18, 108, 101, 0.16);
+  box-shadow:
+    0 0 0 4px rgba(116, 152, 56, 0.14),
+    0 12px 26px rgba(82, 113, 35, 0.08);
+  outline: 0;
 }
 
 .result {
@@ -632,8 +754,12 @@ select:focus {
 }
 
 .table-wrap {
-  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(225, 216, 200, 0.82);
   border-radius: 12px;
+  box-shadow:
+    0 14px 30px rgba(32, 25, 14, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.84);
   overflow: auto;
 }
 
@@ -664,7 +790,8 @@ tbody tr:nth-child(even) {
 }
 
 tbody tr:hover {
-  background: var(--mist);
+  background:
+    linear-gradient(90deg, rgba(238, 246, 243, 0.92), rgba(255, 251, 242, 0.92));
 }
 
 .price {
@@ -868,7 +995,28 @@ footer p {
   .hero,
   .page-title {
     border-radius: 14px;
+    overflow: hidden;
     padding: 24px 18px;
+  }
+
+  .page-title h1,
+  .hero h1 {
+    font-size: 30px;
+    line-height: 1.14;
+    max-width: 310px;
+  }
+
+  .page-title p,
+  .hero p {
+    max-width: 310px;
+  }
+
+  .page-title .button,
+  .page-title button,
+  .hero .button,
+  .hero button {
+    white-space: normal;
+    width: 100%;
   }
 }
 
@@ -890,6 +1038,17 @@ footer p {
 
   h1 {
     font-size: 29px;
+  }
+
+  .page-title h1,
+  .hero h1 {
+    font-size: 28px;
+    max-width: 280px;
+  }
+
+  .page-title p,
+  .hero p {
+    max-width: 280px;
   }
 
   h2 {

@@ -1,7 +1,6 @@
 import { fetchJson, fetchJsonWithAuth } from "./api.js";
 import { escapeHtml, setText } from "./dom.js";
 import { formatCurrency, getPackageText } from "./format.js";
-import { buildBudgetProducts, createBudgetList } from "./budget-shared.js";
 import { warungProductCategories } from "./budget-data.js";
 import { hasAuthToken } from "./auth.js";
 
@@ -9,11 +8,11 @@ const state = {
   prices: [],
   officialProducts: [],
   productMode: "local",
+  viewMode: "table",
   renderedLocalProducts: [],
   renderedOfficialProducts: [],
   renderedFavoriteProducts: [],
   renderedAlertProducts: [],
-  budget: null,
   favorites: [],
   priceAlerts: [],
   alertKeys: new Set(),
@@ -23,19 +22,8 @@ const state = {
 };
 
 export async function initProductsPage() {
-  state.budget = createBudgetList({
-    clearButton: document.getElementById("clearBudgetButton"),
-    copyButton: document.getElementById("copyBudgetButton"),
-    table: document.getElementById("budgetTable"),
-    total: document.getElementById("budgetTotal"),
-    count: document.getElementById("budgetCount"),
-    noteCount: document.getElementById("noteItemTotal"),
-    message: document.getElementById("budgetMessage"),
-    notePanel: document.getElementById("budgetNotePanel"),
-    noteToggle: document.getElementById("budgetNoteToggle"),
-  });
-
   bindProductSearch();
+  setViewModeButtons();
   createPriceAlertUi();
   await loadProductTables();
 }
@@ -48,14 +36,12 @@ async function loadProductTables() {
     );
 
     state.officialProducts = onlyWarungProducts(officialProducts);
-    state.budget.products = buildBudgetProducts(state.prices);
     populateProductFilters();
     await loadFavorites();
     await loadPriceAlerts();
     await showTriggeredPriceAlerts();
     updateProductStats(state.prices.length);
     renderCurrentProductTable();
-    state.budget.render();
   } catch (error) {
     renderOfflineTable();
   }
@@ -90,12 +76,24 @@ function bindProductSearch() {
   document
     .getElementById("priceAlertsButton")
     ?.addEventListener("click", () => switchMode("alerts"));
+  document
+    .getElementById("tableViewButton")
+    ?.addEventListener("click", () => switchView("table"));
+  document
+    .getElementById("gridViewButton")
+    ?.addEventListener("click", () => switchView("grid"));
 }
 
 function switchMode(mode) {
   state.productMode = mode;
   setProductModeButtons();
   populateProductFilters();
+  renderCurrentProductTable();
+}
+
+function switchView(viewMode) {
+  state.viewMode = viewMode;
+  setViewModeButtons();
   renderCurrentProductTable();
 }
 
@@ -166,6 +164,7 @@ function renderLocalPrices(items) {
 
   if (!items.length) {
     table.innerHTML = '<tr><td colspan="8">Geen producten gevonden.</td></tr>';
+    renderProductGrid([]);
     updateProductStats(0);
     return;
   }
@@ -179,6 +178,8 @@ function renderLocalPrices(items) {
     unit: getPackageText(item),
     price: Number(item.price),
     store_name: item.store_name || "Onbekend",
+    analysis: getPriceAnalysis(item, state.prices),
+    available: true,
   }));
 
   table.innerHTML = items
@@ -208,11 +209,9 @@ function renderLocalPrices(items) {
         "</span></td>" +
         '<td class="price">' +
         formatCurrency(item.price) +
+        renderInlinePriceInsight(item, state.prices) +
         "</td>" +
         '<td><div class="row-actions">' +
-        '<button type="button" class="row-add-button" data-add-local="' +
-        index +
-        '">Voeg toe</button>' +
         renderPriceAlertButton(item, "local", index) +
         renderFavoriteButton(item, "local", index) +
         "</div></td>" +
@@ -221,6 +220,17 @@ function renderLocalPrices(items) {
     })
     .join("");
 
+  renderProductGrid(
+    state.renderedLocalProducts,
+    "local",
+    (item) => [
+      ["Categorie", item.category],
+      ["Verpakking", item.unit],
+      ["Winkel", item.store_name],
+      ["Analyse", item.analysis.label],
+      ["Status", getAvailabilityLabel(item)],
+    ],
+  );
   bindProductRowButtons();
   updateProductStats(items.length);
 }
@@ -240,6 +250,7 @@ function renderOfficialPrices(items) {
   if (!items.length) {
     table.innerHTML =
       '<tr><td colspan="6">Geen officiele producten gevonden.</td></tr>';
+    renderProductGrid([]);
     updateProductStats(0);
     return;
   }
@@ -253,6 +264,14 @@ function renderOfficialPrices(items) {
     unit: item.retail_package || "stuk",
     price: Number(item.retail_price),
     store_name: item.importer_name || "Publieke productenlijst",
+    analysis: getPriceAnalysis(
+      { product_name: item.product_name, price: item.retail_price },
+      state.officialProducts.map((product) => ({
+        product_name: product.product_name,
+        price: product.retail_price,
+      })),
+    ),
+    available: true,
   }));
 
   table.innerHTML = items
@@ -275,11 +294,15 @@ function renderOfficialPrices(items) {
         "</td>" +
         '<td class="price">' +
         formatCurrency(item.retail_price) +
+        renderInlinePriceInsight(
+          { product_name: item.product_name, price: item.retail_price },
+          state.officialProducts.map((product) => ({
+            product_name: product.product_name,
+            price: product.retail_price,
+          })),
+        ) +
         "</td>" +
         '<td><div class="row-actions">' +
-        '<button type="button" class="row-add-button" data-add-official="' +
-        index +
-        '">Voeg toe</button>' +
         renderPriceAlertButton(item, "official", index) +
         renderFavoriteButton(item, "official", index) +
         "</div></td>" +
@@ -287,6 +310,17 @@ function renderOfficialPrices(items) {
     )
     .join("");
 
+  renderProductGrid(
+    state.renderedOfficialProducts,
+    "official",
+    (item) => [
+      ["Categorie", item.category],
+      ["Verpakking", item.unit],
+      ["Importeur", item.store_name],
+      ["Analyse", item.analysis.label],
+      ["Status", getAvailabilityLabel(item)],
+    ],
+  );
   bindProductRowButtons();
   updateProductStats(items.length);
 }
@@ -298,6 +332,7 @@ function renderFavorites(query) {
   if (!hasAuthToken()) {
     table.innerHTML =
       '<tr><td colspan="8">Log in om je favorieten te bekijken.</td></tr>';
+    renderProductGrid([]);
     updateProductStats(0);
     return;
   }
@@ -312,6 +347,7 @@ function renderFavorites(query) {
 
   if (!items.length) {
     table.innerHTML = '<tr><td colspan="8">Geen favorieten gevonden.</td></tr>';
+    renderProductGrid([]);
     updateProductStats(0);
     return;
   }
@@ -325,6 +361,8 @@ function renderFavorites(query) {
     unit: getPackageText(item),
     price: Number(item.price) || 0,
     store_name: item.store_name || "Onbekend",
+    analysis: getPriceAnalysis(item, state.prices),
+    available: true,
   }));
 
   table.innerHTML = items
@@ -352,11 +390,9 @@ function renderFavorites(query) {
         "</strong></td>" +
         '<td class="price">' +
         formatCurrency(item.price || 0) +
+        renderInlinePriceInsight(item, state.prices) +
         "</td>" +
         '<td><div class="row-actions">' +
-        '<button type="button" class="row-add-button" data-add-favorite="' +
-        index +
-        '">Voeg toe</button>' +
         renderPriceAlertButton(item, "favorite", index) +
         renderFavoriteButton(item, "favorite", index) +
         "</div></td>" +
@@ -365,6 +401,17 @@ function renderFavorites(query) {
     })
     .join("");
 
+  renderProductGrid(
+    state.renderedFavoriteProducts,
+    "favorite",
+    (item) => [
+      ["Categorie", item.category],
+      ["Verpakking", item.unit],
+      ["Winkel", item.store_name],
+      ["Analyse", item.analysis.label],
+      ["Status", getAvailabilityLabel(item)],
+    ],
+  );
   bindFavoriteRowButtons();
   updateProductStats(items.length);
 }
@@ -376,6 +423,7 @@ function renderPriceAlerts(query) {
   if (!hasAuthToken()) {
     table.innerHTML =
       '<tr><td colspan="8">Log in om je prijsalerts te bekijken.</td></tr>';
+    renderProductGrid([]);
     updateProductStats(0);
     return;
   }
@@ -392,6 +440,7 @@ function renderPriceAlerts(query) {
   if (!items.length) {
     table.innerHTML =
       '<tr><td colspan="8">Geen prijsalerts gevonden.</td></tr>';
+    renderProductGrid([]);
     updateProductStats(0);
     return;
   }
@@ -441,35 +490,175 @@ function renderPriceAlerts(query) {
     })
     .join("");
 
+  renderProductGrid(
+    items.map((item) => ({
+      product_name: item.product_name,
+      category: item.category || "Algemeen",
+      brand: item.brand || "",
+      unit: getPackageText(item) || "Niet ingevuld",
+      price: Number(item.current_price),
+      store_name: item.store_name || "",
+      target_price: Number(item.target_price),
+      triggered: item.triggered,
+    })),
+    "alerts",
+    (item) => [
+      ["Categorie", item.category],
+      ["Verpakking", item.unit],
+      ["Huidige prijs", Number.isFinite(item.price) ? formatCurrency(item.price) : "Onbekend"],
+      ["Doelprijs", formatCurrency(item.target_price)],
+      ["Status", item.triggered ? "Doel bereikt" : "Actief"],
+    ],
+  );
   bindAlertRowButtons();
   updateProductStats(items.length);
 }
 
+function renderProductGrid(items = [], source = "local", getDetails = () => []) {
+  const grid = document.getElementById("productGridView");
+  if (!grid) return;
+
+  if (!items.length) {
+    grid.innerHTML = '<p class="muted product-grid-empty">Geen producten gevonden.</p>';
+    return;
+  }
+
+  grid.innerHTML = items
+    .map((item, index) => {
+      const price = Number(item.price);
+      const analysis = item.analysis || getPriceAnalysis(item, state.prices);
+      const details = getDetails(item)
+        .filter((detail) => detail[1] !== null && detail[1] !== undefined && detail[1] !== "")
+        .map(
+          ([label, value]) =>
+            '<span><small>' +
+            escapeHtml(label) +
+            '</small><strong>' +
+            escapeHtml(value) +
+            "</strong></span>",
+        )
+        .join("");
+      const actions =
+        source === "alerts"
+          ? '<button type="button" class="row-remove-alert-button" data-remove-alert="' +
+            index +
+            '">Verwijder alert</button>'
+          : renderPriceAlertButton(item, source, index) +
+            renderFavoriteButton(item, source, index);
+
+      return (
+        '<article class="product-grid-card">' +
+        '<div class="product-grid-card-heading">' +
+        "<div>" +
+        '<p class="eyebrow">' +
+        escapeHtml(item.category || "Algemeen") +
+        "</p>" +
+        "<h3>" +
+        escapeHtml(item.product_name) +
+        "</h3>" +
+        '<div class="product-card-badges">' +
+        '<span class="price-badge ' +
+        analysis.className +
+        '">' +
+        escapeHtml(analysis.label) +
+        "</span>" +
+        '<span class="stock-badge">' +
+        escapeHtml(getAvailabilityLabel(item)) +
+        "</span>" +
+        "</div>" +
+        "</div>" +
+        '<strong class="product-grid-price">' +
+        (Number.isFinite(price) ? formatCurrency(price) : "Onbekend") +
+        "</strong>" +
+        "</div>" +
+        '<div class="product-grid-meta">' +
+        details +
+        "</div>" +
+        '<div class="product-grid-actions">' +
+        actions +
+        "</div>" +
+        "</article>"
+      );
+    })
+    .join("");
+}
+
+function renderInlinePriceInsight(item, sourceItems) {
+  const analysis = getPriceAnalysis(item, sourceItems);
+  return (
+    '<span class="price-insight ' +
+    analysis.className +
+    '">' +
+    escapeHtml(analysis.shortLabel) +
+    "</span>"
+  );
+}
+
+function getPriceAnalysis(item, sourceItems) {
+  const price = Number(item.price || item.retail_price);
+  const matchingPrices = sourceItems
+    .filter(
+      (candidate) =>
+        normalizeFavoriteName(candidate.product_name) ===
+        normalizeFavoriteName(item.product_name),
+    )
+    .map((candidate) => Number(candidate.price || candidate.retail_price))
+    .filter((value) => Number.isFinite(value) && value > 0);
+
+  if (!Number.isFinite(price) || !matchingPrices.length) {
+    return {
+      className: "neutral",
+      label: "Prijsanalyse niet beschikbaar",
+      shortLabel: "Geen analyse",
+    };
+  }
+
+  const average =
+    matchingPrices.reduce((total, value) => total + value, 0) /
+    matchingPrices.length;
+  const cheapest = Math.min(...matchingPrices);
+
+  if (price <= cheapest) {
+    return {
+      className: "good",
+      label: "Goedkoopste optie",
+      shortLabel: "Goedkoopste",
+    };
+  }
+
+  if (price > average * 1.12) {
+    return {
+      className: "expensive",
+      label: "Duurder dan gemiddeld",
+      shortLabel: "Duurder dan gemiddeld",
+    };
+  }
+
+  if (price < average * 0.95) {
+    return {
+      className: "good",
+      label: "Onder gemiddelde prijs",
+      shortLabel: "Onder gemiddeld",
+    };
+  }
+
+  return {
+    className: "average",
+    label: "Rond gemiddelde prijs",
+    shortLabel: "Gemiddeld",
+  };
+}
+
+function getAvailabilityLabel(item) {
+  const hasPrice = Number.isFinite(Number(item.price || item.current_price));
+  return hasPrice ? "Beschikbaar" : "Status onbekend";
+}
+
 function bindProductRowButtons() {
-  const table = document.getElementById("pricesTable");
-  if (!table) return;
+  const container = document.querySelector(".products-section");
+  if (!container) return;
 
-  table.querySelectorAll("[data-add-local]").forEach((button) => {
-    button.addEventListener("click", () => {
-      state.budget.addProduct(
-        state.renderedLocalProducts[Number(button.dataset.addLocal)],
-        1,
-      );
-      updateProductStats(document.querySelectorAll("#pricesTable tr").length);
-    });
-  });
-
-  table.querySelectorAll("[data-add-official]").forEach((button) => {
-    button.addEventListener("click", () => {
-      state.budget.addProduct(
-        state.renderedOfficialProducts[Number(button.dataset.addOfficial)],
-        1,
-      );
-      updateProductStats(document.querySelectorAll("#pricesTable tr").length);
-    });
-  });
-
-  table.querySelectorAll("[data-fav-local]").forEach((button) => {
+  container.querySelectorAll("[data-fav-local]").forEach((button) => {
     button.addEventListener("click", () => {
       const product =
         state.renderedLocalProducts[Number(button.dataset.favLocal)];
@@ -477,7 +666,7 @@ function bindProductRowButtons() {
     });
   });
 
-  table.querySelectorAll("[data-fav-official]").forEach((button) => {
+  container.querySelectorAll("[data-fav-official]").forEach((button) => {
     button.addEventListener("click", () => {
       const product =
         state.renderedOfficialProducts[Number(button.dataset.favOfficial)];
@@ -485,7 +674,7 @@ function bindProductRowButtons() {
     });
   });
 
-  table.querySelectorAll("[data-alert-local]").forEach((button) => {
+  container.querySelectorAll("[data-alert-local]").forEach((button) => {
     button.addEventListener("click", () => {
       showPriceAlertDialog(
         state.renderedLocalProducts[Number(button.dataset.alertLocal)],
@@ -493,7 +682,7 @@ function bindProductRowButtons() {
     });
   });
 
-  table.querySelectorAll("[data-alert-official]").forEach((button) => {
+  container.querySelectorAll("[data-alert-official]").forEach((button) => {
     button.addEventListener("click", () => {
       showPriceAlertDialog(
         state.renderedOfficialProducts[Number(button.dataset.alertOfficial)],
@@ -503,20 +692,10 @@ function bindProductRowButtons() {
 }
 
 function bindFavoriteRowButtons() {
-  const table = document.getElementById("pricesTable");
-  if (!table) return;
+  const container = document.querySelector(".products-section");
+  if (!container) return;
 
-  table.querySelectorAll("[data-add-favorite]").forEach((button) => {
-    button.addEventListener("click", () => {
-      state.budget.addProduct(
-        state.renderedFavoriteProducts[Number(button.dataset.addFavorite)],
-        1,
-      );
-      updateProductStats(document.querySelectorAll("#pricesTable tr").length);
-    });
-  });
-
-  table.querySelectorAll("[data-fav-favorite]").forEach((button) => {
+  container.querySelectorAll("[data-fav-favorite]").forEach((button) => {
     button.addEventListener("click", () => {
       const product =
         state.renderedFavoriteProducts[Number(button.dataset.favFavorite)];
@@ -524,7 +703,7 @@ function bindFavoriteRowButtons() {
     });
   });
 
-  table.querySelectorAll("[data-alert-favorite]").forEach((button) => {
+  container.querySelectorAll("[data-alert-favorite]").forEach((button) => {
     button.addEventListener("click", () => {
       showPriceAlertDialog(
         state.renderedFavoriteProducts[Number(button.dataset.alertFavorite)],
@@ -534,10 +713,10 @@ function bindFavoriteRowButtons() {
 }
 
 function bindAlertRowButtons() {
-  const table = document.getElementById("pricesTable");
-  if (!table) return;
+  const container = document.querySelector(".products-section");
+  if (!container) return;
 
-  table.querySelectorAll("[data-remove-alert]").forEach((button) => {
+  container.querySelectorAll("[data-remove-alert]").forEach((button) => {
     button.addEventListener("click", () => {
       removePriceAlert(
         state.renderedAlertProducts[Number(button.dataset.removeAlert)],
@@ -555,10 +734,6 @@ function updateProductStats(visibleCount) {
   setText(document.getElementById("favoritesTotal"), state.favorites.length);
   setText(document.getElementById("alertsTotal"), state.priceAlerts.length);
   setText(document.getElementById("visiblePriceTotal"), visibleCount);
-  setText(
-    document.getElementById("noteItemTotal"),
-    state.budget ? state.budget.items.length : 0,
-  );
 }
 
 function setProductModeButtons() {
@@ -574,6 +749,20 @@ function setProductModeButtons() {
   document
     .getElementById("priceAlertsButton")
     ?.classList.toggle("active", state.productMode === "alerts");
+}
+
+function setViewModeButtons() {
+  document
+    .getElementById("tableViewButton")
+    ?.classList.toggle("active", state.viewMode === "table");
+  document
+    .getElementById("gridViewButton")
+    ?.classList.toggle("active", state.viewMode === "grid");
+
+  const tableWrap = document.querySelector(".products-section .table-wrap");
+  const gridView = document.getElementById("productGridView");
+  if (tableWrap) tableWrap.hidden = state.viewMode === "grid";
+  if (gridView) gridView.hidden = state.viewMode !== "grid";
 }
 
 function setTableHead(html) {
@@ -730,6 +919,7 @@ function renderOfflineTable() {
 
   table.innerHTML =
     '<tr><td colspan="8">Kan geen verbinding maken met de backend. Start de server via: <strong>cd C:\\Users\\user\\Suri Basket\\backend</strong> en <strong>npm start</strong>.</td></tr>';
+  renderProductGrid([], "offline");
 }
 
 async function toggleFavorite(product) {

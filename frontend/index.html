@@ -55,38 +55,52 @@
     </header>
 
     <main>
-      <section class="brand-hero">
-        <img src="assets/frontpage.jpeg" alt="SuriBasket banner" />
-      </section>
-
       <section class="hero">
         <div class="hero-content">
-          <p class="eyebrow">Slim inkopen voor je warung</p>
+          <p class="eyebrow">Smart shopping voor Suriname</p>
 
           <h1>
-            Een eigen prijswijzer voor voorraad, vergelijking en begroting.
+            Vergelijk prijzen sneller en vind slimmer waar je boodschappen
+            goedkoper zijn.
           </h1>
 
           <p class="hero-text">
-            Bekijk jouw lokale prijsdata, vergelijk bedragen en bouw snel een
-            boodschappenlijst met totaalbedrag in SRD.
+            Suri Basket helpt consumenten, warungs en kleine ondernemers met
+            prijsvergelijking, slimme prijschecks, begrotingen en betrouwbare
+            boodschappeninzichten in SRD.
           </p>
 
           <div class="hero-actions">
-            <a class="button primary" href="scanner.html">Prijs checken</a>
-
-            <a class="button secondary" href="producten.html"
-              >Producten bekijken</a
+            <a class="button primary" href="producten.html"
+              >Vergelijk prijzen</a
             >
+
+            <a class="button secondary" href="scanner.html"
+              >Vind de goedkoopste winkel</a
+            >
+          </div>
+
+          <div class="trust-strip" aria-label="Platform voordelen">
+            <span>Live prijsdata</span>
+            <span>Slimme analyse</span>
+            <span>Mobiel klaar</span>
           </div>
         </div>
 
         <aside class="status-panel">
-          <span class="status-dot"></span>
+          <div>
+            <span class="status-dot"></span>
 
-          <strong>Backend verbinding</strong>
+            <strong>Platform status</strong>
+          </div>
 
           <p id="healthText">Wachten op verbinding met localhost:3000</p>
+
+          <div class="hero-insight-card">
+            <small>Vandaag gesimuleerd voordeel</small>
+            <strong>Tot 18% goedkoper</strong>
+            <span>bij slim vergelijken per winkel</span>
+          </div>
         </aside>
       </section>
 
@@ -131,85 +145,85 @@
       <section class="content-grid">
         <article class="panel">
           <div class="section-heading">
-            <p class="eyebrow">Dienstverlening</p>
+          <p class="eyebrow">Slimme functies</p>
 
-            <h2>Werkruimte</h2>
+            <h2>Alles om beter te kiezen</h2>
           </div>
 
           <div class="feature-list">
             <a href="producten.html">
-              <strong>Productenlijst</strong>
+              <strong>Producten vergelijken</strong>
 
-              <span>Zoek op product, merk, winkel of locatie.</span>
+              <span>Zoek live op product, merk, winkel, categorie en prijs.</span>
             </a>
 
             <a href="scanner.html">
-              <strong>Prijscheck</strong>
+              <strong>Slimme prijsanalyse</strong>
 
-              <span>Vergelijk een ingevoerde prijs met het gemiddelde.</span>
+              <span>Controleer of een prijs goedkoop, gemiddeld of duur is.</span>
             </a>
 
             <a href="begroting.html">
-              <strong>Begroting</strong>
+              <strong>Begroting bouwen</strong>
 
-              <span>Maak een warung-boodschappenlijst met totaalbedrag.</span>
+              <span>Maak een boodschappenlijst met totaalbedrag in SRD.</span>
             </a>
 
-            <a href="over.html">
-              <strong>Projectinformatie</strong>
+            <a href="feedback.html">
+              <strong>Feedback verwerken</strong>
 
-              <span>Bekijk hoe frontend en backend gekoppeld zijn.</span>
+              <span>Gebruikers kunnen verbeteringen en prijsfouten melden.</span>
             </a>
           </div>
         </article>
 
-        <article class="panel accent-panel">
-          <p class="eyebrow">Ontwikkeling</p>
+        <article class="panel accent-panel launch-panel">
+          <p class="eyebrow">Realtime dashboard</p>
 
-          <h2>Lokale server starten</h2>
+          <h2>Prijsintelligentie</h2>
 
           <p>
-            Gebruik deze opdracht tijdens ontwikkeling om de API en website
-            lokaal te openen.
+            De app is opgebouwd alsof hij API-ready is: data komt uit de
+            backend, wordt live gerenderd en blijft bruikbaar op mobiel.
           </p>
 
-          <pre><code>cd C:\Users\user\Suri Basket\backend
-npm start</code></pre>
+          <div class="insight-bars" aria-label="Prijsvergelijking simulatie">
+            <span style="--bar: 72%"><strong>Basisproducten</strong></span>
+            <span style="--bar: 54%"><strong>Publieke lijst</strong></span>
+            <span style="--bar: 84%"><strong>Lokale deals</strong></span>
+          </div>
         </article>
       </section>
 
       <section class="content-grid lower-grid">
         <article class="panel">
-          <p class="eyebrow">Dagelijkse flow</p>
-          <h2>Van prijs naar planning</h2>
+          <p class="eyebrow">Gebruikersflow</p>
+          <h2>Van zoeken naar besparen</h2>
           <div class="workflow-list">
             <span
-              ><strong>1</strong>Bekijk prijsregels en publieke
-              referenties.</span
+              ><strong>1</strong>Zoek een product en vergelijk winkels.</span
             >
             <span
-              ><strong>2</strong>Controleer opvallende prijzen in de
-              scanner.</span
+              ><strong>2</strong>Bekijk prijsanalyse en goedkoopste opties.</span
             >
             <span
-              ><strong>3</strong>Zet producten direct in een begroting.</span
+              ><strong>3</strong>Bewaar favorieten, alerts of een begroting.</span
             >
           </div>
         </article>
 
         <article class="panel">
-          <p class="eyebrow">Snelle status</p>
-          <h2>Waar data vandaan komt</h2>
+          <p class="eyebrow">Betrouwbaar gevoel</p>
+          <h2>Gebouwd als platform</h2>
           <div class="status-cards">
             <span class="status-card good"
-              ><strong>Eigen database</strong>Lokale prijsregistraties.</span
+              ><strong>API-ready</strong>Frontend leest data uit de backend.</span
             >
             <span class="status-card average"
-              ><strong>Publieke lijst</strong>Geimporteerde
-              referentieprijzen.</span
+              ><strong>Smart UI</strong>Filters, cards en feedback werken samen.</span
             >
             <span class="status-card expensive"
-              ><strong>Backend</strong>MySQL moet verbonden zijn.</span
+              ><strong>Veilige toegang</strong>Login, adminrol en gebruikersdata.</span
             >
           </div>
         </article>
