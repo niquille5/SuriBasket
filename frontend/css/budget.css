@@ -206,10 +206,21 @@
 }
 
 .budget-quick-pick {
-  border-top: 1px solid var(--line);
+  background: var(--paper);
   margin-top: 22px;
+  margin-bottom: 20px;
   min-height: 0;
   padding-top: 18px;
+  display: flex;
+  flex-direction: column;
+  padding: 28px;
+  border-color: var(--line);
+  color: var(--ink);
+  box-shadow: 0 14px 28px rgba(32, 25, 14, 0.08);
+  transform: translateY(-2px);
+  border-radius: 14px;
+  gap: 14px;
+  border-top: 10px solid var(--teal-dark);
 }
 
 .budget-quick-pick h3 {
