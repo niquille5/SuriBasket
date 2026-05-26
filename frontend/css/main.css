@@ -27,6 +27,12 @@ html {
   scroll-behavior: smooth;
 }
 
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   background:
     radial-gradient(circle at 8% 8%, rgba(238, 207, 62, 0.2), transparent 30%),
@@ -102,6 +108,7 @@ a {
   justify-content: space-between;
   min-height: 36px;
   padding: 8px max(20px, calc((100vw - 1180px) / 2));
+  width: 100%;
 }
 
 .topbar span:first-child {
@@ -139,6 +146,7 @@ a {
   margin: 0 auto;
   max-width: 1280px;
   padding: 14px 20px;
+  width: 100%;
 }
 
 .brand {
@@ -237,6 +245,7 @@ a {
   flex-wrap: nowrap;
   gap: 4px;
   justify-content: flex-end;
+  max-width: 100%;
   overflow: hidden;
   padding: 6px;
   position: relative;
@@ -278,6 +287,8 @@ a {
   gap: 5px;
   letter-spacing: 0;
   min-height: 38px;
+  min-width: 0;
+  overflow-wrap: anywhere;
   padding: 8px 9px;
   position: relative;
   transition:
@@ -377,6 +388,8 @@ a {
   font-weight: 850;
   gap: 5px;
   min-height: 38px;
+  min-width: 0;
+  overflow-wrap: anywhere;
   padding: 8px 9px;
   position: relative;
   transition:
@@ -496,6 +509,7 @@ main {
 .hero-content {
   align-self: center;
   max-width: 800px;
+  min-width: 0;
 }
 
 .hero-text,
@@ -533,6 +547,7 @@ h1 {
   font-size: clamp(32px, 4.4vw, 56px);
   max-width: 920px;
   overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 h2 {
@@ -543,6 +558,7 @@ h2 {
 /* Buttons */
 .button,
 button {
+  align-items: center;
   border: 0;
   border-radius: 10px;
   cursor: pointer;
@@ -550,7 +566,10 @@ button {
   font: inherit;
   font-weight: 850;
   justify-content: center;
+  line-height: 1.25;
+  max-width: 100%;
   min-height: 44px;
+  overflow-wrap: anywhere;
   padding: 11px 16px;
   text-align: center;
 }
@@ -840,8 +859,13 @@ select {
   color: var(--ink);
   font-size: 16px;
   min-height: 46px;
+  min-width: 0;
   padding: 11px 12px;
   width: 100%;
+}
+
+textarea {
+  max-width: 100%;
 }
 
 input:focus,
@@ -1012,6 +1036,19 @@ footer p {
 }
 
 /* Responsive layout */
+@media (max-width: 1180px) {
+  .navbar {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    width: 100%;
+  }
+}
+
 @media (max-width: 900px) {
   .hero,
   .content-grid,
@@ -1062,10 +1099,15 @@ footer p {
   .navbar {
     gap: 14px;
     padding: 14px;
+    width: 100%;
   }
 
   .brand {
     width: 100%;
+  }
+
+  .brand span:last-child {
+    min-width: 0;
   }
 
   .brand-mark {
@@ -1102,6 +1144,7 @@ footer p {
     justify-content: center;
     min-height: 40px;
     padding: 8px 10px;
+    white-space: normal;
     width: 100%;
   }
 
@@ -1134,16 +1177,22 @@ footer p {
     padding: 24px 18px;
   }
 
+  .hero > *,
+  .page-title > * {
+    max-width: 100%;
+    min-width: 0;
+  }
+
   .page-title h1,
   .hero h1 {
     font-size: 30px;
     line-height: 1.14;
-    max-width: 310px;
+    max-width: 100%;
   }
 
   .page-title p,
   .hero p {
-    max-width: 310px;
+    max-width: 100%;
   }
 
   .page-title .button,
@@ -1152,6 +1201,17 @@ footer p {
   .hero button {
     white-space: normal;
     width: 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .nav-links {
+    grid-template-columns: 1fr;
+  }
+
+  .nav-links a,
+  .nav-logout {
+    justify-content: flex-start;
   }
 }
 
@@ -1167,10 +1227,6 @@ footer p {
     overflow-wrap: anywhere;
   }
 
-  .nav-links {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   h1 {
     font-size: 29px;
   }
@@ -1178,12 +1234,12 @@ footer p {
   .page-title h1,
   .hero h1 {
     font-size: 28px;
-    max-width: 280px;
+    max-width: 100%;
   }
 
   .page-title p,
   .hero p {
-    max-width: 280px;
+    max-width: 100%;
   }
 
   h2 {

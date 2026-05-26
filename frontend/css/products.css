@@ -163,6 +163,7 @@ body[data-page="products"] .page-title .button {
   font-weight: 850;
   min-height: 38px;
   padding: 8px 16px;
+  white-space: normal;
 }
 
 .view-switch button.active {
@@ -244,6 +245,7 @@ body[data-page="products"] .page-title .button {
 .row-actions {
   align-items: center;
   display: inline-flex;
+  flex-wrap: wrap;
   gap: 6px;
   justify-content: center;
   min-width: 214px;
@@ -425,6 +427,10 @@ body[data-page="products"] .page-title .button {
   z-index: 1;
 }
 
+.product-grid-card-heading > * {
+  min-width: 0;
+}
+
 .product-grid-card h3 {
   color: var(--ink);
   font-size: 20px;
@@ -488,8 +494,10 @@ body[data-page="products"] .page-title .button {
   border-radius: 999px;
   color: var(--teal-dark);
   font-size: 16px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
   padding: 8px 11px;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .product-grid-meta {
@@ -800,7 +808,7 @@ body[data-page="products"] .page-title .button {
     border-color 0.18s ease,
     color 0.18s ease,
     transform 0.18s ease;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .row-alert-button.active {
@@ -832,7 +840,7 @@ body[data-page="products"] .page-title .button {
   justify-content: center;
   min-height: 32px;
   padding: 0 14px;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .row-remove-alert-button:hover {
@@ -1112,13 +1120,14 @@ body[data-page="products"] .page-title .button {
 
   .row-actions {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 44px;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     min-width: 0;
     width: 100%;
   }
 
   .row-fav-button {
-    flex: 0 0 44px;
+    min-width: 0;
+    width: 100%;
   }
 }
 
@@ -1137,12 +1146,11 @@ body[data-page="products"] .page-title .button {
   body[data-page="products"] .page-title h1 {
     font-size: 30px;
     line-height: 1.14;
-    max-width: 300px;
+    max-width: 100%;
   }
 
   body[data-page="products"] .page-title .button {
     justify-self: start;
-    max-width: 320px;
     white-space: normal;
     width: 100%;
   }
@@ -1203,7 +1211,7 @@ body[data-page="products"] .page-title .button {
 @media (max-width: 420px) {
   body[data-page="products"] .page-title h1 {
     font-size: 28px;
-    max-width: 280px;
+    max-width: 100%;
   }
 
   .row-actions {

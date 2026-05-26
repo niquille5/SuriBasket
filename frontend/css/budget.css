@@ -288,8 +288,10 @@
   color: var(--teal-dark);
   font-style: normal;
   font-weight: 850;
+  max-width: 100%;
+  overflow-wrap: anywhere;
   padding: 6px 9px;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 /* Budget table and total */
@@ -552,7 +554,8 @@
 }
 
 .history-item .price {
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .quantity-input {
@@ -679,7 +682,7 @@
 
   .budget-page-title h1,
   .budget-page-title p {
-    max-width: calc(100vw - 64px);
+    max-width: 100%;
   }
 
   .budget-prices-link {

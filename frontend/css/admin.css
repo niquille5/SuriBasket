@@ -122,8 +122,6 @@ body[data-page="admin"] #logoutButton {
   align-self: flex-end;
   min-height: 40px;
   padding: 9px 14px;
-  min-height: 40px;
-  padding: 9px 14px;
 }
 
 /* Users and feedback sections */
@@ -136,12 +134,14 @@ body[data-page="admin"] #logoutButton {
 .admin-table-wrap {
   border: 1px solid rgba(225, 216, 200, 0.82);
   border-radius: 12px;
+  max-width: 100%;
   max-height: 330px;
   overflow: auto;
 }
 
 .admin-users-table {
   min-width: 720px;
+  width: 100%;
 }
 
 .admin-users-table th,
@@ -411,30 +411,17 @@ body[data-page="admin"] #logoutButton {
   }
 }
 
-
-  .admin-feedback-controls {
-    grid-template-columns: 1fr;
+@media (max-width: 520px) {
+  .admin-users-table {
+    min-width: 620px;
   }
 
-  .admin-feedback-actions {
-    align-items: stretch;
-    flex-direction: column;
+  .admin-modal {
+    padding: 12px;
   }
 
-  body[data-page="admin"] .lower-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .admin-feedback-list,
-  body[data-page="admin"] .admin-table-wrap,
-  body[data-page="admin"] .feature-list,
-  body[data-page="admin"] .workflow-list {
-    max-height: 420px;
-  }
-
-  .admin-row-actions,
-  .admin-modal-actions {
-    align-items: stretch;
-    flex-direction: column;
+  .admin-modal-card {
+    max-height: calc(100vh - 24px);
+    padding: 16px;
   }
 }

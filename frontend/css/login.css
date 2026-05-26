@@ -95,6 +95,7 @@ body[data-page="login"] main {
   max-width: 580px;
   padding-top: 8px;
   transform: translateX(10px);
+  width: 100%;
 }
 
 .login-brand {
@@ -147,7 +148,9 @@ body[data-page="login"] main {
   font-weight: 900;
   line-height: 1.06;
   max-width: 540px;
+  overflow-wrap: anywhere;
   text-shadow: 0 12px 28px rgba(28, 44, 8, 0.36);
+  word-break: break-word;
 }
 
 .login-promise h1::first-line {
@@ -165,7 +168,9 @@ body[data-page="login"] main {
   font-size: clamp(17px, 1.6vw, 21px);
   margin-top: 14px;
   max-width: 500px;
+  overflow-wrap: anywhere;
   text-shadow: 0 8px 20px rgba(35, 49, 8, 0.34);
+  word-break: break-word;
 }
 
 .login-points {
@@ -884,6 +889,13 @@ body[data-page="login"] main {
     transform: none;
   }
 
+  .login-promise-text,
+  .login-promise h1,
+  .login-promise-text > p:not(.login-kicker),
+  .login-points {
+    max-width: 100%;
+  }
+
   .login-brand {
     margin-bottom: 22px;
   }
@@ -914,6 +926,11 @@ body[data-page="login"] main {
     column-gap: 0;
     row-gap: 18px;
     padding: 20px 14px 28px;
+  }
+
+  .login-promise,
+  .login-promise-text {
+    overflow: hidden;
   }
 
   .login-brand {
@@ -1019,5 +1036,15 @@ body[data-page="login"] main {
   .login-trustbar span + span {
     border-left: 0;
     border-top: 1px solid rgba(82, 113, 35, 0.18);
+  }
+}
+
+@media (max-width: 420px) {
+  .login-points {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-card h2 {
+    font-size: 28px;
   }
 }

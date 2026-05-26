@@ -151,3 +151,15 @@ body[data-page="scanner"] .status-cards .status-card {
     display: inline-flex;
   }
 }
+
+@media (max-width: 420px) {
+  .input-row {
+    flex-direction: column;
+  }
+
+  .input-row span {
+    border-right: 0;
+    border-bottom: 1px solid rgba(225, 216, 200, 0.85);
+    width: 100%;
+  }
+}
