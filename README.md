@@ -11,6 +11,60 @@ Suri Basket is een lokale webapp voor productprijzen, prijschecks, feedback en w
 - Feedback sturen en alle ratings zichtbaar maken in de feedbacksectie.
 - Adminomgeving voor database-overzicht, feedbackbeheer en gebruikersbeheer.
 
+## Technologies
+
+- Frontend: HTML5, CSS3 en vanilla JavaScript.
+- Backend: Node.js met Express.
+- Database: MySQL.
+- Authentication: JSON Web Tokens met `jsonwebtoken`.
+- Database driver: `mysql2`.
+- Development tooling: npm en nodemon.
+
+## Requirements
+
+Om het project lokaal te draaien heb je nodig:
+
+- Node.js 18 of hoger.
+- npm.
+- MySQL Server.
+- Een MySQL database met de naam `sranan_prijs_scanner`.
+- Een `.env` bestand op basis van `.env.example` of `backend/.env.example`.
+
+## Installation
+
+1. Clone of download de repository.
+2. Installeer de root dependencies:
+
+```powershell
+npm install
+```
+
+3. Installeer de backend dependencies:
+
+```powershell
+npm install --prefix backend
+```
+
+4. Kopieer de voorbeeld environment file:
+
+```powershell
+Copy-Item .env.example backend/.env
+```
+
+5. Vul in `backend/.env` je eigen MySQL gegevens en veilige admin/JWT waarden in.
+6. Importeer de database schema's uit de map `backend/sql` of `database`.
+7. Start de backend:
+
+```powershell
+npm start --prefix backend
+```
+
+8. Open de app via:
+
+```text
+http://localhost:3000
+```
+
 ## Projectstructuur
 
 ```text
@@ -134,6 +188,36 @@ De website en API draaien daarna op:
 ```text
 http://localhost:3000
 ```
+
+## Database setup
+
+1. Maak in MySQL een database aan met de naam `sranan_prijs_scanner`.
+2. Importeer eerst `backend/sql/sranan_prijs_scanner.sql`.
+3. Importeer daarna de extra schema's wanneer nodig:
+   - `backend/sql/users_purchases.sql`
+   - `backend/sql/favorites_table.sql`
+   - `backend/sql/price_alerts.sql`
+   - `backend/sql/feedback.sql`
+4. Controleer of `DB_HOST`, `DB_USER`, `DB_PASSWORD` en `DB_NAME` in `backend/.env` overeenkomen met je MySQL installatie.
+
+## Usage
+
+Start de backend met:
+
+```powershell
+npm start --prefix backend
+```
+
+Gebruik daarna de app via `http://localhost:3000`.
+
+Typische flow:
+
+1. Maak een account of log in.
+2. Bekijk en filter producten op de productenpagina.
+3. Voeg favorieten of prijsalerts toe.
+4. Maak een begroting en sla deze op.
+5. Stuur feedback via de feedbackpagina.
+6. Log als admin in om gebruikers en feedback te beheren.
 
 ## Frontend openen
 

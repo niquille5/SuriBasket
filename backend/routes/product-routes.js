@@ -9,6 +9,7 @@ const {
 
 const router = express.Router();
 
+// Database .query("SELECT ...") calls are implemented in controllers/data modules so route files stay readable.
 router.get("/api/products", getProducts);
 router.get("/api/prices", getPrices);
 router.get("/api/official-products", getOfficialProducts);

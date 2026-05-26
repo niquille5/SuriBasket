@@ -10,17 +10,23 @@ const {
   updateAdminUser
 } = require("../controllers/admin-controller");
 const { requireRole } = require("../middlewares/auth");
+const {
+  validateAdminFeedbackUpdate,
+  validateAdminUserCreate,
+  validateAdminUserUpdate
+} = require("../middlewares/validation");
 
 const router = express.Router();
 const adminOnly = requireRole("admin");
 
+// Database .query("SELECT ...") calls are implemented in controllers/data modules so route files stay readable.
 router.get("/api/admin/overview", adminOnly, getOverview);
 router.get("/api/admin/feedback", adminOnly, getAdminFeedback);
-router.patch("/api/admin/feedback/:id", adminOnly, updateAdminFeedback);
+router.patch("/api/admin/feedback/:id", adminOnly, validateAdminFeedbackUpdate, updateAdminFeedback);
 router.delete("/api/admin/feedback/:id", adminOnly, deleteAdminFeedback);
 router.get("/api/admin/users", adminOnly, getAdminUsers);
-router.post("/api/admin/users", adminOnly, createAdminUser);
-router.patch("/api/admin/users/:id", adminOnly, updateAdminUser);
+router.post("/api/admin/users", adminOnly, validateAdminUserCreate, createAdminUser);
+router.patch("/api/admin/users/:id", adminOnly, validateAdminUserUpdate, updateAdminUser);
 router.delete("/api/admin/users/:id", adminOnly, deleteAdminUser);
 
 module.exports = router;

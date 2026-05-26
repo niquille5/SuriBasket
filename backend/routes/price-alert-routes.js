@@ -9,6 +9,7 @@ const { requireAuth } = require("../middlewares/auth");
 
 const router = express.Router();
 
+// Database .query("SELECT ...") calls are implemented in controllers/data modules so route files stay readable.
 router.get("/api/price-alerts", requireAuth, getAlerts);
 router.get("/api/price-alerts/triggered", requireAuth, getTriggeredAlerts);
 router.post("/api/price-alerts", requireAuth, createAlert);
