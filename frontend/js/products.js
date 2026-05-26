@@ -25,6 +25,17 @@ const viewButtonIds = {
   grid: "gridViewButton",
 };
 
+const modeDescriptions = {
+  local:
+    "Bekijk lokale prijsregistraties, filter op product of winkel en bewaar belangrijke items.",
+  official:
+    "Gebruik de publieke productenlijst als referentie voor richtprijzen en verpakkingen.",
+  favorites:
+    "Bekijk producten die je hebt bewaard. Log in om favorieten te beheren.",
+  alerts:
+    "Bekijk prijsalerts en verwijder alerts die je niet meer nodig hebt.",
+};
+
 const state = {
   prices: [],
   officialProducts: [],
@@ -109,6 +120,7 @@ function switchMode(mode) {
   state.productMode = mode;
   setProductModeButtons();
   populateProductFilters();
+  updateProductModeDescription();
   renderCurrentProductTable();
 }
 
@@ -124,6 +136,7 @@ function renderCurrentProductTable() {
 
   if (state.productMode === "official") {
     setProductsTableMode("official");
+    updateProductModeDescription();
     const items = filterByOptions(
       filterItems(state.officialProducts, query, [
         "product_name",
@@ -140,6 +153,7 @@ function renderCurrentProductTable() {
 
   if (state.productMode === "favorites") {
     setProductsTableMode("favorites");
+    updateProductModeDescription();
     setText(document.getElementById("productsTableTitle"), "Favorieten");
     setTableHead(tableHeads.local);
     renderFavorites(query);
@@ -148,6 +162,7 @@ function renderCurrentProductTable() {
 
   if (state.productMode === "alerts") {
     setProductsTableMode("alerts");
+    updateProductModeDescription();
     setText(document.getElementById("productsTableTitle"), "Prijsalerts");
     setTableHead(tableHeads.alerts);
     renderPriceAlerts(query);
@@ -155,6 +170,7 @@ function renderCurrentProductTable() {
   }
 
   setProductsTableMode("local");
+  updateProductModeDescription();
   setText(document.getElementById("productsTableTitle"), "Prijsregistraties");
   setTableHead(tableHeads.local);
 
@@ -177,9 +193,13 @@ function renderLocalPrices(items) {
   if (!table) return;
 
   if (!items.length) {
-    table.innerHTML = '<tr><td colspan="8">Geen producten gevonden.</td></tr>';
+    table.innerHTML =
+      '<tr><td colspan="8">' +
+      renderProductEmptyState("Geen producten gevonden.", "Pas je zoekterm of filters aan om meer resultaten te zien.") +
+      "</td></tr>";
     renderProductGrid([]);
     updateProductStats(0);
+    updateProductResultSummary(0);
     return;
   }
 
@@ -247,6 +267,7 @@ function renderLocalPrices(items) {
   );
   bindProductRowButtons();
   updateProductStats(items.length);
+  updateProductResultSummary(items.length);
 }
 
 function renderOfficialPrices(items) {
@@ -261,9 +282,12 @@ function renderOfficialPrices(items) {
 
   if (!items.length) {
     table.innerHTML =
-      '<tr><td colspan="6">Geen officiele producten gevonden.</td></tr>';
+      '<tr><td colspan="6">' +
+      renderProductEmptyState("Geen publieke producten gevonden.", "Pas je zoekterm of filters aan.") +
+      "</td></tr>";
     renderProductGrid([]);
     updateProductStats(0);
+    updateProductResultSummary(0);
     return;
   }
 
@@ -335,6 +359,7 @@ function renderOfficialPrices(items) {
   );
   bindProductRowButtons();
   updateProductStats(items.length);
+  updateProductResultSummary(items.length);
 }
 
 function renderFavorites(query) {
@@ -343,9 +368,12 @@ function renderFavorites(query) {
 
   if (!hasAuthToken()) {
     table.innerHTML =
-      '<tr><td colspan="8">Log in om je favorieten te bekijken.</td></tr>';
+      '<tr><td colspan="8">' +
+      renderProductEmptyState("Log in om je favorieten te bekijken.", "Favorieten worden gekoppeld aan je account.") +
+      "</td></tr>";
     renderProductGrid([]);
     updateProductStats(0);
+    updateProductResultSummary(0);
     return;
   }
 
@@ -358,9 +386,13 @@ function renderFavorites(query) {
   ]);
 
   if (!items.length) {
-    table.innerHTML = '<tr><td colspan="8">Geen favorieten gevonden.</td></tr>';
+    table.innerHTML =
+      '<tr><td colspan="8">' +
+      renderProductEmptyState("Geen favorieten gevonden.", "Klik op het hartje bij een product om het hier terug te zien.") +
+      "</td></tr>";
     renderProductGrid([]);
     updateProductStats(0);
+    updateProductResultSummary(0);
     return;
   }
 
@@ -426,6 +458,7 @@ function renderFavorites(query) {
   );
   bindFavoriteRowButtons();
   updateProductStats(items.length);
+  updateProductResultSummary(items.length);
 }
 
 function renderPriceAlerts(query) {
@@ -434,9 +467,12 @@ function renderPriceAlerts(query) {
 
   if (!hasAuthToken()) {
     table.innerHTML =
-      '<tr><td colspan="8">Log in om je prijsalerts te bekijken.</td></tr>';
+      '<tr><td colspan="8">' +
+      renderProductEmptyState("Log in om je prijsalerts te bekijken.", "Prijsalerts worden opgeslagen bij je account.") +
+      "</td></tr>";
     renderProductGrid([]);
     updateProductStats(0);
+    updateProductResultSummary(0);
     return;
   }
 
@@ -451,9 +487,12 @@ function renderPriceAlerts(query) {
 
   if (!items.length) {
     table.innerHTML =
-      '<tr><td colspan="8">Geen prijsalerts gevonden.</td></tr>';
+      '<tr><td colspan="8">' +
+      renderProductEmptyState("Geen prijsalerts gevonden.", "Klik op Prijsalert bij een product om een doelprijs te bewaren.") +
+      "</td></tr>";
     renderProductGrid([]);
     updateProductStats(0);
+    updateProductResultSummary(0);
     return;
   }
 
@@ -524,6 +563,7 @@ function renderPriceAlerts(query) {
   );
   bindAlertRowButtons();
   updateProductStats(items.length);
+  updateProductResultSummary(items.length);
 }
 
 function renderProductGrid(items = [], source = "local", getDetails = () => []) {
@@ -531,7 +571,10 @@ function renderProductGrid(items = [], source = "local", getDetails = () => []) 
   if (!grid) return;
 
   if (!items.length) {
-    grid.innerHTML = '<p class="muted product-grid-empty">Geen producten gevonden.</p>';
+    grid.innerHTML =
+      '<div class="product-grid-empty">' +
+      renderProductEmptyState("Geen producten gevonden.", "Pas je zoekterm of filters aan.") +
+      "</div>";
     return;
   }
 
@@ -745,6 +788,7 @@ function updateProductStats(visibleCount) {
   setText(document.getElementById("favoritesTotal"), state.favorites.length);
   setText(document.getElementById("alertsTotal"), state.priceAlerts.length);
   setText(document.getElementById("visiblePriceTotal"), visibleCount);
+  updateFilterSummary();
 }
 
 function setProductModeButtons() {
@@ -758,13 +802,22 @@ function setViewModeButtons() {
   const gridView = document.getElementById("productGridView");
   if (tableWrap) tableWrap.hidden = state.viewMode === "grid";
   if (gridView) gridView.hidden = state.viewMode !== "grid";
+  setText(
+    document.getElementById("productViewHint"),
+    state.viewMode === "table"
+      ? "Tabel toont prijzen naast elkaar voor snel vergelijken."
+      : "Grid toont producten als kaarten voor rustig scannen.",
+  );
 }
 
 function setActiveButton(buttonIdsByValue, activeValue) {
   Object.entries(buttonIdsByValue).forEach(([value, buttonId]) => {
-    document
-      .getElementById(buttonId)
-      ?.classList.toggle("active", value === activeValue);
+    const button = document.getElementById(buttonId);
+    if (!button) return;
+
+    const isActive = value === activeValue;
+    button.classList.toggle("active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
   });
 }
 
@@ -859,6 +912,7 @@ function clearProductFilters() {
   filters.forEach((filter) => {
     if (filter) filter.value = "";
   });
+  updateFilterSummary();
   renderCurrentProductTable();
 }
 
@@ -925,8 +979,11 @@ function renderOfflineTable() {
   if (!table) return;
 
   table.innerHTML =
-    '<tr><td colspan="8">Kan geen verbinding maken met de backend. Start de server via: <strong>cd C:\\Users\\user\\Suri Basket\\backend</strong> en <strong>npm start</strong>.</td></tr>';
+    '<tr><td colspan="8">' +
+    renderProductEmptyState("Kan geen verbinding maken met de backend.", "Start de backend opnieuw en vernieuw deze pagina.") +
+    "</td></tr>";
   renderProductGrid([], "offline");
+  updateProductResultSummary(0);
 }
 
 async function toggleFavorite(product) {
@@ -946,7 +1003,10 @@ async function toggleFavorite(product) {
     ? { product_id: productId }
     : { product_name: productName, category: product.category || null };
 
-  if (isFavorited) {
+  setProductBusyState(true);
+
+  try {
+    if (isFavorited) {
     await fetchJsonWithAuth("/api/favorites/remove", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
@@ -954,7 +1014,7 @@ async function toggleFavorite(product) {
     });
     state.favoritedIds.delete(productId);
     state.favoritedNames.delete(normalizeFavoriteName(productName));
-  } else {
+    } else {
     const savedFavorite = await fetchJsonWithAuth("/api/favorites/add", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -966,10 +1026,13 @@ async function toggleFavorite(product) {
       state.favoritedIds.add(Number(savedFavorite.product_id));
     }
     state.favoritedNames.add(normalizeFavoriteName(productName));
-  }
+    }
 
-  await loadFavorites();
-  renderCurrentProductTable();
+    await loadFavorites();
+    renderCurrentProductTable();
+  } finally {
+    setProductBusyState(false);
+  }
 }
 
 async function loadFavorites() {
@@ -1023,12 +1086,18 @@ async function removePriceAlert(alert) {
   const alertId = Number(alert && alert.alert_id);
   if (!alertId) return;
 
-  await fetchJsonWithAuth("/api/price-alerts/" + alertId, {
-    method: "DELETE",
-  });
+  setProductBusyState(true);
 
-  await loadPriceAlerts();
-  renderCurrentProductTable();
+  try {
+    await fetchJsonWithAuth("/api/price-alerts/" + alertId, {
+      method: "DELETE",
+    });
+
+    await loadPriceAlerts();
+    renderCurrentProductTable();
+  } finally {
+    setProductBusyState(false);
+  }
 }
 
 async function showTriggeredPriceAlerts() {
@@ -1055,6 +1124,8 @@ function renderFavoriteButton(product, source, index) {
     source +
     '="' +
     index +
+    '" title="' +
+    label +
     '" aria-label="' +
     label +
     '"' +
@@ -1075,6 +1146,8 @@ function renderPriceAlertButton(product, source, index) {
     source +
     '="' +
     index +
+    '" title="' +
+    label +
     '" aria-label="' +
     label +
     '">' +
@@ -1215,6 +1288,9 @@ async function saveCurrentPriceAlert() {
     return;
   }
 
+  const saveButton = document.getElementById("priceAlertSave");
+  if (saveButton) saveButton.disabled = true;
+
   try {
     await fetchJsonWithAuth("/api/price-alerts", {
       method: "POST",
@@ -1236,7 +1312,79 @@ async function saveCurrentPriceAlert() {
     if (message) {
       showPriceAlertMessage("Prijsalert kon niet worden opgeslagen.", "error");
     }
+  } finally {
+    if (saveButton) saveButton.disabled = false;
   }
+}
+
+function updateProductModeDescription() {
+  setText(
+    document.getElementById("productModeDescription"),
+    modeDescriptions[state.productMode] || modeDescriptions.local,
+  );
+}
+
+function updateProductResultSummary(visibleCount) {
+  const label = getModeLabel(state.productMode).toLowerCase();
+  setText(
+    document.getElementById("productResultSummary"),
+    visibleCount === 1
+      ? "1 resultaat zichtbaar in " + label + "."
+      : visibleCount + " resultaten zichtbaar in " + label + ".",
+  );
+}
+
+function updateFilterSummary() {
+  const query = getSearchQuery();
+  const filters = getSelectedProductFilters();
+  const active = [];
+
+  if (query) active.push('zoekterm "' + query + '"');
+  if (filters.product) active.push("product");
+  if (filters.category) active.push("categorie");
+  if (filters.brand) active.push("merk");
+  if (filters.store) {
+    active.push(state.productMode === "official" ? "importeur" : "winkel");
+  }
+
+  setText(
+    document.getElementById("productFilterSummary"),
+    active.length
+      ? active.length + " filter" + (active.length === 1 ? "" : "s") + " actief: " + active.join(", ") + "."
+      : "Geen filters actief.",
+  );
+}
+
+function getModeLabel(mode) {
+  return {
+    local: "Eigen database",
+    official: "Publieke productenlijst",
+    favorites: "Favorieten",
+    alerts: "Prijsalerts",
+  }[mode] || "Producten";
+}
+
+function renderProductEmptyState(title, detail) {
+  return (
+    '<div class="product-empty-state">' +
+    "<strong>" +
+    escapeHtml(title) +
+    "</strong>" +
+    "<span>" +
+    escapeHtml(detail) +
+    "</span>" +
+    "</div>"
+  );
+}
+
+function setProductBusyState(isBusy) {
+  document
+    .querySelectorAll(
+      ".row-fav-button, .row-alert-button, .row-remove-alert-button",
+    )
+    .forEach((button) => {
+      button.disabled = isBusy;
+    });
 }
 
 function showPriceAlertMessage(text, type) {

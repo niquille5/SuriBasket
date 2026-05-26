@@ -78,9 +78,19 @@
               <p class="eyebrow">Prijslab</p>
 
               <h2 id="productsTableTitle">Prijsregistraties</h2>
+              <p class="product-mode-description" id="productModeDescription">
+                Bekijk lokale prijsregistraties, filter op product of winkel en
+                bewaar belangrijke items.
+              </p>
             </div>
 
             <div class="products-toolbar">
+              <div class="products-guide" aria-label="Producten gebruiken">
+                <span><strong>1</strong> Kies databron</span>
+                <span><strong>2</strong> Zoek of filter</span>
+                <span><strong>3</strong> Bewaar favoriet of prijsalert</span>
+              </div>
+
               <div class="view-switch" aria-label="Weergave kiezen">
                 <button type="button" class="active" id="tableViewButton">
                   Tabel
@@ -104,6 +114,18 @@
               </div>
 
               <div class="product-filters" aria-label="Producten filteren">
+                <div class="product-filter-header">
+                  <div>
+                    <strong>Zoeken en filteren</strong>
+                    <span id="productFilterSummary"
+                      >Geen filters actief.</span
+                    >
+                  </div>
+                  <button type="button" id="clearProductFiltersButton">
+                    Wis filters
+                  </button>
+                </div>
+
                 <div class="filters">
                   <label for="searchInput">Zoekterm</label>
 
@@ -145,10 +167,6 @@
                     <option value="">Alle winkels</option>
                   </select>
                 </div>
-
-                <button type="button" id="clearProductFiltersButton">
-                  Wis filters
-                </button>
               </div>
             </div>
           </div>
@@ -166,6 +184,13 @@
             <span><strong id="alertsTotal">0</strong> prijsalerts</span>
 
             <span><strong id="visiblePriceTotal">0</strong> zichtbaar</span>
+          </div>
+
+          <div class="product-results-meta" aria-live="polite">
+            <strong id="productResultSummary">Producten worden geladen...</strong>
+            <span id="productViewHint"
+              >Gebruik tabel voor vergelijken en grid voor snel scannen.</span
+            >
           </div>
 
           <div class="table-wrap">
