@@ -10,11 +10,6 @@ const messageField = document.getElementById("message");
 const charCounter = document.getElementById("charCounter");
 const ratingText = document.getElementById("ratingText");
 const issueTypeGroup = document.getElementById("issueTypeGroup");
-const fileUploadArea = document.getElementById("fileUploadArea");
-const screenshotInput = document.getElementById("screenshot");
-const screenshotPreview = document.getElementById("screenshotPreview");
-const previewImage = document.getElementById("previewImg");
-const removeScreenshotButton = document.getElementById("removeScreenshot");
 
 const ratingLabels = {
   5: "Heel goed",
@@ -42,15 +37,6 @@ function bindFeedbackForm() {
       toggleIssueType(input.value);
     });
   });
-
-  fileUploadArea?.addEventListener("click", () => screenshotInput?.click());
-  fileUploadArea?.addEventListener("dragover", handleDragOver);
-  fileUploadArea?.addEventListener("dragleave", clearDragState);
-  fileUploadArea?.addEventListener("drop", handleFileDrop);
-  screenshotInput?.addEventListener("change", () =>
-    showScreenshotPreview(screenshotInput.files[0]),
-  );
-  removeScreenshotButton?.addEventListener("click", removeScreenshot);
 
   form.addEventListener("submit", submitFeedback);
 }
@@ -87,7 +73,6 @@ async function submitFeedback(event) {
   setLoading(true);
 
   try {
-    const screenshot = await getScreenshotData();
     const response = await fetch(feedbackApi.submit, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -100,7 +85,6 @@ async function submitFeedback(event) {
         message,
         browserInfo: navigator.userAgent,
         referrer: document.referrer || "Direct bezoek",
-        screenshot,
       }),
     });
 
@@ -147,23 +131,41 @@ function renderTestimonials(items) {
   }
 
   list.innerHTML = "";
-  items.slice(0, 3).forEach((item) => {
+  items.slice(0, 6).forEach((item) => {
+    const score = Number(item.rating) || 0;
     const article = document.createElement("article");
-    article.className = "testimonial-item";
+    article.className = "testimonial-item " + getRatingClass(score);
+
+    const header = document.createElement("div");
+    header.className = "testimonial-header";
 
     const rating = document.createElement("div");
     rating.className = "testimonial-rating";
-    rating.textContent = "★".repeat(item.rating) + "☆".repeat(5 - item.rating);
+    rating.setAttribute("aria-label", score + " van 5 sterren");
+    rating.textContent = "\u2605".repeat(score) + "\u2606".repeat(5 - score);
+
+    const scoreBadge = document.createElement("span");
+    scoreBadge.className = "testimonial-score";
+    scoreBadge.textContent = score + "/5";
 
     const text = document.createElement("p");
     text.className = "testimonial-text";
-    text.textContent = shortenText(item.message, 150);
+    text.textContent = shortenText(item.message, 220);
+
+    const footer = document.createElement("div");
+    footer.className = "testimonial-footer";
 
     const author = document.createElement("span");
     author.className = "testimonial-author";
     author.textContent = item.name || "Anonieme gebruiker";
 
-    article.append(rating, text, author);
+    const date = document.createElement("span");
+    date.className = "testimonial-date";
+    date.textContent = formatDate(item.created_at);
+
+    header.append(rating, scoreBadge);
+    footer.append(author, date);
+    article.append(header, text, footer);
     list.appendChild(article);
   });
 }
@@ -189,65 +191,6 @@ function toggleIssueType(value) {
   if (!shouldShow) document.getElementById("issueType").value = "";
 }
 
-function handleDragOver(event) {
-  event.preventDefault();
-  fileUploadArea.classList.add("is-dragging");
-}
-
-function clearDragState(event) {
-  event.preventDefault();
-  fileUploadArea.classList.remove("is-dragging");
-}
-
-function handleFileDrop(event) {
-  event.preventDefault();
-  fileUploadArea.classList.remove("is-dragging");
-
-  const file = event.dataTransfer.files[0];
-  if (!file || !file.type.startsWith("image/")) return;
-
-  screenshotInput.files = event.dataTransfer.files;
-  showScreenshotPreview(file);
-}
-
-function showScreenshotPreview(file) {
-  if (!file || !previewImage || !screenshotPreview) return;
-
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    previewImage.src = event.target.result;
-    screenshotPreview.hidden = false;
-    fileUploadArea.hidden = true;
-  };
-  reader.readAsDataURL(file);
-}
-
-function removeScreenshot() {
-  screenshotInput.value = "";
-  screenshotPreview.hidden = true;
-  fileUploadArea.hidden = false;
-}
-
-async function getScreenshotData() {
-  const file = screenshotInput?.files[0];
-  if (!file) return null;
-
-  if (file.size > 5 * 1024 * 1024) {
-    throw new Error("De screenshot mag maximaal 5MB zijn.");
-  }
-
-  if (!file.type.startsWith("image/")) {
-    throw new Error("Upload alleen een afbeelding.");
-  }
-
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(new Error("Screenshot kon niet worden gelezen."));
-    reader.readAsDataURL(file);
-  });
-}
-
 function setLoading(isLoading) {
   const text = submitButton?.querySelector(".btn-text");
   const loading = submitButton?.querySelector(".btn-loading");
@@ -264,7 +207,6 @@ function resetForm() {
   updateRatingText("");
   updateCharCount();
   issueTypeGroup.hidden = true;
-  removeScreenshot();
 }
 
 function showAlert(message, type = "success") {
@@ -302,6 +244,25 @@ function shortenText(value, maxLength) {
   const text = String(value || "");
   if (text.length <= maxLength) return text;
   return text.slice(0, maxLength - 3) + "...";
+}
+
+function getRatingClass(rating) {
+  if (rating >= 4) return "is-positive";
+  if (rating === 3) return "is-neutral";
+  return "is-critical";
+}
+
+function formatDate(value) {
+  if (!value) return "Net geplaatst";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Net geplaatst";
+
+  return date.toLocaleDateString("nl-NL", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 function setText(id, value) {

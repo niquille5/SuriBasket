@@ -8,6 +8,9 @@ const {
   ensureAdminUser,
   ensureUserTables,
   findUserByUsername,
+  getUsers,
+  updateUser,
+  deleteUser,
   getShoppingLists,
   passwordMatches,
   savePurchases,
@@ -24,6 +27,7 @@ const {
   getFeedbackStats,
   getRecentFeedback,
   saveFeedback,
+  deleteFeedback,
   updateFeedbackStatus
 } = require("./feedback-data");
 
@@ -43,7 +47,6 @@ const pages = {
   "/producten.html": "producten.html",
   "/scanner.html": "scanner.html",
   "/begroting.html": "begroting.html",
-  "/over.html": "over.html",
   "/feedback.html": "feedback.html",
   "/login.html": "login.html",
   "/admin.html": "admin.html"
@@ -78,6 +81,9 @@ const apiEndpoints = [
   "/api/feedback",
   "/api/feedback/stats",
   "/api/admin/feedback",
+  "/api/admin/feedback/:id",
+  "/api/admin/users",
+  "/api/admin/users/:id",
   "/api/price-alerts",
   "/api/price-alerts/triggered",
   "/api/admin/overview"
@@ -366,6 +372,115 @@ app.patch("/api/admin/feedback/:id", requireRole("admin"), async (req, res) => {
       responded_by: req.user.username
     });
     res.json({ message: "Feedback bijgewerkt" });
+  } catch (err) {
+    sendDatabaseError(res);
+  }
+});
+
+app.delete("/api/admin/feedback/:id", requireRole("admin"), async (req, res) => {
+  const feedbackId = Number(req.params.id);
+
+  if (!feedbackId) {
+    res.status(400).json({ message: "Ongeldig feedbacknummer" });
+    return;
+  }
+
+  try {
+    await deleteFeedback(feedbackId);
+    res.json({ message: "Feedback verwijderd" });
+  } catch (err) {
+    sendDatabaseError(res);
+  }
+});
+
+app.get("/api/admin/users", requireRole("admin"), async (req, res) => {
+  try {
+    const users = await getUsers();
+    res.json({ users });
+  } catch (err) {
+    sendDatabaseError(res);
+  }
+});
+
+app.post("/api/admin/users", requireRole("admin"), async (req, res) => {
+  const username = String(req.body.username || "").trim();
+  const password = String(req.body.password || "");
+  const role = cleanRole(req.body.role);
+
+  if (!isValidUsername(username) || !isValidPassword(password) || !role) {
+    res.status(400).json({
+      message: "Gebruik minimaal 3 tekens voor naam, 6 voor wachtwoord en een geldige rol"
+    });
+    return;
+  }
+
+  try {
+    const user = await createUser(username, password, role);
+    res.status(201).json({ user });
+  } catch (err) {
+    if (err.code === "ER_DUP_ENTRY") {
+      res.status(409).json({ message: "Deze gebruikersnaam bestaat al" });
+      return;
+    }
+
+    sendDatabaseError(res);
+  }
+});
+
+app.patch("/api/admin/users/:id", requireRole("admin"), async (req, res) => {
+  const userId = Number(req.params.id);
+  const username = String(req.body.username || "").trim();
+  const password = String(req.body.password || "");
+  const role = cleanRole(req.body.role);
+
+  if (!userId || !isValidUsername(username) || !role) {
+    res.status(400).json({ message: "Ongeldige gebruiker of rol" });
+    return;
+  }
+
+  if (password && !isValidPassword(password)) {
+    res.status(400).json({ message: "Nieuw wachtwoord moet minimaal 6 tekens zijn" });
+    return;
+  }
+
+  if (userId === Number(req.user.user_id) && role !== "admin") {
+    res.status(400).json({ message: "Je kunt je eigen adminrol niet verwijderen" });
+    return;
+  }
+
+  try {
+    await updateUser(userId, {
+      username,
+      role,
+      password: password || null
+    });
+    res.json({ message: "Gebruiker bijgewerkt" });
+  } catch (err) {
+    if (err.code === "ER_DUP_ENTRY") {
+      res.status(409).json({ message: "Deze gebruikersnaam bestaat al" });
+      return;
+    }
+
+    sendDatabaseError(res);
+  }
+});
+
+app.delete("/api/admin/users/:id", requireRole("admin"), async (req, res) => {
+  const userId = Number(req.params.id);
+
+  if (!userId) {
+    res.status(400).json({ message: "Ongeldige gebruiker" });
+    return;
+  }
+
+  if (userId === Number(req.user.user_id)) {
+    res.status(400).json({ message: "Je kunt je eigen admin-account niet verwijderen" });
+    return;
+  }
+
+  try {
+    await deleteUser(userId);
+    res.json({ message: "Gebruiker verwijderd" });
   } catch (err) {
     sendDatabaseError(res);
   }
@@ -735,6 +850,11 @@ function isValidPassword(password) {
   return typeof password === "string" && password.length >= 6;
 }
 
+function cleanRole(role) {
+  const clean = String(role || "").trim();
+  return ["user", "admin"].includes(clean) ? clean : null;
+}
+
 function cleanBudgetItems(items) {
   return cleanItems(items).map((item) => ({
     product_name: item.product_name,
@@ -778,7 +898,6 @@ function cleanFeedback(body, req) {
     issueType: String(body.issueType || "").trim().slice(0, 80),
     browserInfo: String(body.browserInfo || "").slice(0, 2000),
     referrer: String(body.referrer || "").slice(0, 1000),
-    screenshot: typeof body.screenshot === "string" ? body.screenshot : null,
     ipAddress: req.ip || null,
     userAgent: String(req.headers["user-agent"] || "").slice(0, 2000)
   };

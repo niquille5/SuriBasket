@@ -25,19 +25,6 @@ CREATE TABLE IF NOT EXISTS feedback (
   INDEX idx_feedback_created_at (created_at)
 );
 
-CREATE TABLE IF NOT EXISTS feedback_screenshots (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  feedback_id INT NOT NULL,
-  filename VARCHAR(255) NOT NULL,
-  file_path VARCHAR(500) NOT NULL,
-  file_size INT NOT NULL,
-  mime_type VARCHAR(100) NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT fk_feedback_screenshots_feedback
-    FOREIGN KEY (feedback_id) REFERENCES feedback(id)
-    ON DELETE CASCADE
-);
-
 CREATE TABLE IF NOT EXISTS feedback_categories (
   id INT AUTO_INCREMENT PRIMARY KEY,
   category_name VARCHAR(80) NOT NULL UNIQUE,

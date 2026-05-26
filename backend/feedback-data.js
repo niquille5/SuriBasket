@@ -1,8 +1,4 @@
-const fs = require("fs/promises");
-const path = require("path");
 const { query } = require("./db-query");
-
-const uploadsDir = path.resolve(__dirname, "uploads", "feedback");
 
 async function ensureFeedbackTables() {
   await query(`
@@ -29,21 +25,6 @@ async function ensureFeedbackTables() {
       INDEX idx_feedback_priority (priority),
       INDEX idx_feedback_rating (rating),
       INDEX idx_feedback_created_at (created_at)
-    )
-  `);
-
-  await query(`
-    CREATE TABLE IF NOT EXISTS feedback_screenshots (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      feedback_id INT NOT NULL,
-      filename VARCHAR(255) NOT NULL,
-      file_path VARCHAR(500) NOT NULL,
-      file_size INT NOT NULL,
-      mime_type VARCHAR(100) NOT NULL,
-      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      CONSTRAINT fk_feedback_screenshots_feedback
-        FOREIGN KEY (feedback_id) REFERENCES feedback(id)
-        ON DELETE CASCADE
     )
   `);
 
@@ -111,10 +92,6 @@ async function saveFeedback(feedback) {
     await linkFeedbackCategory(result.insertId, feedback.issueType);
   }
 
-  if (feedback.screenshot) {
-    await saveScreenshot(result.insertId, feedback.screenshot);
-  }
-
   return result.insertId;
 }
 
@@ -131,9 +108,8 @@ async function getFeedbackStats() {
   const testimonials = await query(`
     SELECT name, rating, message, created_at
     FROM feedback
-    WHERE rating >= 4
     ORDER BY created_at DESC
-    LIMIT 3
+    LIMIT 6
   `);
 
   return {
@@ -160,6 +136,7 @@ async function getRecentFeedback(limit = 10) {
         status,
         priority,
         message,
+        admin_response,
         created_at
       FROM feedback
       ORDER BY created_at DESC
@@ -201,6 +178,12 @@ async function updateFeedbackStatus(id, updates) {
   );
 }
 
+async function deleteFeedback(id) {
+  await ensureFeedbackTables();
+  await query("DELETE FROM feedback_category_map WHERE feedback_id = ?", [id]);
+  await query("DELETE FROM feedback WHERE id = ?", [id]);
+}
+
 async function linkFeedbackCategory(feedbackId, categoryName) {
   const rows = await query(
     `
@@ -223,45 +206,6 @@ async function linkFeedbackCategory(feedbackId, categoryName) {
   );
 }
 
-async function saveScreenshot(feedbackId, dataUrl) {
-  const match = String(dataUrl).match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
-  if (!match) return;
-
-  const mimeType = match[1];
-  const extension = getExtension(mimeType);
-  const buffer = Buffer.from(match[2], "base64");
-
-  if (!extension || !buffer.length || buffer.length > 5 * 1024 * 1024) {
-    return;
-  }
-
-  await fs.mkdir(uploadsDir, { recursive: true });
-
-  const filename = "feedback-" + feedbackId + "-" + Date.now() + extension;
-  const fullPath = path.join(uploadsDir, filename);
-  await fs.writeFile(fullPath, buffer);
-
-  await query(
-    `
-      INSERT INTO feedback_screenshots
-        (feedback_id, filename, file_path, file_size, mime_type)
-      VALUES (?, ?, ?, ?, ?)
-    `,
-    [feedbackId, filename, path.relative(path.resolve(__dirname, ".."), fullPath), buffer.length, mimeType],
-  );
-}
-
-function getExtension(mimeType) {
-  const extensions = {
-    "image/jpeg": ".jpg",
-    "image/png": ".png",
-    "image/webp": ".webp",
-    "image/gif": ".gif",
-  };
-
-  return extensions[mimeType] || null;
-}
-
 function getPriority(rating, issueType) {
   if (Number(rating) <= 2) return "high";
   if (issueType === "bug" || issueType === "price") return "high";
@@ -274,5 +218,6 @@ module.exports = {
   getFeedbackStats,
   getRecentFeedback,
   saveFeedback,
+  deleteFeedback,
   updateFeedbackStatus,
 };
