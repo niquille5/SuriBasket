@@ -1,3 +1,5 @@
+import { setText } from "./dom.js";
+
 const feedbackApi = {
   submit: "/api/feedback",
   stats: "/api/feedback/stats",
@@ -263,9 +265,4 @@ function formatDate(value) {
     month: "short",
     year: "numeric",
   });
-}
-
-function setText(id, value) {
-  const element = document.getElementById(id);
-  if (element) element.textContent = value;
 }

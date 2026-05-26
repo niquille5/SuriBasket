@@ -1,4 +1,14 @@
-export function setText(element, value) {
+export function getElement(target) {
+  if (typeof target === "string") {
+    return document.getElementById(target);
+  }
+
+  return target;
+}
+
+export function setText(target, value) {
+  const element = getElement(target);
+
   if (element) {
     element.textContent = value;
   }

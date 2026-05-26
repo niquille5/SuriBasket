@@ -1,3 +1,4 @@
+/* Design tokens */
 :root {
   --ink: #18212f;
   --muted: #687385;
@@ -15,6 +16,7 @@
   --shadow: 0 18px 44px rgba(32, 25, 14, 0.1);
 }
 
+/* Base reset */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -37,15 +39,6 @@ body {
   font-family: "Segoe UI", Arial, Helvetica, sans-serif;
   line-height: 1.55;
   min-height: 100vh;
-}
-
-body:not([data-page="login"]) {
-  background:
-    radial-gradient(circle at 8% 8%, rgba(238, 207, 62, 0.2), transparent 30%),
-    radial-gradient(circle at 92% 10%, rgba(116, 152, 56, 0.18), transparent 28%),
-    radial-gradient(circle at 78% 82%, rgba(196, 235, 106, 0.14), transparent 30%),
-    linear-gradient(135deg, #fffdf8 0%, #f5faee 36%, #eef6f3 68%, #fff7df 100%),
-    var(--paper);
 }
 
 body:not([data-page="login"])::before {
@@ -76,6 +69,7 @@ a {
   display: none !important;
 }
 
+/* Header and navigation */
 .site-header {
   background:
     linear-gradient(rgba(82, 113, 35, 0.035) 1px, transparent 1px),
@@ -409,6 +403,7 @@ a {
   transform: translateY(-2px);
 }
 
+/* Motion */
 @keyframes navScan {
   0%,
   22% {
@@ -433,12 +428,14 @@ a {
   }
 }
 
+/* Page shell */
 main {
   margin: 0 auto;
   max-width: 1180px;
   padding: 30px 20px 54px;
 }
 
+/* Hero and page titles */
 .hero,
 .page-title {
   background:
@@ -543,6 +540,7 @@ h2 {
   font-size: 25px;
 }
 
+/* Buttons */
 .button,
 button {
   border: 0;
@@ -580,6 +578,7 @@ button:hover {
   color: var(--teal-dark);
 }
 
+/* Shared panels and cards */
 .status-panel,
 .panel,
 .summary-grid article,
@@ -822,6 +821,7 @@ code {
   font-size: 20px;
 }
 
+/* Forms */
 label {
   color: var(--teal-dark);
   display: block;
@@ -853,6 +853,7 @@ select:focus {
   outline: 0;
 }
 
+/* Results and tables */
 .result {
   border-radius: 12px;
   display: none;
@@ -963,6 +964,7 @@ tbody tr:hover {
   padding-bottom: 12px;
 }
 
+/* Footer */
 footer {
   align-items: center;
   background:
@@ -1009,6 +1011,7 @@ footer p {
   text-align: right;
 }
 
+/* Responsive layout */
 @media (max-width: 900px) {
   .hero,
   .content-grid,

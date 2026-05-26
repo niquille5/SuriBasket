@@ -1,3 +1,4 @@
+/* Feedback page shell */
 body[data-page="feedback"] main {
   max-width: 1180px;
 }
@@ -25,6 +26,7 @@ body[data-page="feedback"] .page-title::after {
   right: 34px;
 }
 
+/* Feedback layout */
 .feedback-layout {
   align-items: start;
   display: grid;
@@ -59,6 +61,7 @@ body[data-page="feedback"] .page-title::after {
   margin-top: 8px;
 }
 
+/* Feedback form */
 .feedback-form {
   display: grid;
   gap: 18px;
@@ -126,6 +129,7 @@ body[data-page="feedback"] .page-title::after {
   resize: vertical;
 }
 
+/* Rating controls */
 .star-rating-container {
   align-items: center;
   background:
@@ -212,6 +216,7 @@ body[data-page="feedback"] .page-title::after {
   transform: none;
 }
 
+/* Form messages */
 .alert {
   border-radius: 12px;
   display: none;
@@ -237,6 +242,7 @@ body[data-page="feedback"] .page-title::after {
   color: var(--teal-dark);
 }
 
+/* Feedback summary sidebar */
 .feedback-side {
   display: grid;
   gap: 20px;
@@ -296,6 +302,7 @@ body[data-page="feedback"] .page-title::after {
   margin-top: 6px;
 }
 
+/* Public testimonials list */
 #testimonialsList {
   display: grid;
   gap: 12px;
@@ -411,6 +418,7 @@ body[data-page="feedback"] .page-title::after {
   color: var(--teal-dark);
 }
 
+/* Responsive layout */
 @media (max-width: 900px) {
   .feedback-layout,
   .form-grid,

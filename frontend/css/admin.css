@@ -1,3 +1,4 @@
+/* Admin page shell */
 body[data-page="admin"] .page-title {
   background:
     linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
@@ -52,6 +53,7 @@ body[data-page="admin"] .result {
   padding: 13px;
 }
 
+/* Compact admin panels */
 body[data-page="admin"] .feature-list {
   display: grid;
   gap: 8px;
@@ -92,11 +94,13 @@ body[data-page="admin"] #logoutButton {
   padding: 9px 14px;
 }
 
+/* Users and feedback sections */
 .admin-users-panel,
 .admin-feedback-panel {
   grid-column: 1 / -1;
 }
 
+/* Users table */
 .admin-table-wrap {
   border: 1px solid rgba(225, 216, 200, 0.82);
   border-radius: 12px;
@@ -149,6 +153,7 @@ body[data-page="admin"] #logoutButton {
   color: #fff;
 }
 
+/* Feedback management list */
 .admin-feedback-list {
   display: grid;
   gap: 10px;
@@ -209,6 +214,7 @@ body[data-page="admin"] #logoutButton {
   padding: 4px 9px;
 }
 
+/* Feedback state controls */
 .admin-feedback-controls {
   display: grid;
   gap: 8px;
@@ -260,6 +266,7 @@ body[data-page="admin"] #logoutButton {
   font-weight: 800;
 }
 
+/* Admin modal */
 .admin-modal {
   align-items: center;
   background:
@@ -324,6 +331,7 @@ body[data-page="admin"] #logoutButton {
   padding: 0;
 }
 
+/* Responsive layout */
 @media (max-width: 900px) {
   body[data-page="admin"] #logoutButton {
     align-self: stretch;

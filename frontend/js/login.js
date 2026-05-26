@@ -1,5 +1,5 @@
 import { saveLogin } from "./auth.js";
-import { showMessage } from "./dom.js";
+import { setText, showMessage } from "./dom.js";
 
 export function initLoginPage() {
   fillRememberedUser();
@@ -37,15 +37,7 @@ async function handleLogin(event) {
   setButtonLoading(submitButton, "Inloggen...");
 
   try {
-    const response = await fetch("/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
-
-    if (!response.ok) throw new Error("Login failed");
-
-    const result = await response.json();
+    const result = await submitAuthRequest("/api/login", { username, password });
     rememberUser(username);
     saveLogin(result.token, result.user);
     showMessage(message, "good", "Login gelukt. Je wordt doorgestuurd.");
@@ -87,17 +79,7 @@ async function handleRegister(event) {
   setButtonLoading(submitButton, "Account maken...");
 
   try {
-    const response = await fetch("/api/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
-
-    if (!response.ok) {
-      throw new Error("Register failed");
-    }
-
-    const result = await response.json();
+    const result = await submitAuthRequest("/api/register", { username, password });
     saveLogin(result.token, result.user);
     showMessage(message, "good", "Account gemaakt. Je wordt doorgestuurd.");
 
@@ -109,6 +91,20 @@ async function handleRegister(event) {
   } finally {
     setButtonLoading(submitButton);
   }
+}
+
+async function submitAuthRequest(path, payload) {
+  const response = await fetch(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error("Auth request failed");
+  }
+
+  return response.json();
 }
 
 function redirectAfterLogin(user) {
@@ -195,9 +191,4 @@ function setButtonLoading(button, text) {
   button.textContent = button.dataset.originalText || button.textContent;
   button.disabled = false;
   button.classList.remove("is-loading");
-}
-
-function setText(id, value) {
-  const element = document.getElementById(id);
-  if (element) element.textContent = value;
 }

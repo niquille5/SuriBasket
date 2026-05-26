@@ -1,3 +1,4 @@
+/* Budget page title */
 .budget-page-title {
   align-items: end;
   background:
@@ -28,6 +29,7 @@
   white-space: nowrap;
 }
 
+/* Budget builder shell */
 .budget-layout {
   margin-bottom: 20px;
 }
@@ -48,6 +50,7 @@
   color: var(--teal-dark);
 }
 
+/* Presets and setup steps */
 .budget-steps {
   display: grid;
   gap: 12px;
@@ -170,6 +173,7 @@
   font-weight: 400;
 }
 
+/* Product picker */
 .budget-add-row {
   align-items: stretch;
   display: grid;
@@ -288,6 +292,7 @@
   white-space: nowrap;
 }
 
+/* Budget table and total */
 .table-heading {
   align-items: end;
   border-bottom: 1px solid var(--line);
@@ -409,6 +414,7 @@
   width: 100%;
 }
 
+/* Saved budget overview and history */
 .budget-overview-panel {
   margin-bottom: 20px;
   padding: 28px;
@@ -554,6 +560,7 @@
   max-width: 92px;
 }
 
+/* Responsive layout */
 @media (max-width: 900px) {
   .budget-layout,
   .budget-selection-layout,

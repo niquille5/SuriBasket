@@ -1,5 +1,5 @@
 const bcrypt = require("bcrypt");
-const { query } = require("./db-query");
+const { query } = require("../config/db-query");
 
 const passwordRounds = 10;
 

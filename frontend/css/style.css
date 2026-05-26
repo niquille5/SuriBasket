@@ -1,4 +1,7 @@
+/* Core stylesheet bundle */
 @import url("./main.css");
+
+/* Page-specific styles */
 @import url("./dashboard.css");
 @import url("./products.css");
 @import url("./scanner.css");
@@ -6,4 +9,3 @@
 @import url("./feedback.css");
 @import url("./login.css");
 @import url("./admin.css");
-@import url("./about.css");
