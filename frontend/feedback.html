@@ -33,7 +33,6 @@
           <a href="producten.html" data-nav-page="products">Producten</a>
           <a href="scanner.html" data-nav-page="scanner">Prijscheck</a>
           <a href="begroting.html" data-nav-page="budget">Begroting</a>
-          <a href="over.html" data-nav-page="about">Over</a>
           <a href="feedback.html" data-nav-page="feedback">Feedback</a>
           <a href="login.html" data-auth-link="login" data-nav-page="login">
             Login
@@ -175,23 +174,6 @@
               </div>
             </div>
 
-            <div class="form-group">
-              <label for="screenshot">Screenshot <span class="optional">(optioneel)</span></label>
-              <div class="file-upload-area" id="fileUploadArea">
-                <input type="file" id="screenshot" accept="image/*" hidden />
-                <strong>Screenshot toevoegen</strong>
-                <span>Klik hier of sleep een afbeelding naar dit vak.</span>
-                <small>PNG of JPG tot 5MB</small>
-              </div>
-
-              <div id="screenshotPreview" class="screenshot-preview" hidden>
-                <img id="previewImg" alt="Voorbeeld van je screenshot" />
-                <button type="button" id="removeScreenshot" class="table-button">
-                  Verwijder screenshot
-                </button>
-              </div>
-            </div>
-
             <button type="submit" class="submit-btn" id="submitBtn">
               <span class="btn-text">Feedback versturen</span>
               <span class="btn-loading" hidden>Bezig met versturen...</span>
@@ -223,6 +205,9 @@
           <article class="panel testimonial-card" id="testimonials">
             <p class="eyebrow">Gebruikers</p>
             <h2>Laatste reacties</h2>
+            <p class="testimonial-intro">
+              Nieuwste reacties staan bovenaan. Scroll om oudere reacties te bekijken.
+            </p>
             <div id="testimonialsList">
               <p class="muted">Nog geen reacties geladen.</p>
             </div>

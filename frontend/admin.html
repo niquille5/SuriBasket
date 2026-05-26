@@ -31,7 +31,6 @@
           <a href="producten.html" data-nav-page="products">Producten</a>
           <a href="scanner.html" data-nav-page="scanner">Prijscheck</a>
           <a href="begroting.html" data-nav-page="budget">Begroting</a>
-          <a href="over.html" data-nav-page="about">Over</a>
           <a href="feedback.html" data-nav-page="feedback">Feedback</a>
           <a href="login.html" data-auth-link="login" data-nav-page="login"
             >Login</a
@@ -91,9 +90,43 @@
       </section>
 
       <section class="content-grid lower-grid">
+        <article class="panel admin-users-panel">
+          <div class="section-heading split">
+            <div>
+              <p class="eyebrow">Gebruikers</p>
+              <h2>Accounts beheren</h2>
+            </div>
+            <button type="button" id="newUserButton">Nieuwe gebruiker</button>
+          </div>
+          <div class="admin-table-wrap">
+            <table class="admin-users-table">
+              <thead>
+                <tr>
+                  <th>Gebruiker</th>
+                  <th>Rol</th>
+                  <th>Aangemaakt</th>
+                  <th>Actie</th>
+                </tr>
+              </thead>
+              <tbody id="adminUsersTable">
+                <tr>
+                  <td colspan="4">Gebruikers worden geladen...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
         <article class="panel admin-feedback-panel">
-          <p class="eyebrow">Gebruikersfeedback</p>
-          <h2>Binnengekomen reacties</h2>
+          <div class="section-heading split">
+            <div>
+              <p class="eyebrow">Gebruikersfeedback</p>
+              <h2>Binnengekomen reacties</h2>
+            </div>
+            <button type="button" class="table-button" id="refreshFeedbackButton">
+              Refresh
+            </button>
+          </div>
           <div id="adminFeedbackList" class="admin-feedback-list">
             <span class="muted">Feedback wordt geladen...</span>
           </div>
@@ -129,6 +162,82 @@ npm run repair:public-local</code></pre>
       <strong>Suri Basket</strong>
       <p>Prijsinformatie, publicatielijsten en consumentenvergelijking.</p>
     </footer>
+
+    <div class="admin-modal" id="userModal" hidden>
+      <form class="admin-modal-card" id="userForm">
+        <div class="admin-modal-heading">
+          <div>
+            <p class="eyebrow">Account</p>
+            <h2 id="userModalTitle">Nieuwe gebruiker</h2>
+          </div>
+          <button type="button" class="admin-icon-button" id="closeUserModal">X</button>
+        </div>
+        <input type="hidden" id="userId" />
+        <label>
+          Gebruikersnaam
+          <input type="text" id="userUsername" minlength="3" required />
+        </label>
+        <label>
+          Rol
+          <select id="userRole" required>
+            <option value="user">user</option>
+            <option value="admin">admin</option>
+          </select>
+        </label>
+        <label>
+          Wachtwoord
+          <input type="password" id="userPassword" minlength="6" />
+          <span class="muted" id="passwordHint">Minimaal 6 tekens.</span>
+        </label>
+        <div class="admin-modal-actions">
+          <span class="admin-save-state" id="userFormState" aria-live="polite"></span>
+          <button type="button" class="button secondary" id="cancelUserModal">Annuleren</button>
+          <button type="submit">Opslaan</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="admin-modal" id="deleteUserModal" hidden>
+      <div class="admin-modal-card">
+        <div class="admin-modal-heading">
+          <div>
+            <p class="eyebrow">Bevestigen</p>
+            <h2>Gebruiker verwijderen?</h2>
+          </div>
+        </div>
+        <p id="deleteUserText">Deze actie kan niet ongedaan worden gemaakt.</p>
+        <div class="admin-modal-actions">
+          <span class="admin-save-state" id="deleteUserState" aria-live="polite"></span>
+          <button type="button" class="button secondary" id="cancelDeleteUser">Annuleren</button>
+          <button type="button" class="admin-danger-button" id="confirmDeleteUser">
+            Verwijderen
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-modal" id="deleteFeedbackModal" hidden>
+      <div class="admin-modal-card">
+        <div class="admin-modal-heading">
+          <div>
+            <p class="eyebrow">Bevestigen</p>
+            <h2>Reactie verwijderen?</h2>
+          </div>
+        </div>
+        <p id="deleteFeedbackText">
+          Deze feedbackreactie wordt definitief verwijderd.
+        </p>
+        <div class="admin-modal-actions">
+          <span class="admin-save-state" id="deleteFeedbackState" aria-live="polite"></span>
+          <button type="button" class="button secondary" id="cancelDeleteFeedback">
+            Annuleren
+          </button>
+          <button type="button" class="admin-danger-button" id="confirmDeleteFeedback">
+            Verwijderen
+          </button>
+        </div>
+      </div>
+    </div>
 
     <script type="module" src="js/app.js"></script>
   </body>

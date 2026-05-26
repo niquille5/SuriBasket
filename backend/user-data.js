@@ -134,6 +134,79 @@ async function createUser(username, password, role = "user") {
   };
 }
 
+async function getUsers() {
+  await ensureUserTables();
+
+  return query(`
+    SELECT user_id, username, role, created_at
+    FROM users
+    ORDER BY created_at DESC, user_id DESC
+  `);
+}
+
+async function updateUser(userId, updates) {
+  await ensureUserTables();
+
+  const fields = [];
+  const values = [];
+
+  if (updates.username) {
+    fields.push("username = ?");
+    values.push(updates.username);
+  }
+
+  if (updates.role) {
+    fields.push("role = ?");
+    values.push(updates.role);
+  }
+
+  if (updates.password) {
+    const passwordHash = await bcrypt.hash(updates.password, passwordRounds);
+    fields.push("password_hash = ?");
+    values.push(passwordHash);
+  }
+
+  if (!fields.length) {
+    return;
+  }
+
+  values.push(userId);
+  await query(
+    `
+      UPDATE users
+      SET ${fields.join(", ")}
+      WHERE user_id = ?
+    `,
+    values,
+  );
+}
+
+async function deleteUser(userId) {
+  await ensureUserTables();
+  await query("START TRANSACTION");
+
+  try {
+    await query(
+      `
+        DELETE sli
+        FROM shopping_list_items sli
+        JOIN shopping_lists sl ON sli.list_id = sl.list_id
+        WHERE sl.user_id = ?
+      `,
+      [userId],
+    );
+    await query("DELETE FROM shopping_lists WHERE user_id = ?", [userId]);
+    await query("DELETE FROM purchases WHERE user_id = ?", [userId]);
+    await query("DELETE FROM favorites WHERE user_id = ?", [userId]);
+    await query("DELETE FROM price_alerts WHERE user_id = ?", [userId]);
+    await query("DELETE FROM users WHERE user_id = ?", [userId]);
+    await query("COMMIT");
+  } catch (err) {
+    await query("ROLLBACK");
+    throw err;
+  }
+}
+
 async function findUserByUsername(username) {
   const rows = await query(
     `
@@ -628,6 +701,9 @@ module.exports = {
   ensureAdminUser,
   ensureUserTables,
   findUserByUsername,
+  getUsers,
+  updateUser,
+  deleteUser,
   getFavorites,
   getPriceAlerts,
   addFavorite,

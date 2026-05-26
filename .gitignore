@@ -4,3 +4,4 @@ backend/.env
 logs/
 dist/
 build/
+backend/uploads/feedback
