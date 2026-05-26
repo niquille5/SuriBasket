@@ -1,12 +1,15 @@
+/* Login typography */
+
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap");
 
+/* Login page shell */
 body[data-page="login"] {
   background:
     linear-gradient(120deg, rgba(255, 255, 255, 0.08), transparent 34%, rgba(238, 207, 62, 0.1) 66%, transparent),
     radial-gradient(circle at 78% 18%, rgba(238, 207, 62, 0.2), transparent 26%),
     radial-gradient(circle at 18% 84%, rgba(196, 235, 106, 0.18), transparent 24%),
     linear-gradient(90deg, rgba(34, 72, 10, 0.32), rgba(255, 253, 248, 0.06)),
-    url("../assets/Background login.png") center / cover no-repeat fixed;
+    url("../img/Background login.png") center / cover no-repeat fixed;
   font-family: "Poppins", "Segoe UI", Arial, Helvetica, sans-serif;
 }
 
@@ -21,6 +24,7 @@ body[data-page="login"] main {
   padding: 0;
 }
 
+/* Login layout */
 .login-screen {
   align-items: center;
   column-gap: clamp(28px, 4vw, 58px);
@@ -84,6 +88,7 @@ body[data-page="login"] main {
   z-index: 1;
 }
 
+/* Brand promise */
 .login-promise {
   color: #fff;
   grid-row: 1 / span 2;
@@ -202,6 +207,7 @@ body[data-page="login"] main {
   color: var(--sun);
 }
 
+/* Auth card */
 .auth-card {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 253, 248, 0.9));
@@ -292,6 +298,7 @@ body[data-page="login"] main {
   margin-top: 8px;
 }
 
+/* Auth form */
 .auth-form {
   display: grid;
   gap: 10px;
@@ -393,6 +400,7 @@ body[data-page="login"] main {
   color: #9ca395;
 }
 
+/* Remember and recovery controls */
 .auth-options {
   align-items: center;
   background: #fff;
@@ -560,6 +568,7 @@ body[data-page="login"] main {
   padding: 4px 12px;
 }
 
+/* Secondary auth actions */
 .auth-secondary {
   display: grid;
   gap: 12px;
@@ -667,6 +676,7 @@ body[data-page="login"] main {
   color: var(--tomato);
 }
 
+/* Trust bar */
 .login-trustbar {
   align-items: center;
   background: rgba(255, 253, 248, 0.92);
@@ -716,6 +726,7 @@ body[data-page="login"] main {
   border-left: 1px solid rgba(82, 113, 35, 0.22);
 }
 
+/* Motion */
 @keyframes loginFadeUp {
   from {
     opacity: 0;
@@ -828,6 +839,7 @@ body[data-page="login"] main {
   }
 }
 
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .login-screen::before,
   .login-screen::after,
@@ -850,6 +862,7 @@ body[data-page="login"] main {
   }
 }
 
+/* Responsive layout */
 @media (max-width: 980px) {
   body[data-page="login"] {
     background-position: center;

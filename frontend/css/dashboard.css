@@ -1,3 +1,4 @@
+/* Dashboard hero */
 body[data-page="dashboard"] .brand-hero {
   background:
     linear-gradient(135deg, rgba(36, 60, 22, 0.22), rgba(238, 207, 62, 0.12)),
@@ -53,6 +54,7 @@ body[data-page="dashboard"] .hero > * {
   z-index: 1;
 }
 
+/* Trust and status summaries */
 .trust-strip {
   display: flex;
   flex-wrap: wrap;
@@ -130,6 +132,7 @@ body[data-page="dashboard"] .hero > * {
   line-height: 1.1;
 }
 
+/* Summary cards */
 .summary-grid {
   display: grid;
   gap: 14px;
@@ -168,6 +171,7 @@ body[data-page="dashboard"] .hero > * {
   transform: translateY(-3px);
 }
 
+/* Launch and insight panels */
 .launch-panel {
   display: grid;
   align-content: start;
@@ -210,6 +214,7 @@ body[data-page="dashboard"] .hero > * {
   z-index: 1;
 }
 
+/* Responsive layout */
 @media (max-width: 1040px) {
   .summary-grid {
     grid-template-columns: repeat(3, 1fr);

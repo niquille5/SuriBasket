@@ -1,5 +1,5 @@
 const https = require("https");
-const db = require("../db");
+const db = require("../config/db");
 
 const SOURCE_URL = "https://ez.gov.sr/index.php?r=product%2Findex";
 const SOURCE_NAME = "Publieke SRD Check productenlijst";

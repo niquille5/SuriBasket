@@ -1,14 +1,6 @@
+/* Scanner page shell */
 body[data-page="scanner"] main {
   max-width: 1180px;
-}
-
-body[data-page="scanner"] {
-  background:
-    radial-gradient(circle at 8% 8%, rgba(238, 207, 62, 0.2), transparent 30%),
-    radial-gradient(circle at 92% 10%, rgba(116, 152, 56, 0.18), transparent 28%),
-    radial-gradient(circle at 78% 82%, rgba(196, 235, 106, 0.14), transparent 30%),
-    linear-gradient(135deg, #fffdf8 0%, #f5faee 36%, #eef6f3 68%, #fff7df 100%),
-    var(--paper);
 }
 
 body[data-page="scanner"] .page-title {
@@ -22,6 +14,7 @@ body[data-page="scanner"] .page-title {
     auto;
 }
 
+/* Scanner layout */
 .scanner-layout {
   display: grid;
   gap: 24px;
@@ -45,6 +38,7 @@ body[data-page="scanner"] .lower-grid .panel {
   backdrop-filter: blur(14px);
 }
 
+/* Scanner form */
 .scanner-form {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(255, 251, 242, 0.94));
@@ -93,6 +87,7 @@ body[data-page="scanner"] .lower-grid .panel {
   border-radius: 0;
 }
 
+/* Scan result summary */
 .result-grid {
   display: grid;
   gap: 10px;
@@ -119,6 +114,7 @@ body[data-page="scanner"] .lower-grid .panel {
   color: var(--ink);
 }
 
+/* Helper panel */
 .helper-panel {
   background:
     linear-gradient(145deg, rgba(238, 207, 62, 0.14), transparent 34%),
@@ -133,6 +129,7 @@ body[data-page="scanner"] .status-cards .status-card {
   min-height: 110px;
 }
 
+/* Responsive layout */
 @media (max-width: 900px) {
   .scanner-layout,
   .result-grid {

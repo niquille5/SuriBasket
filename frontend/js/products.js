@@ -4,6 +4,27 @@ import { formatCurrency, getPackageText } from "./format.js";
 import { warungProductCategories } from "./budget-data.js";
 import { hasAuthToken } from "./auth.js";
 
+const tableHeads = {
+  local:
+    "<tr><th>#</th><th>Product</th><th>Categorie</th><th>Merk</th><th>Verpakking</th><th>Winkel</th><th>Prijs</th><th>Actie</th></tr>",
+  official:
+    "<tr><th>#</th><th>Product</th><th>Importeur</th><th>Verpakking</th><th>Prijs</th><th>Actie</th></tr>",
+  alerts:
+    "<tr><th>#</th><th>Product</th><th>Categorie</th><th>Verpakking</th><th>Huidige prijs</th><th>Doelprijs</th><th>Status</th><th>Actie</th></tr>",
+};
+
+const modeButtonIds = {
+  local: "localPricesButton",
+  official: "officialPricesButton",
+  favorites: "favoritesButton",
+  alerts: "priceAlertsButton",
+};
+
+const viewButtonIds = {
+  table: "tableViewButton",
+  grid: "gridViewButton",
+};
+
 const state = {
   prices: [],
   officialProducts: [],
@@ -98,8 +119,7 @@ function switchView(viewMode) {
 }
 
 function renderCurrentProductTable() {
-  const searchInput = document.getElementById("searchInput");
-  const query = searchInput ? searchInput.value.trim().toLowerCase() : "";
+  const query = getSearchQuery();
   const selectedFilters = getSelectedProductFilters();
 
   if (state.productMode === "official") {
@@ -121,9 +141,7 @@ function renderCurrentProductTable() {
   if (state.productMode === "favorites") {
     setProductsTableMode("favorites");
     setText(document.getElementById("productsTableTitle"), "Favorieten");
-    setTableHead(
-      "<tr><th>#</th><th>Product</th><th>Categorie</th><th>Merk</th><th>Verpakking</th><th>Winkel</th><th>Prijs</th><th>Actie</th></tr>",
-    );
+    setTableHead(tableHeads.local);
     renderFavorites(query);
     return;
   }
@@ -131,18 +149,14 @@ function renderCurrentProductTable() {
   if (state.productMode === "alerts") {
     setProductsTableMode("alerts");
     setText(document.getElementById("productsTableTitle"), "Prijsalerts");
-    setTableHead(
-      "<tr><th>#</th><th>Product</th><th>Categorie</th><th>Verpakking</th><th>Huidige prijs</th><th>Doelprijs</th><th>Status</th><th>Actie</th></tr>",
-    );
+    setTableHead(tableHeads.alerts);
     renderPriceAlerts(query);
     return;
   }
 
   setProductsTableMode("local");
   setText(document.getElementById("productsTableTitle"), "Prijsregistraties");
-  setTableHead(
-    "<tr><th>#</th><th>Product</th><th>Categorie</th><th>Merk</th><th>Verpakking</th><th>Winkel</th><th>Prijs</th><th>Actie</th></tr>",
-  );
+  setTableHead(tableHeads.local);
 
   const items = filterByOptions(
     filterItems(state.prices, query, [
@@ -243,9 +257,7 @@ function renderOfficialPrices(items) {
     document.getElementById("productsTableTitle"),
     "Publieke\nproductenlijst",
   );
-  setTableHead(
-    "<tr><th>#</th><th>Product</th><th>Importeur</th><th>Verpakking</th><th>Prijs</th><th>Actie</th></tr>",
-  );
+  setTableHead(tableHeads.official);
 
   if (!items.length) {
     table.innerHTML =
@@ -658,71 +670,70 @@ function bindProductRowButtons() {
   const container = document.querySelector(".products-section");
   if (!container) return;
 
-  container.querySelectorAll("[data-fav-local]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const product =
-        state.renderedLocalProducts[Number(button.dataset.favLocal)];
-      toggleFavorite(product);
-    });
-  });
-
-  container.querySelectorAll("[data-fav-official]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const product =
-        state.renderedOfficialProducts[Number(button.dataset.favOfficial)];
-      toggleFavorite(product);
-    });
-  });
-
-  container.querySelectorAll("[data-alert-local]").forEach((button) => {
-    button.addEventListener("click", () => {
-      showPriceAlertDialog(
-        state.renderedLocalProducts[Number(button.dataset.alertLocal)],
-      );
-    });
-  });
-
-  container.querySelectorAll("[data-alert-official]").forEach((button) => {
-    button.addEventListener("click", () => {
-      showPriceAlertDialog(
-        state.renderedOfficialProducts[Number(button.dataset.alertOfficial)],
-      );
-    });
-  });
+  bindIndexedButtons(container, "favLocal", state.renderedLocalProducts, toggleFavorite);
+  bindIndexedButtons(
+    container,
+    "favOfficial",
+    state.renderedOfficialProducts,
+    toggleFavorite,
+  );
+  bindIndexedButtons(
+    container,
+    "alertLocal",
+    state.renderedLocalProducts,
+    showPriceAlertDialog,
+  );
+  bindIndexedButtons(
+    container,
+    "alertOfficial",
+    state.renderedOfficialProducts,
+    showPriceAlertDialog,
+  );
 }
 
 function bindFavoriteRowButtons() {
   const container = document.querySelector(".products-section");
   if (!container) return;
 
-  container.querySelectorAll("[data-fav-favorite]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const product =
-        state.renderedFavoriteProducts[Number(button.dataset.favFavorite)];
-      toggleFavorite(product);
-    });
-  });
-
-  container.querySelectorAll("[data-alert-favorite]").forEach((button) => {
-    button.addEventListener("click", () => {
-      showPriceAlertDialog(
-        state.renderedFavoriteProducts[Number(button.dataset.alertFavorite)],
-      );
-    });
-  });
+  bindIndexedButtons(
+    container,
+    "favFavorite",
+    state.renderedFavoriteProducts,
+    toggleFavorite,
+  );
+  bindIndexedButtons(
+    container,
+    "alertFavorite",
+    state.renderedFavoriteProducts,
+    showPriceAlertDialog,
+  );
 }
 
 function bindAlertRowButtons() {
   const container = document.querySelector(".products-section");
   if (!container) return;
 
-  container.querySelectorAll("[data-remove-alert]").forEach((button) => {
+  bindIndexedButtons(
+    container,
+    "removeAlert",
+    state.renderedAlertProducts,
+    removePriceAlert,
+  );
+}
+
+function bindIndexedButtons(container, dataKey, items, handler) {
+  const selector = "[data-" + toKebabCase(dataKey) + "]";
+
+  container.querySelectorAll(selector).forEach((button) => {
     button.addEventListener("click", () => {
-      removePriceAlert(
-        state.renderedAlertProducts[Number(button.dataset.removeAlert)],
-      );
+      const item = items[Number(button.dataset[dataKey])];
+      if (item) handler(item);
     });
   });
+}
+
+function toKebabCase(value) {
+  return value.replace(/[A-Z]/g, (letter) => "-" + letter.toLowerCase());
 }
 
 function updateProductStats(visibleCount) {
@@ -737,32 +748,24 @@ function updateProductStats(visibleCount) {
 }
 
 function setProductModeButtons() {
-  document
-    .getElementById("localPricesButton")
-    ?.classList.toggle("active", state.productMode === "local");
-  document
-    .getElementById("officialPricesButton")
-    ?.classList.toggle("active", state.productMode === "official");
-  document
-    .getElementById("favoritesButton")
-    ?.classList.toggle("active", state.productMode === "favorites");
-  document
-    .getElementById("priceAlertsButton")
-    ?.classList.toggle("active", state.productMode === "alerts");
+  setActiveButton(modeButtonIds, state.productMode);
 }
 
 function setViewModeButtons() {
-  document
-    .getElementById("tableViewButton")
-    ?.classList.toggle("active", state.viewMode === "table");
-  document
-    .getElementById("gridViewButton")
-    ?.classList.toggle("active", state.viewMode === "grid");
+  setActiveButton(viewButtonIds, state.viewMode);
 
   const tableWrap = document.querySelector(".products-section .table-wrap");
   const gridView = document.getElementById("productGridView");
   if (tableWrap) tableWrap.hidden = state.viewMode === "grid";
   if (gridView) gridView.hidden = state.viewMode !== "grid";
+}
+
+function setActiveButton(buttonIdsByValue, activeValue) {
+  Object.entries(buttonIdsByValue).forEach(([value, buttonId]) => {
+    document
+      .getElementById(buttonId)
+      ?.classList.toggle("active", value === activeValue);
+  });
 }
 
 function setTableHead(html) {
@@ -789,6 +792,10 @@ function filterItems(items, query, fields) {
         .includes(query),
     ),
   );
+}
+
+function getSearchQuery() {
+  return document.getElementById("searchInput")?.value.trim().toLowerCase() || "";
 }
 
 function filterByOptions(items, selectedFilters) {

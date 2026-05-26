@@ -1,4 +1,4 @@
-const { query } = require("./db-query");
+const { query } = require("../config/db-query");
 
 async function ensureFeedbackTables() {
   await query(`
