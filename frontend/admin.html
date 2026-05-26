@@ -1,0 +1,244 @@
+<!doctype html>
+
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Suri Basket | Admin</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+
+  <body data-page="admin">
+    <header class="site-header">
+      <div class="topbar">
+        <span>Warung-ready prijsinformatie</span>
+        <span id="apiStatus">API status wordt gecontroleerd...</span>
+      </div>
+      <nav class="navbar" aria-label="Hoofdnavigatie">
+        <a class="brand" href="login.html">
+          <span class="brand-mark brand-logo">
+            <img src="assets/Suribasket_logo.png" alt="Suri Basket" />
+          </span>
+          <span>
+            <strong>Suri Basket</strong>
+            <small>Warung prijzen, checks en begrotingen</small>
+          </span>
+        </a>
+        <div class="nav-links">
+          <a href="index.html" data-nav-page="dashboard">Dashboard</a>
+          <a href="producten.html" data-nav-page="products">Producten</a>
+          <a href="scanner.html" data-nav-page="scanner">Prijscheck</a>
+          <a href="begroting.html" data-nav-page="budget">Begroting</a>
+          <a href="feedback.html" data-nav-page="feedback">Feedback</a>
+          <a href="login.html" data-auth-link="login" data-nav-page="login"
+            >Login</a
+          >
+          <a
+            href="admin.html"
+            class="is-hidden"
+            data-auth-link="admin"
+            data-nav-page="admin"
+            >Admin</a
+          >
+          <button
+            type="button"
+            class="nav-logout is-hidden"
+            id="navLogoutButton"
+            data-auth-link="logout"
+          >
+            Uitloggen
+          </button>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <section class="page-title">
+        <div>
+          <p class="eyebrow">Adminomgeving</p>
+
+          <h1>Beheercontrole.</h1>
+
+          <p>
+            Deze pagina controleert of je bent ingelogd en de adminrol hebt.
+          </p>
+        </div>
+
+        <button type="button" id="logoutButton">Uitloggen</button>
+      </section>
+
+      <section class="content-grid">
+        <article class="panel">
+          <p class="eyebrow">Autorisatie</p>
+
+          <h2>Admin status</h2>
+
+          <div id="adminStatus" class="result show average" aria-live="polite">
+            <strong>Admin toegang wordt gecontroleerd...</strong>
+          </div>
+        </article>
+
+        <article class="panel">
+          <p class="eyebrow">Overzicht</p>
+          <h2>Database tellingen</h2>
+          <div class="feature-list" id="adminOverview">
+            <span class="muted">Nog geen data geladen.</span>
+          </div>
+        </article>
+      </section>
+
+      <section class="content-grid lower-grid">
+        <article class="panel admin-users-panel">
+          <div class="section-heading split">
+            <div>
+              <p class="eyebrow">Gebruikers</p>
+              <h2>Accounts beheren</h2>
+            </div>
+            <button type="button" id="newUserButton">Nieuwe gebruiker</button>
+          </div>
+          <div class="admin-table-wrap">
+            <table class="admin-users-table">
+              <thead>
+                <tr>
+                  <th>Gebruiker</th>
+                  <th>Rol</th>
+                  <th>Aangemaakt</th>
+                  <th>Actie</th>
+                </tr>
+              </thead>
+              <tbody id="adminUsersTable">
+                <tr>
+                  <td colspan="4">Gebruikers worden geladen...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="panel admin-feedback-panel">
+          <div class="section-heading split">
+            <div>
+              <p class="eyebrow">Gebruikersfeedback</p>
+              <h2>Binnengekomen reacties</h2>
+            </div>
+            <button type="button" class="table-button" id="refreshFeedbackButton">
+              Refresh
+            </button>
+          </div>
+          <div id="adminFeedbackList" class="admin-feedback-list">
+            <span class="muted">Feedback wordt geladen...</span>
+          </div>
+        </article>
+
+        <article class="panel">
+          <p class="eyebrow">Beheerroute</p>
+          <h2>Dagelijkse controle</h2>
+          <div class="workflow-list">
+            <span><strong>1</strong>Controleer database tellingen.</span>
+            <span><strong>2</strong>Bekijk lokale en publieke producten.</span>
+            <span
+              ><strong>3</strong>Gebruik de prijscheck voor opvallende
+              bedragen.</span
+            >
+          </div>
+        </article>
+
+        <article class="panel accent-panel">
+          <p class="eyebrow">Onderhoud</p>
+          <h2>Data verversen</h2>
+          <p>
+            Gebruik de importscripts in de backend wanneer de publieke lijst of
+            lokale richtprijzen bijgewerkt moeten worden.
+          </p>
+          <pre><code>npm run import:ez
+npm run repair:public-local</code></pre>
+        </article>
+      </section>
+    </main>
+
+    <footer>
+      <strong>Suri Basket</strong>
+      <p>Prijsinformatie, publicatielijsten en consumentenvergelijking.</p>
+    </footer>
+
+    <div class="admin-modal" id="userModal" hidden>
+      <form class="admin-modal-card" id="userForm">
+        <div class="admin-modal-heading">
+          <div>
+            <p class="eyebrow">Account</p>
+            <h2 id="userModalTitle">Nieuwe gebruiker</h2>
+          </div>
+          <button type="button" class="admin-icon-button" id="closeUserModal">X</button>
+        </div>
+        <input type="hidden" id="userId" />
+        <label>
+          Gebruikersnaam
+          <input type="text" id="userUsername" minlength="3" required />
+        </label>
+        <label>
+          Rol
+          <select id="userRole" required>
+            <option value="user">user</option>
+            <option value="admin">admin</option>
+          </select>
+        </label>
+        <label>
+          Wachtwoord
+          <input type="password" id="userPassword" minlength="6" />
+          <span class="muted" id="passwordHint">Minimaal 6 tekens.</span>
+        </label>
+        <div class="admin-modal-actions">
+          <span class="admin-save-state" id="userFormState" aria-live="polite"></span>
+          <button type="button" class="button secondary" id="cancelUserModal">Annuleren</button>
+          <button type="submit">Opslaan</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="admin-modal" id="deleteUserModal" hidden>
+      <div class="admin-modal-card">
+        <div class="admin-modal-heading">
+          <div>
+            <p class="eyebrow">Bevestigen</p>
+            <h2>Gebruiker verwijderen?</h2>
+          </div>
+        </div>
+        <p id="deleteUserText">Deze actie kan niet ongedaan worden gemaakt.</p>
+        <div class="admin-modal-actions">
+          <span class="admin-save-state" id="deleteUserState" aria-live="polite"></span>
+          <button type="button" class="button secondary" id="cancelDeleteUser">Annuleren</button>
+          <button type="button" class="admin-danger-button" id="confirmDeleteUser">
+            Verwijderen
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-modal" id="deleteFeedbackModal" hidden>
+      <div class="admin-modal-card">
+        <div class="admin-modal-heading">
+          <div>
+            <p class="eyebrow">Bevestigen</p>
+            <h2>Reactie verwijderen?</h2>
+          </div>
+        </div>
+        <p id="deleteFeedbackText">
+          Deze feedbackreactie wordt definitief verwijderd.
+        </p>
+        <div class="admin-modal-actions">
+          <span class="admin-save-state" id="deleteFeedbackState" aria-live="polite"></span>
+          <button type="button" class="button secondary" id="cancelDeleteFeedback">
+            Annuleren
+          </button>
+          <button type="button" class="admin-danger-button" id="confirmDeleteFeedback">
+            Verwijderen
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>

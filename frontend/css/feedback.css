@@ -409,9 +409,15 @@ body[data-page="feedback"] .page-title::after {
 
 .testimonial-author,
 .testimonial-date {
+.testimonial-author,
+.testimonial-date {
   color: var(--muted);
   font-size: 13px;
   font-weight: 800;
+}
+
+.testimonial-author {
+  color: var(--teal-dark);
 }
 
 .testimonial-author {
