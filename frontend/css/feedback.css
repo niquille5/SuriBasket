@@ -61,6 +61,33 @@ body[data-page="feedback"] .page-title::after {
   margin-top: 8px;
 }
 
+.feedback-trust-strip {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0 0 18px;
+}
+
+.feedback-trust-strip span {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(238, 246, 243, 0.76));
+  border: 1px solid rgba(116, 152, 56, 0.18);
+  border-radius: 12px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.35;
+  min-height: 74px;
+  padding: 12px;
+}
+
+.feedback-trust-strip strong {
+  color: var(--teal-dark);
+  display: block;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
 /* Feedback form */
 .feedback-form {
   display: grid;
@@ -133,14 +160,29 @@ body[data-page="feedback"] .page-title::after {
 .star-rating-container {
   align-items: center;
   background:
+    radial-gradient(circle at 12% 20%, rgba(238, 207, 62, 0.22), transparent 30%),
     linear-gradient(90deg, rgba(238, 207, 62, 0.13), rgba(238, 246, 243, 0.84));
   border: 1px solid rgba(116, 152, 56, 0.22);
   border-radius: 14px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  box-shadow:
+    0 12px 24px rgba(82, 113, 35, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
   display: flex;
   flex-wrap: wrap;
   gap: 14px;
   padding: 12px 14px;
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease,
+    transform 0.16s ease;
+}
+
+.star-rating-container:focus-within {
+  border-color: rgba(116, 152, 56, 0.46);
+  box-shadow:
+    0 0 0 4px rgba(116, 152, 56, 0.12),
+    0 14px 30px rgba(82, 113, 35, 0.08);
+  transform: translateY(-1px);
 }
 
 .star-rating {
@@ -175,6 +217,13 @@ body[data-page="feedback"] .page-title::after {
 .rating-text {
   color: var(--teal-dark);
   font-weight: 800;
+}
+
+.rating-help {
+  color: var(--muted);
+  flex-basis: 100%;
+  font-size: 13px;
+  font-weight: 750;
 }
 
 .char-counter {
@@ -313,17 +362,54 @@ body[data-page="feedback"] .page-title::after {
   margin-top: 6px;
 }
 
+.testimonial-filters {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 14px;
+}
+
+.testimonial-filters button {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(238, 246, 243, 0.68));
+  border: 1px solid rgba(116, 152, 56, 0.18);
+  border-radius: 999px;
+  color: var(--teal-dark);
+  font-size: 13px;
+  min-height: 34px;
+  padding: 7px 10px;
+}
+
+.testimonial-filters button:hover,
+.testimonial-filters button.active {
+  background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+  border-color: rgba(196, 235, 106, 0.32);
+  box-shadow: 0 10px 20px rgba(82, 113, 35, 0.12);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
 /* Public testimonials list */
 #testimonialsList {
   display: grid;
   gap: 12px;
   margin-top: 16px;
-  max-height: 460px;
+  max-height: 520px;
   overflow-y: auto;
   padding-right: 6px;
   overscroll-behavior: contain;
   scrollbar-color: rgba(116, 152, 56, 0.58) rgba(238, 246, 243, 0.82);
   scrollbar-width: thin;
+}
+
+.testimonial-skeleton {
+  animation: feedbackPulse 1.1s ease-in-out infinite;
+  background:
+    linear-gradient(90deg, rgba(238, 246, 243, 0.82), #ffffff, rgba(238, 246, 243, 0.82));
+  background-size: 220% 100%;
+  border: 1px solid rgba(225, 216, 200, 0.78);
+  border-radius: 14px;
+  min-height: 118px;
 }
 
 #testimonialsList > .muted {
@@ -436,14 +522,37 @@ body[data-page="feedback"] .page-title::after {
   overflow-wrap: anywhere;
 }
 
+.testimonial-page {
+  background: #fffaf0;
+  border: 1px solid rgba(225, 216, 200, 0.9);
+  border-radius: 999px;
+  color: var(--teal-dark);
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 850;
+  justify-self: start;
+  padding: 5px 9px;
+}
+
 .testimonial-author {
   color: var(--teal-dark);
+}
+
+@keyframes feedbackPulse {
+  from {
+    background-position: 100% 50%;
+  }
+
+  to {
+    background-position: 0% 50%;
+  }
 }
 
 /* Responsive layout */
 @media (max-width: 900px) {
   .feedback-layout,
   .form-grid,
+  .feedback-trust-strip,
   .stats-badge {
     grid-template-columns: 1fr;
   }
@@ -471,5 +580,9 @@ body[data-page="feedback"] .page-title::after {
 
   .testimonial-score {
     white-space: normal;
+  }
+
+  .testimonial-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

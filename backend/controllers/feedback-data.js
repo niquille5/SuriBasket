@@ -105,17 +105,25 @@ async function getFeedbackStats() {
     FROM feedback
   `);
 
+  const ratingBreakdown = await query(`
+    SELECT rating, COUNT(*) AS total
+    FROM feedback
+    GROUP BY rating
+    ORDER BY rating DESC
+  `);
+
   const testimonials = await query(`
-    SELECT name, rating, message, created_at
+    SELECT name, rating, message, page_visited, issue_type, created_at
     FROM feedback
     ORDER BY created_at DESC
-    LIMIT 6
+    LIMIT 24
   `);
 
   return {
     stats: {
       total_feedback: stats.total_feedback || 0,
       average_rating: stats.average_rating || 0,
+      rating_breakdown: ratingBreakdown,
     },
     testimonials,
   };

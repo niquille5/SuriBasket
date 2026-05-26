@@ -12,6 +12,8 @@ const messageField = document.getElementById("message");
 const charCounter = document.getElementById("charCounter");
 const ratingText = document.getElementById("ratingText");
 const issueTypeGroup = document.getElementById("issueTypeGroup");
+let testimonials = [];
+let activeTestimonialFilter = "all";
 
 const ratingLabels = {
   5: "Heel goed",
@@ -23,6 +25,7 @@ const ratingLabels = {
 
 document.addEventListener("DOMContentLoaded", () => {
   bindFeedbackForm();
+  bindTestimonialFilters();
   loadFeedbackStats();
   fillPageFromUrl();
   updateCharCount();
@@ -95,7 +98,7 @@ async function submitFeedback(event) {
 
     showAlert("Dank je. Je feedback is verstuurd.", "success");
     resetForm();
-    loadFeedbackStats();
+    await loadFeedbackStats();
   } catch (error) {
     showAlert(
       error.message ||
@@ -108,6 +111,8 @@ async function submitFeedback(event) {
 }
 
 async function loadFeedbackStats() {
+  renderTestimonialsLoading();
+
   try {
     const response = await fetch(feedbackApi.stats);
     const data = await response.json();
@@ -115,25 +120,36 @@ async function loadFeedbackStats() {
 
     setText("avgRating", formatRating(data.stats.average_rating));
     setText("totalFeedback", data.stats.total_feedback || 0);
-    renderTestimonials(data.testimonials || []);
+    testimonials = data.testimonials || [];
+    renderTestimonials();
   } catch (error) {
     setText("avgRating", "Nog geen score");
     setText("totalFeedback", "0");
-    renderTestimonials([]);
+    testimonials = [];
+    renderTestimonials();
   }
 }
 
-function renderTestimonials(items) {
+function renderTestimonials() {
   const list = document.getElementById("testimonialsList");
   if (!list) return;
 
-  if (!items.length) {
-    list.innerHTML = '<p class="muted">Nog geen reacties geladen.</p>';
+  const visibleItems = testimonials.filter(matchesActiveFilter);
+
+  if (!testimonials.length) {
+    list.innerHTML =
+      '<p class="muted">Nog geen reacties geladen. Verstuur de eerste reactie hierboven.</p>';
+    return;
+  }
+
+  if (!visibleItems.length) {
+    list.innerHTML =
+      '<p class="muted">Geen reacties binnen dit filter. Kies een andere scoregroep.</p>';
     return;
   }
 
   list.innerHTML = "";
-  items.slice(0, 6).forEach((item) => {
+  visibleItems.forEach((item) => {
     const score = Number(item.rating) || 0;
     const article = document.createElement("article");
     article.className = "testimonial-item " + getRatingClass(score);
@@ -150,9 +166,13 @@ function renderTestimonials(items) {
     scoreBadge.className = "testimonial-score";
     scoreBadge.textContent = score + "/5";
 
+    const meta = document.createElement("span");
+    meta.className = "testimonial-page";
+    meta.textContent = formatPageLabel(item.page_visited);
+
     const text = document.createElement("p");
     text.className = "testimonial-text";
-    text.textContent = shortenText(item.message, 220);
+    text.textContent = shortenText(item.message, 260);
 
     const footer = document.createElement("div");
     footer.className = "testimonial-footer";
@@ -167,8 +187,33 @@ function renderTestimonials(items) {
 
     header.append(rating, scoreBadge);
     footer.append(author, date);
-    article.append(header, text, footer);
+    article.append(header);
+    if (meta.textContent) article.append(meta);
+    article.append(text, footer);
     list.appendChild(article);
+  });
+}
+
+function renderTestimonialsLoading() {
+  const list = document.getElementById("testimonialsList");
+  if (!list) return;
+
+  list.innerHTML =
+    '<div class="testimonial-skeleton"></div>' +
+    '<div class="testimonial-skeleton"></div>' +
+    '<div class="testimonial-skeleton"></div>';
+}
+
+function bindTestimonialFilters() {
+  document.querySelectorAll("[data-testimonial-filter]").forEach((button) => {
+    button.addEventListener("click", () => {
+      activeTestimonialFilter = button.dataset.testimonialFilter || "all";
+      document.querySelectorAll("[data-testimonial-filter]").forEach((item) => {
+        item.classList.toggle("active", item === button);
+        item.setAttribute("aria-pressed", item === button ? "true" : "false");
+      });
+      renderTestimonials();
+    });
   });
 }
 
@@ -183,6 +228,13 @@ function updateCharCount() {
 
 function updateRatingText(value) {
   if (ratingText) ratingText.textContent = ratingLabels[value] || "Kies een score";
+
+  const help = document.getElementById("ratingHelp");
+  if (!help) return;
+
+  help.textContent = value
+    ? "Dank je. Schrijf nu kort waarom je deze score geeft."
+    : "Kies eerlijk. Je toelichting mag bij elke score.";
 }
 
 function toggleIssueType(value) {
@@ -252,6 +304,29 @@ function getRatingClass(rating) {
   if (rating >= 4) return "is-positive";
   if (rating === 3) return "is-neutral";
   return "is-critical";
+}
+
+function matchesActiveFilter(item) {
+  const rating = Number(item.rating) || 0;
+
+  if (activeTestimonialFilter === "positive") return rating >= 4;
+  if (activeTestimonialFilter === "neutral") return rating === 3;
+  if (activeTestimonialFilter === "critical") return rating <= 2;
+  return true;
+}
+
+function formatPageLabel(value) {
+  const labels = {
+    dashboard: "Dashboard",
+    products: "Producten",
+    scanner: "Prijscheck",
+    budget: "Begroting",
+    login: "Login",
+    admin: "Admin",
+    other: "Iets anders",
+  };
+
+  return labels[value] || "";
 }
 
 function formatDate(value) {

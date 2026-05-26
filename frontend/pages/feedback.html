@@ -84,6 +84,12 @@
             </p>
           </div>
 
+          <div class="feedback-trust-strip" aria-label="Feedback afspraken">
+            <span><strong>Veilig</strong>We gebruiken je reactie alleen om de app te verbeteren.</span>
+            <span><strong>Elke score telt</strong>Ook 1, 2 en 3 sterren mogen een bericht meesturen.</span>
+            <span><strong>Admin-ready</strong>Je reactie blijft zichtbaar voor beheer.</span>
+          </div>
+
           <div id="alertMessage" class="alert" role="status" aria-live="polite"></div>
 
           <form id="feedbackForm" class="feedback-form">
@@ -129,6 +135,9 @@
                   <label for="star1">&#9733;</label>
                 </div>
                 <span class="rating-text" id="ratingText">Kies een score</span>
+                <span class="rating-help" id="ratingHelp">
+                  Kies eerlijk. Je toelichting mag bij elke score.
+                </span>
               </div>
             </div>
 
@@ -208,6 +217,14 @@
             <p class="testimonial-intro">
               Nieuwste reacties staan bovenaan. Scroll om oudere reacties te bekijken.
             </p>
+            <div class="testimonial-filters" aria-label="Reacties filteren">
+              <button type="button" class="active" data-testimonial-filter="all">
+                Alles
+              </button>
+              <button type="button" data-testimonial-filter="positive">4-5</button>
+              <button type="button" data-testimonial-filter="neutral">3</button>
+              <button type="button" data-testimonial-filter="critical">1-2</button>
+            </div>
             <div id="testimonialsList">
               <p class="muted">Nog geen reacties geladen.</p>
             </div>
