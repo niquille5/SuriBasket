@@ -54,6 +54,7 @@ body[data-page="scanner"] .lower-grid .panel {
 
 .scanner-form button {
   margin-top: 4px;
+  width: 100%;
 }
 
 .scanner-form input {
@@ -102,6 +103,7 @@ body[data-page="scanner"] .lower-grid .panel {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.76);
   margin: 0;
   padding: 12px;
+  min-width: 0;
 }
 
 .result-grid span {
@@ -112,6 +114,7 @@ body[data-page="scanner"] .lower-grid .panel {
 
 .result-grid strong {
   color: var(--ink);
+  overflow-wrap: anywhere;
 }
 
 /* Helper panel */

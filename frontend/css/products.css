@@ -544,7 +544,9 @@ body[data-page="products"] .page-title .button {
   border: 1px solid rgba(225, 216, 200, 0.78);
   border-radius: 16px;
   grid-column: 1 / -1;
+  min-height: 96px;
   padding: 24px;
+  text-align: center;
 }
 
 .products-section tbody tr {
@@ -578,6 +580,7 @@ body[data-page="products"] .page-title .button {
   font-weight: 750;
   padding: 24px;
   position: relative;
+  text-align: center;
 }
 
 #pricesTable td[colspan]::after {
@@ -967,8 +970,13 @@ body[data-page="products"] .page-title .button {
 
 .price-alert-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   justify-content: flex-end;
+}
+
+.price-alert-actions button {
+  min-width: 132px;
 }
 
 /* Triggered alert toast */
@@ -994,6 +1002,7 @@ body[data-page="products"] .page-title .button {
 
 .triggered-price-alert {
   background: var(--mist);
+  border: 1px solid rgba(18, 108, 101, 0.12);
   border-radius: 10px;
   display: grid;
   gap: 4px;

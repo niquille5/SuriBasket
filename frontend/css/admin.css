@@ -86,36 +86,6 @@ body[data-page="admin"] .admin-table-wrap,
 body[data-page="admin"] pre {
   scrollbar-color: rgba(116, 152, 56, 0.58) rgba(238, 246, 243, 0.82);
   scrollbar-width: thin;
-  gap: 8px;
-  max-height: 230px;
-  overflow-y: auto;
-  padding-right: 4px;
-}
-
-body[data-page="admin"] .feature-list a,
-body[data-page="admin"] .workflow-list span {
-  padding: 11px;
-}
-
-body[data-page="admin"] .workflow-list {
-  max-height: 250px;
-  overflow-y: auto;
-  padding-right: 4px;
-}
-
-body[data-page="admin"] pre {
-  max-height: 140px;
-  overflow: auto;
-  padding: 12px;
-}
-
-body[data-page="admin"] .feature-list,
-body[data-page="admin"] .workflow-list,
-.admin-feedback-list,
-body[data-page="admin"] .admin-table-wrap,
-body[data-page="admin"] pre {
-  scrollbar-color: rgba(116, 152, 56, 0.58) rgba(238, 246, 243, 0.82);
-  scrollbar-width: thin;
 }
 
 body[data-page="admin"] #logoutButton {
@@ -162,6 +132,7 @@ body[data-page="admin"] #logoutButton {
 
 .admin-row-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   justify-content: flex-end;
 }
@@ -193,11 +164,6 @@ body[data-page="admin"] #logoutButton {
   max-height: 620px;
   overflow-y: auto;
   padding-right: 6px;
-  gap: 10px;
-  margin-top: 12px;
-  max-height: 620px;
-  overflow-y: auto;
-  padding-right: 6px;
 }
 
 .admin-feedback-item {
@@ -207,11 +173,8 @@ body[data-page="admin"] #logoutButton {
   border-radius: 12px;
   box-shadow:
     0 10px 20px rgba(32, 25, 14, 0.05),
-    0 10px 20px rgba(32, 25, 14, 0.05),
     inset 0 1px 0 rgba(255, 255, 255, 0.78);
   display: grid;
-  gap: 8px;
-  padding: 12px;
   gap: 8px;
   padding: 12px;
   transition:
@@ -224,20 +187,15 @@ body[data-page="admin"] #logoutButton {
   border-color: rgba(116, 152, 56, 0.34);
   box-shadow: 0 12px 24px rgba(82, 113, 35, 0.08);
   transform: translateY(-1px);
-  box-shadow: 0 12px 24px rgba(82, 113, 35, 0.08);
-  transform: translateY(-1px);
 }
 
 .admin-feedback-item strong {
   color: var(--teal-dark);
   font-size: 15px;
-  font-size: 15px;
 }
 
 .admin-feedback-item p {
   color: var(--ink);
-  font-size: 14px;
-  line-height: 1.45;
   font-size: 14px;
   line-height: 1.45;
   margin: 0;
@@ -247,7 +205,6 @@ body[data-page="admin"] #logoutButton {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  gap: 6px;
 }
 
 .admin-feedback-meta span {
@@ -255,7 +212,6 @@ body[data-page="admin"] #logoutButton {
   border: 1px solid rgba(225, 216, 200, 0.95);
   border-radius: 999px;
   color: var(--teal-dark);
-  font-size: 12px;
   font-size: 12px;
   font-weight: 850;
   padding: 4px 9px;
@@ -288,6 +244,8 @@ body[data-page="admin"] #logoutButton {
 }
 
 .admin-feedback-controls textarea {
+  line-height: 1.45;
+  min-height: 82px;
   resize: vertical;
 }
 
@@ -298,6 +256,7 @@ body[data-page="admin"] #logoutButton {
 .admin-feedback-actions {
   align-items: center;
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   justify-content: flex-end;
 }
@@ -353,6 +312,11 @@ body[data-page="admin"] #logoutButton {
   gap: 6px;
 }
 
+.admin-modal-card input,
+.admin-modal-card select {
+  min-height: 44px;
+}
+
 .admin-modal-heading,
 .admin-modal-actions {
   align-items: center;
@@ -376,6 +340,11 @@ body[data-page="admin"] #logoutButton {
   min-height: 34px;
   min-width: 34px;
   padding: 0;
+}
+
+.admin-icon-button:hover {
+  background: #e2eee9;
+  color: var(--teal-dark);
 }
 
 /* Responsive layout */

@@ -406,6 +406,8 @@
 
 .budget-empty-row td {
   background: #fff;
+  border: 1px dashed rgba(116, 152, 56, 0.26);
+  border-radius: 12px;
   color: var(--muted);
   font-weight: 750;
   padding: 22px;
@@ -476,6 +478,11 @@
 .budget-history-list {
   display: grid;
   gap: 12px;
+  max-height: 520px;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-color: rgba(116, 152, 56, 0.58) rgba(238, 246, 243, 0.82);
+  scrollbar-width: thin;
 }
 
 .history-download-row {
@@ -494,6 +501,16 @@
   border-radius: 12px;
   box-shadow: 0 12px 28px rgba(32, 25, 14, 0.06);
   padding: 14px;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.history-card:hover {
+  border-color: rgba(116, 152, 56, 0.32);
+  box-shadow: 0 16px 34px rgba(82, 113, 35, 0.1);
+  transform: translateY(-1px);
 }
 
 .history-card-header {
