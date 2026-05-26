@@ -5,7 +5,7 @@ const {
   getAlerts,
   getTriggeredAlerts
 } = require("../controllers/price-alert-controller");
-const { requireAuth } = require("../middleware/auth");
+const { requireAuth } = require("../middlewares/auth");
 
 const router = express.Router();
 

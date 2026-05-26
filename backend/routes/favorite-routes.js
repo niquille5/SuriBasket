@@ -6,7 +6,7 @@ const {
   getFavoritesByUser,
   getUserFavorites
 } = require("../controllers/favorite-controller");
-const { requireAuth } = require("../middleware/auth");
+const { requireAuth } = require("../middlewares/auth");
 
 const router = express.Router();
 

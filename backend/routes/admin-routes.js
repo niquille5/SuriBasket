@@ -9,7 +9,7 @@ const {
   updateAdminFeedback,
   updateAdminUser
 } = require("../controllers/admin-controller");
-const { requireRole } = require("../middleware/auth");
+const { requireRole } = require("../middlewares/auth");
 
 const router = express.Router();
 const adminOnly = requireRole("admin");

@@ -1,6 +1,6 @@
 const express = require("express");
 const { createList, createPurchase, getLists } = require("../controllers/list-controller");
-const { requireAuth } = require("../middleware/auth");
+const { requireAuth } = require("../middlewares/auth");
 
 const router = express.Router();
 

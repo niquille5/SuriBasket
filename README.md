@@ -31,7 +31,7 @@ Suri Basket
 |   |   |-- product-controller.js
 |   |   |-- system-controller.js
 |   |   `-- user-data.js
-|   |-- middleware
+|   |-- middlewares
 |   |   |-- auth.js
 |   |   `-- error-handler.js
 |   |-- routes
@@ -48,6 +48,12 @@ Suri Basket
 |   |   |-- api-response.js
 |   |   |-- timeout.js
 |   |   `-- validators.js
+|   |-- sql
+|   |   |-- feedback.sql
+|   |   |-- favorites_table.sql
+|   |   |-- price_alerts.sql
+|   |   |-- sranan_prijs_scanner.sql
+|   |   `-- users_purchases.sql
 |   |-- package.json
 |   |-- server.js
 |   `-- scripts
