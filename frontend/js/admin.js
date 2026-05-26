@@ -8,12 +8,6 @@ let users = [];
 let pendingDeleteUser = null;
 let pendingDeleteFeedback = null;
 
-const feedbackStatuses = ["new", "reviewed", "responded", "archived"];
-const feedbackPriorities = ["low", "medium", "high", "urgent"];
-let users = [];
-let pendingDeleteUser = null;
-let pendingDeleteFeedback = null;
-
 export async function initAdminPage() {
   bindLogoutButton(document.getElementById("logoutButton"));
   bindUserUi();
@@ -409,9 +403,4 @@ function showLoginRequired(status, overview) {
   status.innerHTML = "<strong>Geen toegang. Log eerst in als admin.</strong>";
   overview.innerHTML =
     '<a href="login.html"><strong>Login vereist</strong><span>Ga naar de loginpagina.</span></a>';
-}
-
-function setText(id, value) {
-  const element = document.getElementById(id);
-  if (element) element.textContent = value;
 }

@@ -135,13 +135,7 @@ function renderTestimonials(items) {
   list.innerHTML = "";
   items.slice(0, 6).forEach((item) => {
     const score = Number(item.rating) || 0;
-  items.slice(0, 6).forEach((item) => {
-    const score = Number(item.rating) || 0;
     const article = document.createElement("article");
-    article.className = "testimonial-item " + getRatingClass(score);
-
-    const header = document.createElement("div");
-    header.className = "testimonial-header";
     article.className = "testimonial-item " + getRatingClass(score);
 
     const header = document.createElement("div");
@@ -155,19 +149,9 @@ function renderTestimonials(items) {
     const scoreBadge = document.createElement("span");
     scoreBadge.className = "testimonial-score";
     scoreBadge.textContent = score + "/5";
-    rating.setAttribute("aria-label", score + " van 5 sterren");
-    rating.textContent = "\u2605".repeat(score) + "\u2606".repeat(5 - score);
-
-    const scoreBadge = document.createElement("span");
-    scoreBadge.className = "testimonial-score";
-    scoreBadge.textContent = score + "/5";
 
     const text = document.createElement("p");
     text.className = "testimonial-text";
-    text.textContent = shortenText(item.message, 220);
-
-    const footer = document.createElement("div");
-    footer.className = "testimonial-footer";
     text.textContent = shortenText(item.message, 220);
 
     const footer = document.createElement("div");
@@ -177,13 +161,6 @@ function renderTestimonials(items) {
     author.className = "testimonial-author";
     author.textContent = item.name || "Anonieme gebruiker";
 
-    const date = document.createElement("span");
-    date.className = "testimonial-date";
-    date.textContent = formatDate(item.created_at);
-
-    header.append(rating, scoreBadge);
-    footer.append(author, date);
-    article.append(header, text, footer);
     const date = document.createElement("span");
     date.className = "testimonial-date";
     date.textContent = formatDate(item.created_at);
