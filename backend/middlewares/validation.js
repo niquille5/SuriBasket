@@ -20,6 +20,12 @@ function validateBody(rules) {
   };
 }
 
+// Generic request validation middleware used by route files.
+// The schema is an array of rule functions that validate req.body.
+function validateRequest(schema) {
+  return validateBody(schema);
+}
+
 function requiredText(field, label) {
   return (body) => {
     const value = String(body[field] || "").trim();
@@ -94,30 +100,39 @@ function emailRule(field = "email") {
   };
 }
 
-const validateRegister = validateBody([usernameRule(), passwordRule()]);
-const validateLogin = validateBody([
-  requiredText("username", "Gebruikersnaam"),
-  requiredText("password", "Wachtwoord")
-]);
-const validateFeedback = validateBody([
-  ratingRule(),
-  emailRule(),
-  requiredText("message", "Bericht")
-]);
-const validateAdminUserCreate = validateBody([
-  usernameRule(),
-  passwordRule(),
-  roleRule()
-]);
-const validateAdminUserUpdate = validateBody([
-  optionalUsernameRule(),
-  optionalPasswordRule(),
-  roleRule()
-]);
-const validateAdminFeedbackUpdate = validateBody([
-  optionalEnumRule("status", ["new", "reviewed", "responded", "archived"], "Status"),
-  optionalEnumRule("priority", ["low", "medium", "high", "urgent"], "Prioriteit")
-]);
+const validationSchemas = {
+  register: [usernameRule(), passwordRule()],
+  login: [
+    requiredText("username", "Gebruikersnaam"),
+    requiredText("password", "Wachtwoord")
+  ],
+  feedback: [
+    ratingRule(),
+    emailRule(),
+    requiredText("message", "Bericht")
+  ],
+  adminUserCreate: [
+    usernameRule(),
+    passwordRule(),
+    roleRule()
+  ],
+  adminUserUpdate: [
+    optionalUsernameRule(),
+    optionalPasswordRule(),
+    roleRule()
+  ],
+  adminFeedbackUpdate: [
+    optionalEnumRule("status", ["new", "reviewed", "responded", "archived"], "Status"),
+    optionalEnumRule("priority", ["low", "medium", "high", "urgent"], "Prioriteit")
+  ]
+};
+
+const validateRegister = validateRequest(validationSchemas.register);
+const validateLogin = validateRequest(validationSchemas.login);
+const validateFeedback = validateRequest(validationSchemas.feedback);
+const validateAdminUserCreate = validateRequest(validationSchemas.adminUserCreate);
+const validateAdminUserUpdate = validateRequest(validationSchemas.adminUserUpdate);
+const validateAdminFeedbackUpdate = validateRequest(validationSchemas.adminFeedbackUpdate);
 
 module.exports = {
   validateAdminFeedbackUpdate,
@@ -125,5 +140,7 @@ module.exports = {
   validateAdminUserUpdate,
   validateFeedback,
   validateLogin,
+  validateRequest,
+  validationSchemas,
   validateRegister
 };

@@ -19,6 +19,9 @@ const {
 const router = express.Router();
 const adminOnly = requireRole("admin");
 
+// Request validation middleware:
+// validateAdminUserCreate and validateAdminUserUpdate check user schemas.
+// validateAdminFeedbackUpdate checks status and priority schemas.
 // Database .query("SELECT ...") calls are implemented in controllers/data modules so route files stay readable.
 router.get("/api/admin/overview", adminOnly, getOverview);
 router.get("/api/admin/feedback", adminOnly, getAdminFeedback);
