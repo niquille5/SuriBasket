@@ -1,6 +1,14 @@
 import { bindLogoutButton, hasAuthToken } from "./auth.js";
 import { fetchJsonWithAuth } from "./api.js";
 import { escapeHtml, setText } from "./dom.js";
+import {
+  hideInlineMessage,
+  renderCards,
+  renderTableRows,
+  setButtonLoading,
+  setModalOpen,
+  showInlineMessage,
+} from "./ui.js";
 
 const feedbackStatuses = ["new", "reviewed", "responded", "archived"];
 const feedbackPriorities = ["low", "medium", "high", "urgent"];
@@ -87,48 +95,24 @@ async function loadAdminUsers() {
         : "Geen accounts gevonden.",
     );
   } catch (error) {
-    table.innerHTML =
-      '<tr><td colspan="4">Gebruikers kunnen alleen door een admin worden bekeken.</td></tr>';
+    renderTableRows(
+      table,
+      [],
+      renderUserRow,
+      renderUserEmptyRow("Gebruikers kunnen alleen door een admin worden bekeken."),
+    );
     setText("adminUsersSummary", "Gebruikers konden niet worden geladen.");
     showActionMessage("adminUserMessage", "error", "Gebruikers laden is mislukt.");
   }
 }
 
 function renderUsers(table, items) {
-  if (!items.length) {
-    table.innerHTML =
-      '<tr><td colspan="4"><div class="admin-empty-state">Nog geen gebruikers gevonden. Maak een account aan om te starten.</div></td></tr>';
-    return;
-  }
-
-  table.innerHTML = items
-    .map(
-      (user) =>
-        '<tr data-user-id="' +
-        user.user_id +
-        '">' +
-        "<td><strong>" +
-        escapeHtml(user.username) +
-        '</strong><span class="muted">ID #' +
-        user.user_id +
-        "</span></td>" +
-        "<td><span class=\"admin-role-badge\">" +
-        escapeHtml(user.role) +
-        "</span></td>" +
-        "<td>" +
-        escapeHtml(formatFeedbackDate(user.created_at)) +
-        "</td>" +
-        '<td><div class="admin-row-actions">' +
-        '<button type="button" class="table-button admin-edit-user" aria-label="Bewerk gebruiker ' +
-        escapeHtml(user.username) +
-        '">Bewerk</button>' +
-        '<button type="button" class="table-button admin-delete-user" aria-label="Verwijder gebruiker ' +
-        escapeHtml(user.username) +
-        '">Delete</button>' +
-        "</div></td>" +
-        "</tr>",
-    )
-    .join("");
+  renderTableRows(
+    table,
+    items,
+    renderUserRow,
+    renderUserEmptyRow("Nog geen gebruikers gevonden. Maak een account aan om te starten."),
+  );
 
   table.querySelectorAll(".admin-edit-user").forEach((button) => {
     button.addEventListener("click", () => {
@@ -143,6 +127,38 @@ function renderUsers(table, items) {
       if (user) openDeleteModal(user);
     });
   });
+}
+
+function renderUserRow(user) {
+  return (
+    '<tr data-user-id="' +
+    user.user_id +
+    '">' +
+    "<td><strong>" +
+    escapeHtml(user.username) +
+    '</strong><span class="muted">ID #' +
+    user.user_id +
+    "</span></td>" +
+    "<td><span class=\"admin-role-badge\">" +
+    escapeHtml(user.role) +
+    "</span></td>" +
+    "<td>" +
+    escapeHtml(formatFeedbackDate(user.created_at)) +
+    "</td>" +
+    '<td><div class="admin-row-actions">' +
+    '<button type="button" class="table-button admin-edit-user" aria-label="Bewerk gebruiker ' +
+    escapeHtml(user.username) +
+    '">Bewerk</button>' +
+    '<button type="button" class="table-button admin-delete-user" aria-label="Verwijder gebruiker ' +
+    escapeHtml(user.username) +
+    '">Delete</button>' +
+    "</div></td>" +
+    "</tr>"
+  );
+}
+
+function renderUserEmptyRow(message) {
+  return '<tr><td colspan="4"><div class="admin-empty-state">' + escapeHtml(message) + "</div></td></tr>";
 }
 
 function openUserModal(user = null) {
@@ -163,13 +179,12 @@ function openUserModal(user = null) {
   hint.textContent = user
     ? "Laat leeg als het wachtwoord hetzelfde blijft."
     : "Minimaal 6 tekens.";
-  modal.hidden = false;
+  setModalOpen(modal, true);
   document.getElementById("userUsername")?.focus();
 }
 
 function closeUserModal() {
-  const modal = document.getElementById("userModal");
-  if (modal) modal.hidden = true;
+  setModalOpen("userModal", false);
 }
 
 async function saveUser(event) {
@@ -184,7 +199,7 @@ async function saveUser(event) {
   };
 
   setText("userFormState", "Opslaan...");
-  if (submitButton) submitButton.disabled = true;
+  setButtonLoading(submitButton, true, "Opslaan...");
 
   try {
     await fetchJsonWithAuth(userId ? "/api/admin/users/" + userId : "/api/admin/users", {
@@ -204,7 +219,7 @@ async function saveUser(event) {
     if (state) state.textContent = "Opslaan mislukt. Controleer naam en wachtwoord.";
     showActionMessage("adminUserMessage", "error", "Opslaan mislukt. Controleer de gegevens.");
   } finally {
-    if (submitButton) submitButton.disabled = false;
+    setButtonLoading(submitButton, false);
   }
 }
 
@@ -217,13 +232,12 @@ function openDeleteModal(user) {
     "deleteUserText",
     'Weet je zeker dat je "' + user.username + '" wilt verwijderen? Dit wist ook gekoppelde lijsten, aankopen, favorieten en prijsalerts.',
   );
-  if (modal) modal.hidden = false;
+  setModalOpen(modal, true);
 }
 
 function closeDeleteModal() {
   pendingDeleteUser = null;
-  const modal = document.getElementById("deleteUserModal");
-  if (modal) modal.hidden = true;
+  setModalOpen("deleteUserModal", false);
 }
 
 async function deleteSelectedUser() {
@@ -232,7 +246,7 @@ async function deleteSelectedUser() {
   const deletedName = pendingDeleteUser.username;
   const confirmButton = document.getElementById("confirmDeleteUser");
   setText("deleteUserState", "Verwijderen...");
-  if (confirmButton) confirmButton.disabled = true;
+  setButtonLoading(confirmButton, true, "Verwijderen...");
   try {
     await fetchJsonWithAuth("/api/admin/users/" + pendingDeleteUser.user_id, {
       method: "DELETE",
@@ -244,7 +258,7 @@ async function deleteSelectedUser() {
     setText("deleteUserState", "Verwijderen mislukt.");
     showActionMessage("adminUserMessage", "error", "Gebruiker verwijderen is mislukt.");
   } finally {
-    if (confirmButton) confirmButton.disabled = false;
+    setButtonLoading(confirmButton, false);
   }
 }
 
@@ -281,8 +295,12 @@ async function loadAdminFeedback() {
     );
     showActionMessage("adminFeedbackMessage", "info", "Feedback is bijgewerkt.");
   } catch (error) {
-    list.innerHTML =
-      '<div class="admin-empty-state">Feedback kan alleen door een admin worden bekeken.</div>';
+    renderCards(
+      list,
+      [],
+      renderAdminFeedbackCard,
+      '<div class="admin-empty-state">Feedback kan alleen door een admin worden bekeken.</div>',
+    );
     setText("adminFeedbackSummary", "Feedback kon niet worden geladen.");
     showActionMessage("adminFeedbackMessage", "error", "Feedback verversen is mislukt.");
   } finally {
@@ -295,61 +313,61 @@ async function loadAdminFeedback() {
 }
 
 function renderAdminFeedback(list, items) {
-  if (!items.length) {
-    list.innerHTML =
-      '<div class="admin-empty-state">Er is nog geen feedback binnengekomen.</div>';
-    return;
-  }
+  renderCards(
+    list,
+    items,
+    renderAdminFeedbackCard,
+    '<div class="admin-empty-state">Er is nog geen feedback binnengekomen.</div>',
+  );
+}
 
-  list.innerHTML = items
-    .map(
-      (item) =>
-        '<article class="admin-feedback-item" data-feedback-id="' +
-        item.id +
-        '">' +
-        "<div>" +
-        "<strong>" +
-        escapeHtml(item.page_visited || "Algemeen") +
-        "</strong>" +
-        '<span class="muted">' +
-        escapeHtml(item.name || "Anonieme gebruiker") +
-        " | " +
-        escapeHtml(formatFeedbackDate(item.created_at)) +
-        "</span>" +
-        "</div>" +
-        '<div class="admin-feedback-meta">' +
-        "<span>" +
-        item.rating +
-        "/5</span>" +
-        "<span>" +
-        escapeHtml(item.status) +
-        "</span>" +
-        "<span>" +
-        escapeHtml(item.priority) +
-        "</span>" +
-        "</div>" +
-        "<p>" +
-        escapeHtml(item.message) +
-        "</p>" +
-        '<div class="admin-feedback-controls">' +
-        '<label>Status<select data-feedback-field="status">' +
-        renderOptions(feedbackStatuses, item.status) +
-        "</select></label>" +
-        '<label>Prioriteit<select data-feedback-field="priority">' +
-        renderOptions(feedbackPriorities, item.priority) +
-        "</select></label>" +
-        '<label class="admin-response-field">Admin-reactie<textarea data-feedback-field="admin_response" rows="3" placeholder="Schrijf een korte reactie of notitie.">' +
-        escapeHtml(item.admin_response || "") +
-        "</textarea></label>" +
-        "</div>" +
-        '<div class="admin-feedback-actions">' +
-        '<span class="admin-save-state" aria-live="polite"></span>' +
-        '<button type="button" class="table-button admin-save-feedback">Opslaan</button>' +
-        '<button type="button" class="table-button admin-delete-feedback">Delete</button>' +
-        "</div>" +
-        "</article>",
-    )
-    .join("");
+function renderAdminFeedbackCard(item) {
+  return (
+    '<article class="admin-feedback-item" data-feedback-id="' +
+    item.id +
+    '">' +
+    "<div>" +
+    "<strong>" +
+    escapeHtml(item.page_visited || "Algemeen") +
+    "</strong>" +
+    '<span class="muted">' +
+    escapeHtml(item.name || "Anonieme gebruiker") +
+    " | " +
+    escapeHtml(formatFeedbackDate(item.created_at)) +
+    "</span>" +
+    "</div>" +
+    '<div class="admin-feedback-meta">' +
+    "<span>" +
+    item.rating +
+    "/5</span>" +
+    "<span>" +
+    escapeHtml(item.status) +
+    "</span>" +
+    "<span>" +
+    escapeHtml(item.priority) +
+    "</span>" +
+    "</div>" +
+    "<p>" +
+    escapeHtml(item.message) +
+    "</p>" +
+    '<div class="admin-feedback-controls">' +
+    '<label>Status<select data-feedback-field="status">' +
+    renderOptions(feedbackStatuses, item.status) +
+    "</select></label>" +
+    '<label>Prioriteit<select data-feedback-field="priority">' +
+    renderOptions(feedbackPriorities, item.priority) +
+    "</select></label>" +
+    '<label class="admin-response-field">Admin-reactie<textarea data-feedback-field="admin_response" rows="3" placeholder="Schrijf een korte reactie of notitie.">' +
+    escapeHtml(item.admin_response || "") +
+    "</textarea></label>" +
+    "</div>" +
+    '<div class="admin-feedback-actions">' +
+    '<span class="admin-save-state" aria-live="polite"></span>' +
+    '<button type="button" class="table-button admin-save-feedback">Opslaan</button>' +
+    '<button type="button" class="table-button admin-delete-feedback">Delete</button>' +
+    "</div>" +
+    "</article>"
+  );
 }
 
 function bindFeedbackActions(list) {
@@ -374,7 +392,7 @@ async function updateFeedbackItem(button) {
     .querySelector('[data-feedback-field="admin_response"]')
     ?.value.trim();
 
-  button.disabled = true;
+  setButtonLoading(button, true, "Opslaan...");
   hideActionMessage("adminFeedbackMessage");
   if (state) state.textContent = "Opslaan...";
 
@@ -396,7 +414,7 @@ async function updateFeedbackItem(button) {
     if (state) state.textContent = "Opslaan mislukt";
     showActionMessage("adminFeedbackMessage", "error", "Feedback opslaan is mislukt.");
   } finally {
-    button.disabled = false;
+    setButtonLoading(button, false);
   }
 }
 
@@ -415,14 +433,12 @@ function openDeleteFeedbackModal(button) {
     'Weet je zeker dat je feedback van "' + page + '" wilt verwijderen?',
   );
 
-  const modal = document.getElementById("deleteFeedbackModal");
-  if (modal) modal.hidden = false;
+  setModalOpen("deleteFeedbackModal", true);
 }
 
 function closeDeleteFeedbackModal() {
   pendingDeleteFeedback = null;
-  const modal = document.getElementById("deleteFeedbackModal");
-  if (modal) modal.hidden = true;
+  setModalOpen("deleteFeedbackModal", false);
 }
 
 async function deleteSelectedFeedback() {
@@ -430,7 +446,7 @@ async function deleteSelectedFeedback() {
 
   const confirmButton = document.getElementById("confirmDeleteFeedback");
   setText("deleteFeedbackState", "Verwijderen...");
-  if (confirmButton) confirmButton.disabled = true;
+  setButtonLoading(confirmButton, true, "Verwijderen...");
   try {
     await fetchJsonWithAuth("/api/admin/feedback/" + pendingDeleteFeedback, {
       method: "DELETE",
@@ -442,24 +458,16 @@ async function deleteSelectedFeedback() {
     setText("deleteFeedbackState", "Verwijderen mislukt.");
     showActionMessage("adminFeedbackMessage", "error", "Feedback verwijderen is mislukt.");
   } finally {
-    if (confirmButton) confirmButton.disabled = false;
+    setButtonLoading(confirmButton, false);
   }
 }
 
 function showActionMessage(id, type, message) {
-  const element = document.getElementById(id);
-  if (!element) return;
-
-  element.className = "admin-action-message show " + type;
-  element.textContent = message;
+  showInlineMessage(id, type, message);
 }
 
 function hideActionMessage(id) {
-  const element = document.getElementById(id);
-  if (!element) return;
-
-  element.className = "admin-action-message";
-  element.textContent = "";
+  hideInlineMessage(id);
 }
 
 function renderOptions(options, selected) {

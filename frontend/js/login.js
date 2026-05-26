@@ -1,5 +1,7 @@
+import { postJson } from "./api.js";
 import { saveLogin } from "./auth.js";
-import { setText, showMessage } from "./dom.js";
+import { setHidden, setText, showMessage } from "./dom.js";
+import { setButtonLoading } from "./ui.js";
 
 export function initLoginPage() {
   fillRememberedUser();
@@ -34,10 +36,10 @@ async function handleLogin(event) {
     return;
   }
 
-  setButtonLoading(submitButton, "Inloggen...");
+  setButtonLoading(submitButton, true, "Inloggen...");
 
   try {
-    const result = await submitAuthRequest("/api/login", { username, password });
+    const result = await postJson("/api/login", { username, password });
     rememberUser(username);
     saveLogin(result.token, result.user);
     showMessage(message, "good", "Login gelukt. Je wordt doorgestuurd.");
@@ -48,7 +50,7 @@ async function handleLogin(event) {
   } catch (error) {
     showMessage(message, "error", "Ongeldige gebruikersnaam of wachtwoord.");
   } finally {
-    setButtonLoading(submitButton);
+    setButtonLoading(submitButton, false);
   }
 }
 
@@ -76,10 +78,10 @@ async function handleRegister(event) {
     return;
   }
 
-  setButtonLoading(submitButton, "Account maken...");
+  setButtonLoading(submitButton, true, "Account maken...");
 
   try {
-    const result = await submitAuthRequest("/api/register", { username, password });
+    const result = await postJson("/api/register", { username, password });
     saveLogin(result.token, result.user);
     showMessage(message, "good", "Account gemaakt. Je wordt doorgestuurd.");
 
@@ -89,22 +91,8 @@ async function handleRegister(event) {
   } catch (error) {
     showMessage(message, "error", "Account maken is niet gelukt.");
   } finally {
-    setButtonLoading(submitButton);
+    setButtonLoading(submitButton, false);
   }
-}
-
-async function submitAuthRequest(path, payload) {
-  const response = await fetch(path, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    throw new Error("Auth request failed");
-  }
-
-  return response.json();
 }
 
 function redirectAfterLogin(user) {
@@ -118,10 +106,10 @@ function showAuthMode(mode) {
   const showRegisterButton = document.getElementById("showRegisterButton");
   const showLoginButton = document.getElementById("showLoginButton");
 
-  if (loginForm) loginForm.hidden = isRegister;
-  if (registerForm) registerForm.hidden = !isRegister;
-  if (showRegisterButton) showRegisterButton.hidden = isRegister;
-  if (showLoginButton) showLoginButton.hidden = !isRegister;
+  setHidden(loginForm, isRegister);
+  setHidden(registerForm, !isRegister);
+  setHidden(showRegisterButton, isRegister);
+  setHidden(showLoginButton, !isRegister);
 
   setText("authModeLabel", isRegister ? "Nieuw account" : "Welkom terug");
   setText("authTitle", isRegister ? "Account maken" : "Inloggen");
@@ -175,20 +163,4 @@ function showGoogleLoginMessage() {
     "average",
     "Google login is visueel voorbereid. Gebruik nu je Suri Basket account.",
   );
-}
-
-function setButtonLoading(button, text) {
-  if (!button) return;
-
-  if (text) {
-    button.dataset.originalText = button.textContent;
-    button.textContent = text;
-    button.disabled = true;
-    button.classList.add("is-loading");
-    return;
-  }
-
-  button.textContent = button.dataset.originalText || button.textContent;
-  button.disabled = false;
-  button.classList.remove("is-loading");
 }

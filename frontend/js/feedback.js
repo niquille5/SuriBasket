@@ -1,4 +1,6 @@
-import { setText } from "./dom.js";
+import { fetchJson, postJson } from "./api.js";
+import { escapeHtml, setText } from "./dom.js";
+import { renderCards, renderEmptyState, setButtonLoading } from "./ui.js";
 
 const feedbackApi = {
   submit: "/api/feedback",
@@ -78,23 +80,16 @@ async function submitFeedback(event) {
   setLoading(true);
 
   try {
-    const response = await fetch(feedbackApi.submit, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: document.getElementById("name").value.trim() || null,
-        email,
-        rating: Number(selectedRating.value),
-        page,
-        issueType: document.getElementById("issueType").value || null,
-        message,
-        browserInfo: navigator.userAgent,
-        referrer: document.referrer || "Direct bezoek",
-      }),
+    await postJson(feedbackApi.submit, {
+      name: document.getElementById("name").value.trim() || null,
+      email,
+      rating: Number(selectedRating.value),
+      page,
+      issueType: document.getElementById("issueType").value || null,
+      message,
+      browserInfo: navigator.userAgent,
+      referrer: document.referrer || "Direct bezoek",
     });
-
-    const result = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(result.message || "Versturen lukt nu niet.");
 
     showAlert("Dank je. Je feedback is verstuurd.", "success");
     resetForm();
@@ -114,9 +109,8 @@ async function loadFeedbackStats() {
   renderTestimonialsLoading();
 
   try {
-    const response = await fetch(feedbackApi.stats);
-    const data = await response.json();
-    if (!response.ok || !data.success) throw new Error("Geen feedbackstatistiek.");
+    const data = await fetchJson(feedbackApi.stats);
+    if (!data.success) throw new Error("Geen feedbackstatistiek.");
 
     setText("avgRating", formatRating(data.stats.average_rating));
     setText("totalFeedback", data.stats.total_feedback || 0);
@@ -137,61 +131,20 @@ function renderTestimonials() {
   const visibleItems = testimonials.filter(matchesActiveFilter);
 
   if (!testimonials.length) {
-    list.innerHTML =
-      '<p class="muted">Nog geen reacties geladen. Verstuur de eerste reactie hierboven.</p>';
+    list.innerHTML = renderEmptyState(
+      "Nog geen reacties geladen. Verstuur de eerste reactie hierboven.",
+    );
     return;
   }
 
   if (!visibleItems.length) {
-    list.innerHTML =
-      '<p class="muted">Geen reacties binnen dit filter. Kies een andere scoregroep.</p>';
+    list.innerHTML = renderEmptyState(
+      "Geen reacties binnen dit filter. Kies een andere scoregroep.",
+    );
     return;
   }
 
-  list.innerHTML = "";
-  visibleItems.forEach((item) => {
-    const score = Number(item.rating) || 0;
-    const article = document.createElement("article");
-    article.className = "testimonial-item " + getRatingClass(score);
-
-    const header = document.createElement("div");
-    header.className = "testimonial-header";
-
-    const rating = document.createElement("div");
-    rating.className = "testimonial-rating";
-    rating.setAttribute("aria-label", score + " van 5 sterren");
-    rating.textContent = "\u2605".repeat(score) + "\u2606".repeat(5 - score);
-
-    const scoreBadge = document.createElement("span");
-    scoreBadge.className = "testimonial-score";
-    scoreBadge.textContent = score + "/5";
-
-    const meta = document.createElement("span");
-    meta.className = "testimonial-page";
-    meta.textContent = formatPageLabel(item.page_visited);
-
-    const text = document.createElement("p");
-    text.className = "testimonial-text";
-    text.textContent = shortenText(item.message, 260);
-
-    const footer = document.createElement("div");
-    footer.className = "testimonial-footer";
-
-    const author = document.createElement("span");
-    author.className = "testimonial-author";
-    author.textContent = item.name || "Anonieme gebruiker";
-
-    const date = document.createElement("span");
-    date.className = "testimonial-date";
-    date.textContent = formatDate(item.created_at);
-
-    header.append(rating, scoreBadge);
-    footer.append(author, date);
-    article.append(header);
-    if (meta.textContent) article.append(meta);
-    article.append(text, footer);
-    list.appendChild(article);
-  });
+  renderCards(list, visibleItems, renderTestimonialCard, "");
 }
 
 function renderTestimonialsLoading() {
@@ -251,9 +204,47 @@ function setLoading(isLoading) {
 
   if (!submitButton || !text || !loading) return;
 
-  submitButton.disabled = isLoading;
+  setButtonLoading(submitButton, isLoading);
   text.hidden = isLoading;
   loading.hidden = !isLoading;
+}
+
+function renderTestimonialCard(item) {
+  const score = Number(item.rating) || 0;
+  const pageLabel = formatPageLabel(item.page_visited);
+  const pageHtml = pageLabel
+    ? '<span class="testimonial-page">' + escapeHtml(pageLabel) + "</span>"
+    : "";
+
+  return (
+    '<article class="testimonial-item ' +
+    getRatingClass(score) +
+    '">' +
+    '<div class="testimonial-header">' +
+    '<div class="testimonial-rating" aria-label="' +
+    score +
+    ' van 5 sterren">' +
+    "\u2605".repeat(score) +
+    "\u2606".repeat(5 - score) +
+    "</div>" +
+    '<span class="testimonial-score">' +
+    score +
+    "/5</span>" +
+    "</div>" +
+    pageHtml +
+    '<p class="testimonial-text">' +
+    escapeHtml(shortenText(item.message, 260)) +
+    "</p>" +
+    '<div class="testimonial-footer">' +
+    '<span class="testimonial-author">' +
+    escapeHtml(item.name || "Anonieme gebruiker") +
+    "</span>" +
+    '<span class="testimonial-date">' +
+    escapeHtml(formatDate(item.created_at)) +
+    "</span>" +
+    "</div>" +
+    "</article>"
+  );
 }
 
 function resetForm() {

@@ -14,6 +14,30 @@ export function setText(target, value) {
   }
 }
 
+export function setHtml(target, value) {
+  const element = getElement(target);
+
+  if (element) {
+    element.innerHTML = value;
+  }
+}
+
+export function setHidden(target, hidden) {
+  const element = getElement(target);
+
+  if (element) {
+    element.hidden = hidden;
+  }
+}
+
+export function setDisabled(target, disabled) {
+  const element = getElement(target);
+
+  if (element) {
+    element.disabled = disabled;
+  }
+}
+
 export function escapeHtml(value) {
   return String(value || "")
     .replaceAll("&", "&amp;")
@@ -32,4 +56,13 @@ export function showMessage(element, type, message, allowHtml = false) {
   element.innerHTML = allowHtml
     ? "<strong>" + message + "</strong>"
     : "<strong>" + escapeHtml(message) + "</strong>";
+}
+
+export function hideMessage(element) {
+  if (!element) {
+    return;
+  }
+
+  element.className = "result";
+  element.textContent = "";
 }
