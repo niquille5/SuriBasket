@@ -95,9 +95,17 @@
             <div>
               <p class="eyebrow">Gebruikers</p>
               <h2>Accounts beheren</h2>
+              <p class="admin-section-note" id="adminUsersSummary">
+                Gebruikers worden geladen...
+              </p>
             </div>
             <button type="button" id="newUserButton">Nieuwe gebruiker</button>
           </div>
+          <div
+            class="admin-action-message"
+            id="adminUserMessage"
+            aria-live="polite"
+          ></div>
           <div class="admin-table-wrap">
             <table class="admin-users-table">
               <thead>
@@ -122,11 +130,19 @@
             <div>
               <p class="eyebrow">Gebruikersfeedback</p>
               <h2>Binnengekomen reacties</h2>
+              <p class="admin-section-note" id="adminFeedbackSummary">
+                Feedback wordt geladen...
+              </p>
             </div>
             <button type="button" class="table-button" id="refreshFeedbackButton">
               Refresh
             </button>
           </div>
+          <div
+            class="admin-action-message"
+            id="adminFeedbackMessage"
+            aria-live="polite"
+          ></div>
           <div id="adminFeedbackList" class="admin-feedback-list">
             <span class="muted">Feedback wordt geladen...</span>
           </div>

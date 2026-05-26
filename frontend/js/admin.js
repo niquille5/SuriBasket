@@ -7,6 +7,7 @@ const feedbackPriorities = ["low", "medium", "high", "urgent"];
 let users = [];
 let pendingDeleteUser = null;
 let pendingDeleteFeedback = null;
+let isLoadingFeedback = false;
 
 export async function initAdminPage() {
   bindLogoutButton(document.getElementById("logoutButton"));
@@ -79,15 +80,24 @@ async function loadAdminUsers() {
     const data = await fetchJsonWithAuth("/api/admin/users");
     users = data.users || [];
     renderUsers(table, users);
+    setText(
+      "adminUsersSummary",
+      users.length
+        ? users.length + " account" + (users.length === 1 ? "" : "s") + " gevonden."
+        : "Geen accounts gevonden.",
+    );
   } catch (error) {
     table.innerHTML =
       '<tr><td colspan="4">Gebruikers kunnen alleen door een admin worden bekeken.</td></tr>';
+    setText("adminUsersSummary", "Gebruikers konden niet worden geladen.");
+    showActionMessage("adminUserMessage", "error", "Gebruikers laden is mislukt.");
   }
 }
 
 function renderUsers(table, items) {
   if (!items.length) {
-    table.innerHTML = '<tr><td colspan="4">Nog geen gebruikers gevonden.</td></tr>';
+    table.innerHTML =
+      '<tr><td colspan="4"><div class="admin-empty-state">Nog geen gebruikers gevonden. Maak een account aan om te starten.</div></td></tr>';
     return;
   }
 
@@ -109,8 +119,12 @@ function renderUsers(table, items) {
         escapeHtml(formatFeedbackDate(user.created_at)) +
         "</td>" +
         '<td><div class="admin-row-actions">' +
-        '<button type="button" class="table-button admin-edit-user">Bewerk</button>' +
-        '<button type="button" class="table-button admin-delete-user">Delete</button>' +
+        '<button type="button" class="table-button admin-edit-user" aria-label="Bewerk gebruiker ' +
+        escapeHtml(user.username) +
+        '">Bewerk</button>' +
+        '<button type="button" class="table-button admin-delete-user" aria-label="Verwijder gebruiker ' +
+        escapeHtml(user.username) +
+        '">Delete</button>' +
         "</div></td>" +
         "</tr>",
     )
@@ -140,6 +154,7 @@ function openUserModal(user = null) {
 
   form.reset();
   setText("userFormState", "");
+  hideActionMessage("adminUserMessage");
   setText("userModalTitle", user ? "Gebruiker bewerken" : "Nieuwe gebruiker");
   document.getElementById("userId").value = user?.user_id || "";
   document.getElementById("userUsername").value = user?.username || "";
@@ -160,6 +175,7 @@ function closeUserModal() {
 async function saveUser(event) {
   event.preventDefault();
   const state = document.getElementById("userFormState");
+  const submitButton = event.submitter;
   const userId = document.getElementById("userId").value;
   const payload = {
     username: document.getElementById("userUsername").value.trim(),
@@ -168,6 +184,7 @@ async function saveUser(event) {
   };
 
   setText("userFormState", "Opslaan...");
+  if (submitButton) submitButton.disabled = true;
 
   try {
     await fetchJsonWithAuth(userId ? "/api/admin/users/" + userId : "/api/admin/users", {
@@ -178,8 +195,16 @@ async function saveUser(event) {
     setText("userFormState", "Opgeslagen");
     closeUserModal();
     await loadAdminUsers();
+    showActionMessage(
+      "adminUserMessage",
+      "good",
+      userId ? "Gebruiker bijgewerkt." : "Nieuwe gebruiker aangemaakt.",
+    );
   } catch (error) {
     if (state) state.textContent = "Opslaan mislukt. Controleer naam en wachtwoord.";
+    showActionMessage("adminUserMessage", "error", "Opslaan mislukt. Controleer de gegevens.");
+  } finally {
+    if (submitButton) submitButton.disabled = false;
   }
 }
 
@@ -187,6 +212,7 @@ function openDeleteModal(user) {
   pendingDeleteUser = user;
   const modal = document.getElementById("deleteUserModal");
   setText("deleteUserState", "");
+  hideActionMessage("adminUserMessage");
   setText(
     "deleteUserText",
     'Weet je zeker dat je "' + user.username + '" wilt verwijderen? Dit wist ook gekoppelde lijsten, aankopen, favorieten en prijsalerts.',
@@ -203,15 +229,22 @@ function closeDeleteModal() {
 async function deleteSelectedUser() {
   if (!pendingDeleteUser) return;
 
+  const deletedName = pendingDeleteUser.username;
+  const confirmButton = document.getElementById("confirmDeleteUser");
   setText("deleteUserState", "Verwijderen...");
+  if (confirmButton) confirmButton.disabled = true;
   try {
     await fetchJsonWithAuth("/api/admin/users/" + pendingDeleteUser.user_id, {
       method: "DELETE",
     });
     closeDeleteModal();
     await loadAdminUsers();
+    showActionMessage("adminUserMessage", "good", '"' + deletedName + '" is verwijderd.');
   } catch (error) {
     setText("deleteUserState", "Verwijderen mislukt.");
+    showActionMessage("adminUserMessage", "error", "Gebruiker verwijderen is mislukt.");
+  } finally {
+    if (confirmButton) confirmButton.disabled = false;
   }
 }
 
@@ -224,22 +257,47 @@ function findUserFromButton(button) {
 async function loadAdminFeedback() {
   const list = document.getElementById("adminFeedbackList");
   if (!list || !hasAuthToken()) return;
+  if (isLoadingFeedback) return;
+
+  isLoadingFeedback = true;
+  const refresh = document.getElementById("refreshFeedbackButton");
+  if (refresh) {
+    refresh.disabled = true;
+    refresh.textContent = "Verversen...";
+  }
+  list.innerHTML = '<div class="admin-empty-state">Feedback wordt geladen...</div>';
+  setText("adminFeedbackSummary", "Feedback wordt opgehaald...");
 
   try {
     const data = await fetchJsonWithAuth("/api/admin/feedback");
-    renderAdminFeedback(list, data.feedback || []);
+    const feedback = data.feedback || [];
+    renderAdminFeedback(list, feedback);
     bindFeedbackActions(list);
-    const refresh = document.getElementById("refreshFeedbackButton");
-    if (refresh) refresh.textContent = "Refresh";
+    setText(
+      "adminFeedbackSummary",
+      feedback.length
+        ? feedback.length + " reactie" + (feedback.length === 1 ? "" : "s") + " zichtbaar."
+        : "Geen feedback gevonden.",
+    );
+    showActionMessage("adminFeedbackMessage", "info", "Feedback is bijgewerkt.");
   } catch (error) {
     list.innerHTML =
-      '<span class="muted">Feedback kan alleen door een admin worden bekeken.</span>';
+      '<div class="admin-empty-state">Feedback kan alleen door een admin worden bekeken.</div>';
+    setText("adminFeedbackSummary", "Feedback kon niet worden geladen.");
+    showActionMessage("adminFeedbackMessage", "error", "Feedback verversen is mislukt.");
+  } finally {
+    isLoadingFeedback = false;
+    if (refresh) {
+      refresh.disabled = false;
+      refresh.textContent = "Refresh";
+    }
   }
 }
 
 function renderAdminFeedback(list, items) {
   if (!items.length) {
-    list.innerHTML = '<span class="muted">Er is nog geen feedback binnengekomen.</span>';
+    list.innerHTML =
+      '<div class="admin-empty-state">Er is nog geen feedback binnengekomen.</div>';
     return;
   }
 
@@ -317,6 +375,7 @@ async function updateFeedbackItem(button) {
     ?.value.trim();
 
   button.disabled = true;
+  hideActionMessage("adminFeedbackMessage");
   if (state) state.textContent = "Opslaan...";
 
   try {
@@ -332,8 +391,10 @@ async function updateFeedbackItem(button) {
 
     if (state) state.textContent = "Opgeslagen";
     await loadAdminFeedback();
+    showActionMessage("adminFeedbackMessage", "good", "Feedback bijgewerkt.");
   } catch (error) {
     if (state) state.textContent = "Opslaan mislukt";
+    showActionMessage("adminFeedbackMessage", "error", "Feedback opslaan is mislukt.");
   } finally {
     button.disabled = false;
   }
@@ -348,6 +409,7 @@ function openDeleteFeedbackModal(button) {
 
   pendingDeleteFeedback = feedbackId;
   setText("deleteFeedbackState", "");
+  hideActionMessage("adminFeedbackMessage");
   setText(
     "deleteFeedbackText",
     'Weet je zeker dat je feedback van "' + page + '" wilt verwijderen?',
@@ -366,16 +428,38 @@ function closeDeleteFeedbackModal() {
 async function deleteSelectedFeedback() {
   if (!pendingDeleteFeedback) return;
 
+  const confirmButton = document.getElementById("confirmDeleteFeedback");
   setText("deleteFeedbackState", "Verwijderen...");
+  if (confirmButton) confirmButton.disabled = true;
   try {
     await fetchJsonWithAuth("/api/admin/feedback/" + pendingDeleteFeedback, {
       method: "DELETE",
     });
     closeDeleteFeedbackModal();
     await loadAdminFeedback();
+    showActionMessage("adminFeedbackMessage", "good", "Feedbackreactie verwijderd.");
   } catch (error) {
     setText("deleteFeedbackState", "Verwijderen mislukt.");
+    showActionMessage("adminFeedbackMessage", "error", "Feedback verwijderen is mislukt.");
+  } finally {
+    if (confirmButton) confirmButton.disabled = false;
   }
+}
+
+function showActionMessage(id, type, message) {
+  const element = document.getElementById(id);
+  if (!element) return;
+
+  element.className = "admin-action-message show " + type;
+  element.textContent = message;
+}
+
+function hideActionMessage(id) {
+  const element = document.getElementById(id);
+  if (!element) return;
+
+  element.className = "admin-action-message";
+  element.textContent = "";
 }
 
 function renderOptions(options, selected) {

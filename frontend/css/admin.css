@@ -44,6 +44,10 @@ body[data-page="admin"] .panel h2 {
   font-size: 20px;
 }
 
+body[data-page="admin"] .section-heading {
+  margin-bottom: 12px;
+}
+
 body[data-page="admin"] .eyebrow {
   margin-bottom: 5px;
 }
@@ -94,6 +98,45 @@ body[data-page="admin"] #logoutButton {
   padding: 9px 14px;
 }
 
+.admin-section-note {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 750;
+  margin-top: 4px;
+}
+
+.admin-action-message {
+  border-radius: 10px;
+  display: none;
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.35;
+  margin-bottom: 10px;
+  padding: 10px 12px;
+}
+
+.admin-action-message.show {
+  display: block;
+}
+
+.admin-action-message.good {
+  background: #edf8eb;
+  border: 1px solid #b9ddb2;
+  color: var(--teal-dark);
+}
+
+.admin-action-message.error {
+  background: #fff0ed;
+  border: 1px solid #e4aaa1;
+  color: #8f2b1f;
+}
+
+.admin-action-message.info {
+  background: var(--mist);
+  border: 1px solid rgba(18, 108, 101, 0.16);
+  color: var(--teal-dark);
+}
+
 /* Users and feedback sections */
 .admin-users-panel,
 .admin-feedback-panel {
@@ -116,7 +159,8 @@ body[data-page="admin"] #logoutButton {
 
 .admin-users-table th,
 .admin-users-table td {
-  padding: 9px 10px;
+  padding: 8px 10px;
+  vertical-align: middle;
 }
 
 .admin-role-badge {
@@ -146,6 +190,7 @@ body[data-page="admin"] #logoutButton {
 .admin-delete-feedback,
 .admin-danger-button {
   background: #fff0ed;
+  border: 1px solid #e4aaa1;
   color: #9f3528;
 }
 
@@ -159,11 +204,22 @@ body[data-page="admin"] #logoutButton {
 /* Feedback management list */
 .admin-feedback-list {
   display: grid;
-  gap: 10px;
+  gap: 8px;
   margin-top: 12px;
-  max-height: 620px;
+  max-height: 560px;
   overflow-y: auto;
   padding-right: 6px;
+}
+
+.admin-empty-state {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(238, 246, 243, 0.74));
+  border: 1px dashed rgba(116, 152, 56, 0.3);
+  border-radius: 12px;
+  color: var(--muted);
+  font-weight: 800;
+  padding: 18px;
+  text-align: center;
 }
 
 .admin-feedback-item {
@@ -175,8 +231,8 @@ body[data-page="admin"] #logoutButton {
     0 10px 20px rgba(32, 25, 14, 0.05),
     inset 0 1px 0 rgba(255, 255, 255, 0.78);
   display: grid;
-  gap: 8px;
-  padding: 12px;
+  gap: 7px;
+  padding: 11px;
   transition:
     border-color 0.18s ease,
     box-shadow 0.18s ease,
@@ -198,7 +254,10 @@ body[data-page="admin"] #logoutButton {
   color: var(--ink);
   font-size: 14px;
   line-height: 1.45;
+  max-height: 88px;
   margin: 0;
+  overflow: auto;
+  padding-right: 4px;
 }
 
 .admin-feedback-meta {
@@ -220,7 +279,7 @@ body[data-page="admin"] #logoutButton {
 /* Feedback state controls */
 .admin-feedback-controls {
   display: grid;
-  gap: 8px;
+  gap: 7px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
@@ -238,14 +297,14 @@ body[data-page="admin"] #logoutButton {
   color: var(--ink);
   font: inherit;
   font-size: 14px;
-  min-height: 38px;
-  padding: 8px 9px;
+  min-height: 36px;
+  padding: 7px 9px;
   width: 100%;
 }
 
 .admin-feedback-controls textarea {
   line-height: 1.45;
-  min-height: 82px;
+  min-height: 70px;
   resize: vertical;
 }
 
@@ -262,14 +321,15 @@ body[data-page="admin"] #logoutButton {
 }
 
 .admin-feedback-actions button {
-  min-height: 36px;
-  padding: 7px 12px;
+  min-height: 34px;
+  padding: 6px 11px;
 }
 
 .admin-save-state {
   color: var(--muted);
   font-size: 13px;
   font-weight: 800;
+  margin-right: auto;
 }
 
 /* Admin modal */
@@ -310,6 +370,11 @@ body[data-page="admin"] #logoutButton {
 .admin-modal-card label {
   display: grid;
   gap: 6px;
+}
+
+.admin-modal-card p {
+  color: var(--muted);
+  font-weight: 750;
 }
 
 .admin-modal-card input,
