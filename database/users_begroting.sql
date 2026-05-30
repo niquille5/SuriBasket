@@ -1,4 +1,4 @@
--- Uitbreiding voor eindgebruikers, boodschappenlijsten en inkoopgeschiedenis.
+-- Uitbreiding voor eindgebruikers, boodschappenlijsten en begrotingregistraties.
 -- Gebruik dit bestand als de database al bestaat en je alleen deze extra
 -- tabellen wilt toevoegen.
 
@@ -20,15 +20,15 @@ CREATE TABLE IF NOT EXISTS favorites (
   UNIQUE KEY unique_user_product (user_id, product_id)
 );
 
-CREATE TABLE IF NOT EXISTS purchases (
-  purchase_id INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS begroting_lijst (
+  begroting_id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
   product_id INT NOT NULL,
   official_price_id INT,
   quantity INT NOT NULL DEFAULT 1,
   price DECIMAL(10,2) NOT NULL,
   total_amount DECIMAL(10,2) GENERATED ALWAYS AS (quantity * price) STORED,
-  purchase_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  begroting_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   payment_method ENUM('cash', 'card', 'transfer') DEFAULT 'cash',
   status ENUM('pending', 'completed', 'cancelled') DEFAULT 'pending',
   FOREIGN KEY (user_id) REFERENCES users(user_id),

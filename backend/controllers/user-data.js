@@ -26,17 +26,18 @@ async function ensureUserTables() {
     )
   `);
   await ensureFavoriteUniqueIndex();
+  await migrateLegacyBegrotingTable();
 
   await query(`
-    CREATE TABLE IF NOT EXISTS purchases (
-      purchase_id INT AUTO_INCREMENT PRIMARY KEY,
+    CREATE TABLE IF NOT EXISTS begroting_lijst (
+      begroting_id INT AUTO_INCREMENT PRIMARY KEY,
       user_id INT NOT NULL,
       product_id INT NOT NULL,
       official_price_id INT,
       quantity INT NOT NULL DEFAULT 1,
       price DECIMAL(10,2) NOT NULL,
       total_amount DECIMAL(10,2) GENERATED ALWAYS AS (quantity * price) STORED,
-      purchase_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      begroting_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       payment_method ENUM('cash', 'card', 'transfer') DEFAULT 'cash',
       status ENUM('pending', 'completed', 'cancelled') DEFAULT 'pending',
       FOREIGN KEY (user_id) REFERENCES users(user_id),
@@ -86,6 +87,59 @@ async function ensureUserTables() {
       KEY idx_price_alert_user_product (user_id, product_id, variant_id)
     )
   `);
+}
+
+async function migrateLegacyBegrotingTable() {
+  const [tables] = await query(`
+    SELECT
+      SUM(table_name = 'purchases') AS has_purchases,
+      SUM(table_name = 'begroting_lijst') AS has_begroting_lijst
+    FROM information_schema.tables
+    WHERE table_schema = DATABASE()
+      AND table_name IN ('purchases', 'begroting_lijst')
+  `);
+
+  const hasLegacyTable = Number(tables.has_purchases) > 0;
+  const hasBegrotingLijst = Number(tables.has_begroting_lijst) > 0;
+
+  if (!hasLegacyTable) {
+    return;
+  }
+
+  if (!hasBegrotingLijst) {
+    await query("RENAME TABLE purchases TO begroting_lijst");
+    await renameColumnIfExists("begroting_lijst", "purchase_id", "begroting_id", "INT NOT NULL AUTO_INCREMENT");
+    await renameColumnIfExists("begroting_lijst", "purchase_date", "begroting_date", "TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP");
+    return;
+  }
+
+  await query(`
+    INSERT IGNORE INTO begroting_lijst
+      (begroting_id, user_id, product_id, official_price_id, quantity, price, begroting_date, payment_method, status)
+    SELECT
+      purchase_id, user_id, product_id, official_price_id, quantity, price, purchase_date, payment_method, status
+    FROM purchases
+  `);
+  await query("DROP TABLE purchases");
+}
+
+async function renameColumnIfExists(tableName, oldName, newName, definition) {
+  const [columnInfo] = await query(
+    `
+      SELECT COUNT(*) AS column_exists
+      FROM information_schema.columns
+      WHERE table_schema = DATABASE()
+        AND table_name = ?
+        AND column_name = ?
+    `,
+    [tableName, oldName],
+  );
+
+  if (!Number(columnInfo.column_exists)) {
+    return;
+  }
+
+  await query(`ALTER TABLE ${tableName} CHANGE ${oldName} ${newName} ${definition}`);
 }
 
 async function ensureFavoriteUniqueIndex() {
@@ -196,7 +250,7 @@ async function deleteUser(userId) {
       [userId],
     );
     await query("DELETE FROM shopping_lists WHERE user_id = ?", [userId]);
-    await query("DELETE FROM purchases WHERE user_id = ?", [userId]);
+    await query("DELETE FROM begroting_lijst WHERE user_id = ?", [userId]);
     await query("DELETE FROM favorites WHERE user_id = ?", [userId]);
     await query("DELETE FROM price_alerts WHERE user_id = ?", [userId]);
     await query("DELETE FROM users WHERE user_id = ?", [userId]);
@@ -329,7 +383,7 @@ async function getShoppingLists(userId) {
   }));
 }
 
-async function savePurchases(userId, items, paymentMethod = "cash") {
+async function saveBegrotingRecords(userId, items, paymentMethod = "cash") {
   await query("START TRANSACTION");
 
   try {
@@ -338,7 +392,7 @@ async function savePurchases(userId, items, paymentMethod = "cash") {
 
       await query(
         `
-          INSERT INTO purchases
+          INSERT INTO begroting_lijst
             (user_id, product_id, official_price_id, quantity, price, payment_method, status)
           VALUES (?, ?, ?, ?, ?, ?, 'completed')
         `,
@@ -713,6 +767,6 @@ module.exports = {
   isFavorited,
   getShoppingLists,
   passwordMatches,
-  savePurchases,
+  saveBegrotingRecords,
   saveShoppingList,
 };

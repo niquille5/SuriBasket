@@ -6,13 +6,13 @@
 -- Belangrijk voor het ERD:
 -- - Eindgebruikers en admins staan in de tabel users.
 -- - Wachtwoorden worden niet als gewone tekst opgeslagen, maar als password_hash.
--- - Aankopen of bewaarde inkoopregistraties staan in purchases.
--- - purchases is logisch wanneer een gebruiker echt iets koopt of
---   een afgeronde inkoop/inkoopgeschiedenis wil bewaren.
+-- - Bewaarde begrotingregistraties staan in begroting_lijst.
+-- - begroting_lijst is logisch wanneer een gebruiker een afgeronde
+--   begroting of budgetregistratie wil bewaren.
 --
 -- Hoofdtabellen:
 -- - users: eindgebruikers en admins.
--- - purchases: aankopen of inkoopgeschiedenis van gebruikers.
+-- - begroting_lijst: bewaarde begrotingregistraties van gebruikers.
 -- - products: basisproducten zoals rijst, olie, zout en uien.
 -- - product_variants: verpakkingen/varianten van producten.
 -- - stores: winkels en publieke importeurs.
@@ -235,34 +235,34 @@ LOCK TABLES `shopping_list_items` WRITE;
 /*!40000 ALTER TABLE `shopping_list_items` ENABLE KEYS */;
 UNLOCK TABLES;
 
--- Aankopen of bewaarde inkoopregistraties van gebruikers.
-DROP TABLE IF EXISTS `purchases`;
+-- Bewaarde begrotingregistraties van gebruikers.
+DROP TABLE IF EXISTS `begroting_lijst`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `purchases` (
-  `purchase_id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `begroting_lijst` (
+  `begroting_id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
   `product_id` int NOT NULL,
   `official_price_id` int DEFAULT NULL,
   `quantity` int NOT NULL DEFAULT '1',
   `price` decimal(10,2) NOT NULL,
   `total_amount` decimal(10,2) GENERATED ALWAYS AS ((`quantity` * `price`)) STORED,
-  `purchase_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `begroting_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `payment_method` enum('cash','card','transfer') DEFAULT 'cash',
   `status` enum('pending','completed','cancelled') DEFAULT 'pending',
-  PRIMARY KEY (`purchase_id`),
+  PRIMARY KEY (`begroting_id`),
   KEY `user_id` (`user_id`),
   KEY `product_id` (`product_id`),
   KEY `official_price_id` (`official_price_id`),
-  CONSTRAINT `purchases_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
-  CONSTRAINT `purchases_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`),
-  CONSTRAINT `purchases_ibfk_3` FOREIGN KEY (`official_price_id`) REFERENCES `official_product_prices` (`official_price_id`)
+  CONSTRAINT `begroting_lijst_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
+  CONSTRAINT `begroting_lijst_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`),
+  CONSTRAINT `begroting_lijst_ibfk_3` FOREIGN KEY (`official_price_id`) REFERENCES `official_product_prices` (`official_price_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
-LOCK TABLES `purchases` WRITE;
-/*!40000 ALTER TABLE `purchases` DISABLE KEYS */;
-/*!40000 ALTER TABLE `purchases` ENABLE KEYS */;
+LOCK TABLES `begroting_lijst` WRITE;
+/*!40000 ALTER TABLE `begroting_lijst` DISABLE KEYS */;
+/*!40000 ALTER TABLE `begroting_lijst` ENABLE KEYS */;
 UNLOCK TABLES;
 DROP TABLE IF EXISTS `stores`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

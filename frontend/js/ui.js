@@ -1,4 +1,4 @@
-import { escapeHtml, getElement, setHtml, setHidden } from "./dom.js";
+import { escapeHtml, getElement, setHidden } from "./dom.js";
 
 export function renderTableRows(target, items, renderRow, emptyHtml) {
   const element = getElement(target);
@@ -12,10 +12,6 @@ export function renderCards(target, items, renderCard, emptyHtml) {
   if (!element) return;
 
   element.innerHTML = items.length ? items.map(renderCard).join("") : emptyHtml;
-}
-
-export function renderLoading(target, message, className = "muted") {
-  setHtml(target, '<p class="' + escapeHtml(className) + '">' + escapeHtml(message) + "</p>");
 }
 
 export function renderEmptyState(message, className = "muted") {

@@ -87,17 +87,18 @@ Suri Basket
 |   |   `-- user-data.js
 |   |-- middlewares
 |   |   |-- auth.js
-|   |   `-- error-handler.js
+|   |   |-- error.js
+|   |   `-- validation.js
 |   |-- routes
-|   |   |-- admin-routes.js
-|   |   |-- auth-routes.js
-|   |   |-- favorite-routes.js
-|   |   |-- feedback-routes.js
-|   |   |-- list-routes.js
-|   |   |-- page-routes.js
-|   |   |-- price-alert-routes.js
-|   |   |-- product-routes.js
-|   |   `-- system-routes.js
+|   |   |-- admin.js
+|   |   |-- auth.js
+|   |   |-- favorites.js
+|   |   |-- feedback.js
+|   |   |-- lists.js
+|   |   |-- pages.js
+|   |   |-- price-alerts.js
+|   |   |-- products.js
+|   |   `-- system.js
 |   |-- utils
 |   |   |-- api-response.js
 |   |   |-- timeout.js
@@ -107,7 +108,7 @@ Suri Basket
 |   |   |-- favorites_table.sql
 |   |   |-- price_alerts.sql
 |   |   |-- sranan_prijs_scanner.sql
-|   |   `-- users_purchases.sql
+|   |   `-- users_begroting.sql
 |   |-- package.json
 |   |-- server.js
 |   `-- scripts
@@ -115,7 +116,7 @@ Suri Basket
 |   |-- README.md
 |   |-- feedback.sql
 |   |-- sranan_prijs_scanner.sql
-|   `-- users_purchases.sql
+|   `-- users_begroting.sql
 `-- frontend
     |-- css
     |   |-- style.css
@@ -194,7 +195,7 @@ http://localhost:3000
 1. Maak in MySQL een database aan met de naam `sranan_prijs_scanner`.
 2. Importeer eerst `backend/sql/sranan_prijs_scanner.sql`.
 3. Importeer daarna de extra schema's wanneer nodig:
-   - `backend/sql/users_purchases.sql`
+   - `backend/sql/users_begroting.sql`
    - `backend/sql/favorites_table.sql`
    - `backend/sql/price_alerts.sql`
    - `backend/sql/feedback.sql`
@@ -260,7 +261,7 @@ Ingelogde gebruiker:
 - `GET /api/me`
 - `GET /api/shopping-lists`
 - `POST /api/shopping-lists`
-- `POST /api/purchases`
+- `POST /api/begroting-lijst`
 - `GET /api/favorites`
 - `POST /api/favorites/add`
 - `DELETE /api/favorites/remove`

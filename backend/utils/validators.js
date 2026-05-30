@@ -22,7 +22,7 @@ function cleanBudgetItems(items) {
   }));
 }
 
-function cleanPurchaseItems(items) {
+function cleanBegrotingRecordItems(items) {
   return cleanItems(items).map((item) => ({
     product_id: item.product_id || null,
     official_price_id: item.official_price_id || null,
@@ -93,8 +93,8 @@ function parseProductLabel(label) {
 
 module.exports = {
   cleanBudgetItems,
+  cleanBegrotingRecordItems,
   cleanFeedback,
-  cleanPurchaseItems,
   cleanRole,
   isValidPassword,
   isValidUsername,

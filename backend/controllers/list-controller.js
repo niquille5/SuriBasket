@@ -1,6 +1,6 @@
-const { ensureUserTables, getShoppingLists, savePurchases, saveShoppingList } = require("./user-data");
+const { ensureUserTables, getShoppingLists, saveBegrotingRecords, saveShoppingList } = require("./user-data");
 const { sendBadRequest, sendCreated, sendDatabaseError, sendOk } = require("../utils/api-response");
-const { cleanBudgetItems, cleanPurchaseItems } = require("../utils/validators");
+const { cleanBegrotingRecordItems, cleanBudgetItems } = require("../utils/validators");
 
 async function getLists(req, res) {
   try {
@@ -29,25 +29,25 @@ async function createList(req, res) {
   }
 }
 
-async function createPurchase(req, res) {
-  const items = cleanPurchaseItems(req.body.items);
+async function createBegrotingRecord(req, res) {
+  const items = cleanBegrotingRecordItems(req.body.items);
 
   if (!items.length) {
-    sendBadRequest(res, "Voeg eerst producten toe aan je inkoop");
+    sendBadRequest(res, "Voeg eerst producten toe aan je begroting");
     return;
   }
 
   try {
     await ensureUserTables();
-    await savePurchases(req.user.user_id, items, req.body.payment_method);
-    sendCreated(res, { message: "Inkoop opgeslagen" });
+    await saveBegrotingRecords(req.user.user_id, items, req.body.payment_method);
+    sendCreated(res, { message: "Begroting opgeslagen" });
   } catch (err) {
     sendDatabaseError(res);
   }
 }
 
 module.exports = {
+  createBegrotingRecord,
   createList,
-  createPurchase,
   getLists
 };

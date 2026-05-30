@@ -117,7 +117,7 @@ function showAuthMode(mode) {
     "authIntro",
     isRegister
       ? "Maak een account om je begrotingen en inkopen te bewaren."
-      : "Log in om je begrotingen en inkoopgeschiedenis verder te gebruiken.",
+      : "Log in om je begrotingen en opgeslagen budgetten verder te gebruiken.",
   );
   setText("authSwitchText", isRegister ? "Heb je al een account?" : "Nog geen account?");
 }

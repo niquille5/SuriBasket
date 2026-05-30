@@ -45,8 +45,8 @@ Bevat eindgebruikers en admins. Het echte wachtwoord wordt niet opgeslagen; alle
 `favorites`
 Bevat favoriete producten per gebruiker.
 
-`purchases`  
-Bevat afgeronde of bewaarde aankopen/inkoopregistraties van gebruikers. Deze tabel is logisch wanneer een gebruiker producten koopt of een inkoopgeschiedenis wil bewaren.
+`begroting_lijst`
+Bevat afgeronde of bewaarde begrotingregistraties van gebruikers. Deze tabel is logisch wanneer een gebruiker een budgetlijst opslaat als afgeronde begroting.
 
 `shopping_lists`
 Bevat begrotings- of boodschappenlijsten die een ingelogde gebruiker bewaart.
@@ -80,10 +80,10 @@ Een importeur kan meerdere publieke prijsregels hebben:
 importers.importer_id -> official_product_prices.importer_id
 ```
 
-Een gebruiker kan meerdere aankopen of inkoopregistraties hebben:
+Een gebruiker kan meerdere begrotingregistraties hebben:
 
 ```text
-users.user_id -> purchases.user_id
+users.user_id -> begroting_lijst.user_id
 ```
 
 Een gebruiker kan meerdere boodschappenlijsten bewaren:
@@ -105,16 +105,16 @@ Een boodschappenlijst heeft meerdere productregels:
 shopping_lists.list_id -> shopping_list_items.list_id
 ```
 
-Een aankoop hoort bij een product:
+Een begrotingregistratie hoort bij een product:
 
 ```text
-products.product_id -> purchases.product_id
+products.product_id -> begroting_lijst.product_id
 ```
 
-Een aankoop kan verwijzen naar een publieke prijsregel:
+Een begrotingregistratie kan verwijzen naar een publieke prijsregel:
 
 ```text
-official_product_prices.official_price_id -> purchases.official_price_id
+official_product_prices.official_price_id -> begroting_lijst.official_price_id
 ```
 
 ## Gebruikers
@@ -130,9 +130,9 @@ user  = gewone eindgebruiker
 admin = beheerder
 ```
 
-De `shopping_lists` en `shopping_list_items` tabellen bewaren een begroting per gebruiker. De `purchases` tabel wordt gebruikt wanneer een gebruiker die lijst als afgeronde inkoop of inkoopgeschiedenis opslaat.
+De `shopping_lists` en `shopping_list_items` tabellen bewaren een begroting per gebruiker. De `begroting_lijst` tabel wordt gebruikt wanneer een gebruiker die lijst als afgeronde begrotingregistratie opslaat.
 
-## SQL Voor Users, Favorites En Purchases
+## SQL Voor Users, Favorites En Begroting
 
 ```sql
 CREATE TABLE users (
@@ -153,15 +153,15 @@ CREATE TABLE favorites (
   UNIQUE KEY unique_user_product (user_id, product_id)
 );
 
-CREATE TABLE purchases (
-  purchase_id INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE begroting_lijst (
+  begroting_id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
   product_id INT NOT NULL,
   official_price_id INT,
   quantity INT NOT NULL DEFAULT 1,
   price DECIMAL(10,2) NOT NULL,
   total_amount DECIMAL(10,2) GENERATED ALWAYS AS (quantity * price) STORED,
-  purchase_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  begroting_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   payment_method ENUM('cash', 'card', 'transfer') DEFAULT 'cash',
   status ENUM('pending', 'completed', 'cancelled') DEFAULT 'pending',
   FOREIGN KEY (user_id) REFERENCES users(user_id),

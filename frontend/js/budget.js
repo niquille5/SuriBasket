@@ -330,52 +330,6 @@ function renderHistoryItem(item) {
   );
 }
 
-function downloadBudgetPdf(list) {
-  const printWindow = window.open("", "_blank");
-  if (!printWindow) {
-    showMessage(
-      document.getElementById("budgetMessage"),
-      "error",
-      "Pop-up geblokkeerd. Sta pop-ups toe om PDF te downloaden.",
-    );
-    return;
-  }
-
-  const rows = list.items.map(renderBudgetPdfRow).join("");
-
-  printWindow.document.write(
-    "<!doctype html><html><head><title>" +
-      escapeHtml(list.list_name || "Begroting") +
-      "</title>" +
-      "<style>" +
-      "body{font-family:Arial,sans-serif;color:#1f2a2a;margin:32px}" +
-      "h1{margin:0 0 6px;font-size:24px}" +
-      "p{margin:0 0 20px;color:#5f6b68}" +
-      "table{border-collapse:collapse;width:100%;font-size:13px}" +
-      "th,td{border:1px solid #d9e2de;padding:8px;text-align:left}" +
-      "th{background:#edf7f4}" +
-      ".total{margin-top:18px;text-align:right;font-size:18px}" +
-      "</style></head><body>" +
-      "<h1>" +
-      escapeHtml(list.list_name || "Begroting") +
-      "</h1>" +
-      "<p>Opgeslagen op " +
-      escapeHtml(formatDateTime(list.created_at)) +
-      "</p>" +
-      "<table><thead><tr><th>Product</th><th>Leverancier</th><th>Categorie</th><th>Eenheid</th><th>Aantal</th><th>Prijs</th><th>Subtotaal</th></tr></thead><tbody>" +
-      rows +
-      "</tbody></table>" +
-      '<div class="total"><strong>Totaal: ' +
-      formatCurrency(getListTotal(list)) +
-      "</strong></div>" +
-      "</body></html>",
-  );
-
-  printWindow.document.close();
-  printWindow.focus();
-  printWindow.print();
-}
-
 function downloadBudgetHistoryPdf(lists) {
   const printWindow = window.open("", "_blank");
   if (!printWindow) {

@@ -14,7 +14,7 @@ const apiEndpoints = [
   "/api/login",
   "/api/me",
   "/api/shopping-lists",
-  "/api/purchases",
+  "/api/begroting-lijst",
   "/api/favorites",
   "/api/favorites/:user_id",
   "/api/favorites/add",
